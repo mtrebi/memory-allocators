@@ -1,21 +1,26 @@
-#include <typeinfo>
-#include <cstdlib>
-#include <stdint.h>
+#include "Allocator.h"
 
-class LinearAllocator {
+
+class LinearAllocator : public Allocator {
 private:
-	uint32_t m_totalSize;
+	/* Offset from the start of the memory block */
 	uint32_t m_offset;
 public:
 	/* Allocation of real memory */
 	LinearAllocator(const uint32_t totalSize);
 
+	/* Frees all memory */
+	virtual ~LinearAllocator();
+
+	/* Init method */
+	virtual void Init() override;
+
 	/* Allocate virtual memory */
-	void * allocate(const std::size_t allocationSize);
+	virtual void* Allocate(const std::size_t allocationSize) override;
+
+	/* Frees virtual memory */
+	virtual void Free(void* ptr) override;
 
 	/* Frees all virtual memory */
-	void reset()
-
-	/* Free all memory */
-	~LinearAllocator();
+	virtual void Reset() override;
 };
