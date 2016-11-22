@@ -44,14 +44,13 @@ PoolAllocator::LinkedStack::LinkedStack()
   this->topNode.next = NULL;
 }
 
-PoolAllocator::LinkedStack::Push(void* freePosition)
-{
-  StackNode topNode = (PoolAllocator::LinkedStack::StackNode *) freePosition;
+void PoolAllocator::LinkedStack::Push(void* freePosition){
+  StackNode *topNode = (StackNode *) freePosition;
   
   TopNode->next = this.topNode;
 }
 
-PoolAllocator::LinkedStack::Pop()
+void PoolAllocator::LinkedStack::Pop()
 {
   assert(this.topNode != NULL);
 
@@ -68,7 +67,7 @@ PoolAllocator::PoolAllocator(const uint32_t totalSize, const uint32_t chunkSize)
   this->Init();
 }
 
-PoolAllocator::Allocate(const std::size_t allocationSize)
+void * PoolAllocator::Allocate(const std::size_t allocationSize)
 {
   assert(allocationSize < this->m_chunkSize);
   void * freePosition = freeStack.Pop();
@@ -77,12 +76,12 @@ PoolAllocator::Allocate(const std::size_t allocationSize)
   return freePosition;
 }
 
-PoolAllocator::Free(void * ptr)s
+void PoolAllocator::Free(void * ptr)s
 {
   this->freeList.Push(ptr);
 }
 
-PoolAllocator::Reset()
+void PoolAllocator::Reset()
 {
   freeStack.topNode = NULL;
   for (void* chunkptr = 0;
