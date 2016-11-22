@@ -27,3 +27,7 @@
 *.exe
 *.out
 *.app
+
+# Windows Compilation
+build.bat
+/build/
