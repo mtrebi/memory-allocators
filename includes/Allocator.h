@@ -15,6 +15,9 @@ public:
 	/* Frees all memory */
 	virtual ~Allocator();
 
+	/* Init method */
+	virtual void Init() = 0;
+
 	/* Allocate virtual memory */
 	virtual void* Allocate(const std::size_t allocationSize) = 0;
 
@@ -23,8 +26,4 @@ public:
 
 	/* Frees all virtual memory */
 	virtual void Reset() = 0;
-
-protected:
-	/* Init method */
-	virtual void Init() = 0;
 };
