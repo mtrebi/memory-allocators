@@ -1,12 +1,12 @@
 #include "LinearAllocator.h"
 #include <iostream>
+#include <assert.h>
 
 LinearAllocator::LinearAllocator(const long totalSize)
 	: Allocator(totalSize) {
 	
 	m_offset = 0;
 }
-
 
 LinearAllocator::~LinearAllocator(){
 	// Do nothing - Parent frees memory for us
@@ -32,21 +32,9 @@ void* LinearAllocator::Allocate(const std::size_t size){
 }
 
 void LinearAllocator::Free(void* ptr) {
-	// Do nothing - A linear allocator does not frees individual memory blocks
+	assert// Do nothing - A linear allocator does not frees individual memory blocks
 }
 
 void LinearAllocator::Reset() {
 	m_offset = 0;
-}
-
-const uint32_t LinearAllocator::calculateAlignment(const long address, const std::size_t size) const {
-	long mask = size*4 - 1; // 4 -> 1 
-	long t = address & mask;
-	uint32_t alignment = address + (size - t);
-	std::cout << "address = " << address << std::endl;
-
-	std::cout << "t = " << t << std::endl;
-	std::cout << "mask = " << mask<< std::endl;
-	std::cout << "alignment = " << alignment << std::endl;
-	return alignment;
 }

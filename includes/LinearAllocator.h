@@ -13,13 +13,11 @@ public:
 	virtual ~LinearAllocator();
 
 	/* Allocate virtual memory */
-	virtual void* Allocate(const std::size_t size) override;
+	virtual void* Allocate(const std::size_t size, const std::size_t allignment) override;
 
 	/* Frees virtual memory */
 	virtual void Free(void* ptr) override;
 
 	/* Frees all virtual memory */
 	virtual void Reset() override;
-private:
-	const uint32_t calculateAlignment(const long address, const std::size_t size) const;
 };
