@@ -24,7 +24,9 @@ void* LinearAllocator::Allocate(const std::size_t size, const std::size_t alignm
 	// Offset is pointing to an aligned memory address
 	const long nextAddress = (long) m_start_ptr + m_offset;
 	m_offset += size;
-	std::cout << "Adress\t\t" << (void*)nextAddress << "\tSize\t" << size << "\tOffset\t" << m_offset << "\tDisplacement\t" << displacement << "\tAlignment\t" << alignment<< std::endl;
+#ifdef 	DEBUG
+	std::cout << "\tAdress\t\t" << (void*)nextAddress << "\tSize\t" << size << "\tOffset\t" << m_offset << "\tDisplacement\t" << displacement << "\tAlignment\t" << alignment<< std::endl;
+#endif
 
 	return (void*) nextAddress;
 }
