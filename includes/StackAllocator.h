@@ -1,9 +1,12 @@
-#include "LinearAllocator.h"
+#include "Allocator.h"
 
 #ifndef STACKALLOCATOR_H
 #define STACKALLOCATOR_H
 
-class StackAllocator : public LinearAllocator {
+class StackAllocator : public Allocator {
+protected:
+	/* Offset from the start of the memory block */
+	std::size_t m_offset;
 public:
 	/* Allocation of real memory */
 	StackAllocator(const long totalSize);
@@ -17,6 +20,8 @@ public:
 	/* Frees virtual memory */
 	virtual void Free(void* ptr) override;
 
+	/* Frees all virtual memory */
+	virtual void Reset() override;
 };
 
 #endif /* STACKALLOCATOR_H */
