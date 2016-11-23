@@ -4,13 +4,13 @@
 class Allocator {
 protected:
 	/* Memory size */
-	uint32_t m_totalSize;
+	long m_totalSize;
 	
 	/* Pointer to the start of the memory block. Once set, never changes */
 	void* m_start_ptr;
 public:
 	/* Allocation of memory */
-	Allocator(const uint32_t totalSize);
+	Allocator(const long totalSize);
 
 	/* Frees all memory */
 	virtual ~Allocator();
