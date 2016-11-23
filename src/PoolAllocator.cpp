@@ -5,14 +5,13 @@
 class PoolAllocator : public Allocator {
 private:
   class LinkedStack {
-  private:
+  public:
     struct StackNode;
  
     struct StackNode {
       StackNode * next;
-    } topNode;
+    } * topNode;
 
-  public:
     LinkedStack();
     void Push(void* freePosition);
     void * Pop();
@@ -20,14 +19,14 @@ private:
 
   } freeStack;
 
-  uint32_t m_chunkSize;
+  std::size_t m_chunkSize;
 
 public:
   /* Allocation of real memory */
   PoolAllocator(const uint32_t totalSize, const uint32_t chunkSize);
 
   /* Allocate virtual memory */
-  void *Allocate(const std::size_t allocationSize);
+  void *Allocate(const std::size_t allocationSize, const std::size_t alignment);
   
   /* Frees a chunk of virtual memory */
   void Free(void* ptr);
@@ -41,53 +40,55 @@ public:
 
 PoolAllocator::LinkedStack::LinkedStack()
 {
-  this->topNode.next = NULL;
+  this->topNode->next = NULL;
 }
 
 void PoolAllocator::LinkedStack::Push(void* freePosition){
-  StackNode *topNode = (StackNode *) freePosition;
+  StackNode *_topNode = (StackNode *) freePosition;
   
-  TopNode->next = this.topNode;
+  _topNode->next = this->topNode;
+  this->topNode = _topNode;
 }
 
-void PoolAllocator::LinkedStack::Pop()
+void *PoolAllocator::LinkedStack::Pop()
 {
-  assert(this.topNode != NULL);
+  assert(this->topNode != NULL);
 
-  StackNode topNode = this->topNode;
+  StackNode *_topNode = this->topNode;
   this->topNode = this->topNode->next;
   
-  return (void *) topNode;
+  return (void *) _topNode;
 }
 
 PoolAllocator::PoolAllocator(const uint32_t totalSize, const uint32_t chunkSize) : Allocator(totalSize)
 {
-  assert(totalSize % chunkSize = 0);
+  assert(totalSize % chunkSize == 0);
   this->m_chunkSize = chunkSize;
-  this->Init();
+  this->Reset();
 }
 
-void * PoolAllocator::Allocate(const std::size_t allocationSize)
+void *PoolAllocator::Allocate(const std::size_t allocationSize, const std::size_t alignment)
 {
   assert(allocationSize < this->m_chunkSize);
-  void * freePosition = freeStack.Pop();
+  assert(alignment >= 0);
+  void * freePosition = this->freeStack.Pop();
   assert(freePosition != NULL);
 
   return freePosition;
 }
 
-void PoolAllocator::Free(void * ptr)s
+void PoolAllocator::Free(void * ptr)
 {
-  this->freeList.Push(ptr);
+  this->freeStack.Push(ptr);
 }
 
 void PoolAllocator::Reset()
 {
   freeStack.topNode = NULL;
-  for (void* chunkptr = 0;
-       this->m_startptr + chunkptr < this.m_totalSize;
+  for (std::size_t chunkptr = 0;
+       (std::size_t)this->m_start_ptr + chunkptr < (std::size_t)this->m_totalSize;
        chunkptr += this->m_chunkSize)
   {
-    freeStack.Push(this->m_startptr + chunkptr);
+    freeStack.Push((void *)((std::size_t)this->m_start_ptr + chunkptr));
   }
 }
