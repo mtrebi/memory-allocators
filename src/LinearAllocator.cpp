@@ -26,7 +26,7 @@ void* LinearAllocator::Allocate(const std::size_t size, const std::size_t alignm
 	m_offset += size;
 
 #ifdef 	DEBUG
-	std::cout << "\t\tAdress\t\t" << (void*)nextAddress << "\tSize\t" << size << "\tOffset\t" << m_offset << "\tDisplacement\t" << displacement << "\tAlignment\t" << alignment<< std::endl;
+	std::cout << "\t\tAdress\t\t" << (void*)nextAddress  << "\tOffset\t" << m_offset << "\tDisplacement\t" << displacement << "\tSize\t" << size << "\tAlignment\t" << alignment <<  std::endl;
 #endif
 
 	return (void*) nextAddress;
