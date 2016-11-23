@@ -1,5 +1,7 @@
 #include "Allocator.h"
 
+#ifndef LINEARALLOCATOR_H
+#define LINEARALLOCATOR_H
 
 class LinearAllocator : public Allocator {
 private:
@@ -21,3 +23,5 @@ public:
 	/* Frees all virtual memory */
 	virtual void Reset() override;
 };
+
+#endif /* LINEARALLOCATOR_H */

@@ -1,6 +1,9 @@
 #include <typeinfo>
 #include <stdint.h>
 
+#ifndef ALLOCATOR_H
+#define ALLOCATOR_H
+
 class Allocator {
 protected:
 	/* Memory size */
@@ -24,3 +27,5 @@ public:
 	/* Frees all virtual memory */
 	virtual void Reset() = 0;
 };
+
+#endif /* ALLOCATOR_H */
