@@ -4,7 +4,7 @@
 #define LINEARALLOCATOR_H
 
 class LinearAllocator : public Allocator {
-private:
+protected:
 	/* Offset from the start of the memory block */
 	long m_offset;
 public:
