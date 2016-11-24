@@ -1,7 +1,7 @@
 #include "Allocator.h"
 #include <stdlib.h>     /* malloc, free */
 
-Allocator::Allocator(const long totalSize){
+Allocator::Allocator(const std::size_t totalSize){
 	m_totalSize = totalSize;
 	m_start_ptr = malloc(m_totalSize);
 }
