@@ -11,13 +11,9 @@ StackAllocator::StackAllocator(const std::size_t totalSize)
 StackAllocator::~StackAllocator() {
 	// Do nothing
 }
-/*
-struct Padding {
-	char p;
-};*/
 
 void* StackAllocator::Allocate(const std::size_t size, const std::size_t alignment){
-	std::size_t padding = 0;
+	int padding = 0;
 	std::size_t paddedAddress = 0;
 	const std::size_t currentAddress = (std::size_t)m_start_ptr + m_offset;
 
@@ -31,7 +27,8 @@ void* StackAllocator::Allocate(const std::size_t size, const std::size_t alignme
 
 	if (padding > 0){
 		paddedAddress = (std::size_t) nextAddress  - 1;
-		*(int *) paddedAddress = padding;
+		Padding pad_struct {padding};
+		*(int *) paddedAddress = pad_struct.padding;
 	}
 
 	m_offset += size;
@@ -52,15 +49,15 @@ void StackAllocator::Free(void* ptr, const std::size_t size) {
 	m_offset -= size;
 	const std::size_t currentAddress = (std::size_t) m_start_ptr + m_offset;
 	const std::size_t paddedAddress = currentAddress - 1;
-	const int padding = *(int *) paddedAddress;
+	const Padding pad_struct { *(int *) paddedAddress};
 
-	if (padding > 0) {
+	if (pad_struct.padding > 0) {
 		// There was padding - Move offset back to clear padding
-		m_offset -= padding;
+		m_offset -= pad_struct.padding;
 	}
 
 #ifdef 	DEBUG
-	std::cout << "\t\tAddress " << (void*)currentAddress  << "\tOffset " << m_offset << "\tPadding " << padding << "\tDPadded " << (void*) paddedAddress<<  std::endl;
+	std::cout << "\t\tAddress " << (void*)currentAddress  << "\tOffset " << m_offset << "\tPadding " << int(pad_struct.padding) << "\tDPadded " << (void*) paddedAddress<<  std::endl;
 #endif
 
 }

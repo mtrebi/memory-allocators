@@ -3,6 +3,11 @@
 #ifndef STACKALLOCATOR_H
 #define STACKALLOCATOR_H
 
+
+struct Padding {
+	char padding;
+};
+
 class StackAllocator : public Allocator {
 protected:
 	/* Offset from the start of the memory block */
