@@ -177,6 +177,7 @@ void print_benchmark_stats(const timespec& elapsed_time, const int& memory_used,
 	std::cout << "\t\tOperations:    \t" << max_operations  << std::endl;
 	std::cout << "\t\tTime elapsed:  \t" << time_msec << " ms" << std::endl;
 	std::cout << "\t\tOp per sec:    \t" << (max_operations / 1e3) / time_msec << " mops/ms" << std::endl;
+	std::cout << "\t\tTimer per op:  \t" << time_msec/(max_operations / 1e3) << " ms/mops" << std::endl;
 
 	//std::cout << "\t\tMemory used:   \t" << memory_used  << " bytes" << std::endl;
 	//std::cout << "\t\tMemory wasted: \t" << memory_wasted  << " bytes\t" << ((float) memory_wasted / memory_used) * 100 << " %" << std::endl;
@@ -234,10 +235,14 @@ void benchmark_malloc(long MAX_OPERATIONS = 1e4){
 	print_benchmark_stats(elapsed_time, memory_used, memory_wasted, MAX_OPERATIONS);
 	std::cout << "BENCHMARK MALLOC ALLOCATOR: END" << std::endl;
 }
-
+/* TODO
+	1-  Deinterface
+	2- benchmark free (3pointers)
+	3- move to utils file? 
+*/
 int main(){
-	benchmark_stack(1e7);
-	//benchmark_malloc(1e7);
+	//benchmark_stack(1e7);
+	benchmark_malloc(1e7);
 	return 1;
 }
 
