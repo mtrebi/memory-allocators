@@ -405,8 +405,13 @@ void benchmark_malloc_allocate_free_read_write(long MAX_OPERATIONS = 1e4){
 	4- move to utils file? 
 */
 int main(){
-	benchmark_stack_allocate_free_read_write(1e4);
-	benchmark_malloc_allocate_free_read_write(1e4);
+	benchmark_stack_allocate(1e3);
+	benchmark_stack_allocate_free(1e3);
+	benchmark_stack_allocate_free_read_write(1e3);
+
+	benchmark_malloc_allocate(1e3)
+	benchmark_malloc_allocate_free(1e3)
+	benchmark_malloc_allocate_free_read_write(1e3);
 	return 1;
 }
 
