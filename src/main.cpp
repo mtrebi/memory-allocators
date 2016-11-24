@@ -222,12 +222,15 @@ void benchmark_stack_allocate_free(long MAX_OPERATIONS = 1e4){
 
 	int operations = 0;
 	bool allocate = true;
+	int * i;
+	bool * b;
+	foo * f;
 	while(operations < MAX_OPERATIONS){
 		if (allocate) {
-			stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
-			stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
-																		// 3  -> 8
-			stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
+			i = (int*) stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
+			b = (bool*) stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
+																					// 3  -> 8
+			f = (foo*) stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
 			allocate = false;
 		}else {
 			stackAllocator.Free(nullptr, sizeof(foo));
@@ -246,6 +249,49 @@ void benchmark_stack_allocate_free(long MAX_OPERATIONS = 1e4){
 	std::cout << "BENCHMARK STACK A/F: END" << std::endl;
 }
 
+void benchmark_stack_allocate_free_read_write(long MAX_OPERATIONS = 1e4){
+	timespec start, end;
+
+	std::cout << "BENCHMARK STACK A/F/R/W: START" << std::endl;
+
+	setTimer(start);
+	
+	StackAllocator stackAllocator(1e10);
+
+	int operations = 0;
+	bool allocate = true;
+	int * i;
+	bool * b;
+	foo * f;
+	while(operations < MAX_OPERATIONS){
+		if (allocate) {
+			i = (int*) stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
+			b = (bool*) stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
+																					// 3  -> 8
+			f = (foo*) stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
+			
+			*i = *i + 1;
+			*b = allocate;
+			*f = foo();
+
+			allocate = false;
+		}else {
+			stackAllocator.Free(nullptr, sizeof(foo));
+			stackAllocator.Free(nullptr, sizeof(bool));
+			stackAllocator.Free(nullptr, sizeof(int));
+			allocate = true;
+		}
+		++operations;
+	}
+	setTimer(end); 
+	const timespec elapsed_time = diff(start, end);
+	const std::size_t memory_used = 0;
+	const std::size_t  memory_wasted = 0;
+	stackAllocator.Reset();
+	print_benchmark_stats(elapsed_time, memory_used, memory_wasted, MAX_OPERATIONS);
+	std::cout << "BENCHMARK STACK A/F/R/W: END" << std::endl;
+}
+
 void benchmark_malloc_allocate(long MAX_OPERATIONS = 1e4){
 	timespec start, end;
 
@@ -255,6 +301,7 @@ void benchmark_malloc_allocate(long MAX_OPERATIONS = 1e4){
 	
 	int operations = 0;
 	srand (1);
+
 	while(operations < MAX_OPERATIONS){
 		malloc(sizeof(int));
 		malloc(sizeof(bool));
@@ -308,6 +355,48 @@ void benchmark_malloc_allocate_free(long MAX_OPERATIONS = 1e4){
 	std::cout << "BENCHMARK MALLOC A/F: END" << std::endl;
 }
 
+void benchmark_malloc_allocate_free_read_write(long MAX_OPERATIONS = 1e4){
+	timespec start, end;
+
+	std::cout << "BENCHMARK MALLOC A/F/R/W: START" << std::endl;
+
+	setTimer(start);
+	
+	int operations = 0;
+	bool allocate = true;
+	int * i;
+	bool * b;
+	foo * f;
+	while(operations < MAX_OPERATIONS){
+		if (allocate){
+			i = (int*) malloc(sizeof(int));
+			b = (bool*) malloc(sizeof(bool));
+			f = (foo*) malloc(sizeof(foo));
+
+			*i = *i + 1;
+			*b = allocate;
+			*f = foo();
+
+			allocate = false;	
+		}else {
+			free(f);
+			free(b);
+			free(i);
+			allocate = true;
+		}
+
+		++operations;
+	}
+
+	setTimer(end); 
+	const timespec elapsed_time = diff(start, end);
+	const std::size_t memory_used = 0;
+	const std::size_t  memory_wasted = 0;
+
+	print_benchmark_stats(elapsed_time, memory_used, memory_wasted, MAX_OPERATIONS);
+	std::cout << "BENCHMARK MALLOC A/F/R/W: END" << std::endl;
+}
+
 /* TODO
 	1-  Deinterface
 	2- Stack/Linear ->Calculate padding (Aligned allocators interface?)
@@ -316,8 +405,8 @@ void benchmark_malloc_allocate_free(long MAX_OPERATIONS = 1e4){
 	4- move to utils file? 
 */
 int main(){
-	benchmark_stack_allocate_free(1e8);
-	benchmark_malloc_allocate_free(1e8);
+	benchmark_stack_allocate_free_read_write(1e4);
+	benchmark_malloc_allocate_free_read_write(1e4);
 	return 1;
 }
 
