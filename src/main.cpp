@@ -1,7 +1,9 @@
 #include <iostream>
 #include <cstddef>
-#include "LinearAllocator.h"
 #include "Allocator.h"
+#include "LinearAllocator.h"
+#include "StackAllocator.h"
+
 struct bar {
 	int a;		// 4
 	bool b;		// 1 -> 5
@@ -114,8 +116,38 @@ void test_linear_allocator(){
 	test_structs_unaligned(linearAllocator);
 }
 
+void test_stack_allocator_primitives(StackAllocator &stackAllocator){
+	std::cout << "\tTEST_PRIMITIVES_TYPES" << std::endl;
+
+	stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 1
+																// 3  -> 4
+	stackAllocator.Allocate(sizeof(baz), alignof(baz));			// 4  -> 8
+	stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 12
+
+	std::cout << std::endl;
+	stackAllocator.Free(nullptr, sizeof(int));					// 4  -> 8
+	stackAllocator.Free(nullptr, sizeof(baz));					// 8  -> 4(3) -> 1
+																// 7  -> 8
+	stackAllocator.Allocate(sizeof(double), alignof(double));	// 8  -> 16
+
+	stackAllocator.Reset();
+}
+
+void test_stack_allocator(){
+	std::cout << "TEST_STACK_ALLOCATOR" << std::endl;
+
+	StackAllocator stackAllocator(100);
+	//test_primitives(stackAllocator);
+	//test_structs(stackAllocator);
+
+	//test_primitives_unaligned(stackAllocator);
+	//test_structs_unaligned(stackAllocator);
+	test_stack_allocator_primitives(stackAllocator);
+}
+
 int main(){
-	test_linear_allocator();
+	//test_linear_allocator();
+	test_stack_allocator();
 	return 1;
 }
 
