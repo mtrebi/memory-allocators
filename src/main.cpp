@@ -400,8 +400,6 @@ void benchmark_malloc_allocate_free_read_write(long MAX_OPERATIONS = 1e4){
 /* TODO
 	1-  Deinterface
 	2- Stack/Linear ->Calculate padding (Aligned allocators interface?)
-	2- benchmark free (3pointers)
-	3- read values (check speed)
 	4- move to utils file? 
 */
 int main(){
