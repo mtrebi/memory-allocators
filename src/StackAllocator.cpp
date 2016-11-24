@@ -33,9 +33,11 @@ void* StackAllocator::Allocate(const std::size_t size, const std::size_t alignme
 
 	m_offset += size;
 
-#ifdef 	DEBUG
-	std::cout << "\t\tAddress " << (void*)nextAddress  << "\tOffset " << m_offset << "\tPadding " << padding << "\tSize " << size << "\tAlignment " << alignment << "\tDPadded " << (void*) paddedAddress<< std::endl;
-#endif
+	if (m_offset > m_totalSize){
+		// error
+		return nullptr;
+	}
+
 	return (void*) nextAddress;
 }
 
@@ -54,12 +56,8 @@ void StackAllocator::Free(void* ptr, const std::size_t size) {
 	if (pad_struct.padding > 0) {
 		// There was padding - Move offset back to clear padding
 		m_offset -= pad_struct.padding;
+
 	}
-
-#ifdef 	DEBUG
-	std::cout << "\t\tAddress " << (void*)currentAddress  << "\tOffset " << m_offset << "\tPadding " << int(pad_struct.padding) << "\tDPadded " << (void*) paddedAddress<<  std::endl;
-#endif
-
 }
 
 void StackAllocator::Reset() {

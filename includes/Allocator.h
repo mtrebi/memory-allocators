@@ -7,13 +7,13 @@
 class Allocator {
 protected:
 	/* Memory size */
-	long m_totalSize;
+	std::size_t m_totalSize;
 	
 	/* Pointer to the start of the memory block. Once set, never changes */
 	void* m_start_ptr;
 public:
 	/* Allocation of memory */
-	Allocator(const long totalSize);
+	Allocator(const std::size_t totalSize);
 
 	/* Frees all memory */
 	virtual ~Allocator();

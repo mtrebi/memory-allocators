@@ -1,50 +1,10 @@
 #include <iostream>
 #include <cstddef>
-#include "Allocator.h"
-#include "LinearAllocator.h"
+#include <time.h>
+
 #include "StackAllocator.h"
 
-struct bar {
-	int a;		// 4
-	bool b;		// 1 -> 5
-				// 3 -> 8
-	int c;		// 4 -> 12
-	bool d;		// 1 -> 13
-	bool e;		// 1 -> 14
-				// 2 -> 16
-};
-
-struct bar2 {
-	int a;	// 4
-	int c;	// 4 -> 8
-	bool b;	// 1 -> 9
-	bool d;
-	bool e;
-			// 3 -> 12
-};
-
-struct foo {
-    char *p;     /* 8 bytes */
-    char c;      /* 1 byte */
-};
-
-struct foo3 {
-	int i;      /* 4 byte */
-    char c;     /* 1 bytes */
-    bool b;		/* 1 bytes */
-    			// 2 bytes
-};
-
-struct foo2 {
-	char c;      /* 1 byte */
-    char *p;     /* 8 bytes */
-};
-
-struct baz {
-    short s;     /* 2 bytes */
-    char c;      /* 1 byte */
-};
-
+/*
 void test_primitives(Allocator &allocator){
 	std::cout << "\tTEST_PRIMITIVES_TYPES" << std::endl;
 
@@ -144,38 +104,143 @@ void test_stack_allocator(){
 	//test_structs_unaligned(stackAllocator);
 	test_stack_allocator_primitives(stackAllocator);
 }
+*/
+
+
+
+struct foo {
+    char *p;     /* 8 bytes */
+    char c;      /* 1 byte */
+};
+
+struct bar {
+	int a;		// 4
+	bool b;		// 1 -> 5
+				// 3 -> 8
+	int c;		// 4 -> 12
+	bool d;		// 1 -> 13
+	bool e;		// 1 -> 14
+				// 2 -> 16
+};
+
+struct bar2 {
+	int a;	// 4
+	int c;	// 4 -> 8
+	bool b;	// 1 -> 9
+	bool d;
+	bool e;
+			// 3 -> 12
+};
+
+struct foo3 {
+	int i;      /* 4 byte */
+    char c;     /* 1 bytes */
+    bool b;		/* 1 bytes */
+    			// 2 bytes
+};
+
+struct foo2 {
+	char c;      /* 1 byte */
+    char *p;     /* 8 bytes */
+};
+
+struct baz {
+    short s;     /* 2 bytes */
+    char c;      /* 1 byte */
+};
+
+
+void setTimer(timespec& timer){
+  clock_gettime(CLOCK_REALTIME, &timer);
+}
+
+timespec diff(timespec &start, timespec &end) {
+    timespec temp;
+    if ((end.tv_nsec-start.tv_nsec)<0) {
+        temp.tv_sec = end.tv_sec-start.tv_sec-1;
+        temp.tv_nsec = 1e9+end.tv_nsec-start.tv_nsec;
+    } else {
+        temp.tv_sec = end.tv_sec-start.tv_sec;
+        temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+    }
+    return temp;
+}
+
+
+void print_benchmark_stats(const timespec& elapsed_time, const int& memory_used, const int&memory_wasted, const int max_operations){
+	double time_sec = (double) elapsed_time.tv_sec;
+  	double time_nsec = (double) elapsed_time.tv_nsec;
+  	double time_msec = (time_sec * 1000) + (time_nsec / 1000000);
+
+	std::cout << std::endl;
+	std::cout << "\tSTATS:" << std::endl;
+	std::cout << "\t\tOperations:    \t" << max_operations  << std::endl;
+	std::cout << "\t\tTime elapsed:  \t" << time_msec << " ms" << std::endl;
+	std::cout << "\t\tOp per sec:    \t" << (max_operations / 1e3) / time_msec << " mops/ms" << std::endl;
+
+	//std::cout << "\t\tMemory used:   \t" << memory_used  << " bytes" << std::endl;
+	//std::cout << "\t\tMemory wasted: \t" << memory_wasted  << " bytes\t" << ((float) memory_wasted / memory_used) * 100 << " %" << std::endl;
+	std::cout << std::endl;
+}
+
+
+void benchmark_stack(long MAX_OPERATIONS = 1e4){
+	timespec start, end;
+
+	std::cout << "BENCHMARK STACK ALLOCATOR: START" << std::endl;
+
+	setTimer(start);
+	
+	StackAllocator stackAllocator(1e10);
+
+	int operations = 0;
+	while(operations < MAX_OPERATIONS){
+		stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
+		stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
+																	// 3  -> 8
+		stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
+		++operations;
+	}
+	setTimer(end); 
+	const timespec elapsed_time = diff(start, end);
+	const std::size_t memory_used = 0;
+	const std::size_t  memory_wasted = 0;
+	stackAllocator.Reset();
+	print_benchmark_stats(elapsed_time, memory_used, memory_wasted, MAX_OPERATIONS);
+	std::cout << "BENCHMARK STACK ALLOCATOR: END" << std::endl;
+}
+
+void benchmark_malloc(long MAX_OPERATIONS = 1e4){
+	timespec start, end;
+
+	std::cout << "BENCHMARK MALLOC ALLOCATOR: START" << std::endl;
+
+	setTimer(start);
+	
+	int operations = 0;
+	srand (1);
+	while(operations < MAX_OPERATIONS){
+		malloc(sizeof(int));
+		malloc(sizeof(bool));
+		malloc(sizeof(foo));
+		++operations;
+	}
+
+	setTimer(end); 
+	const timespec elapsed_time = diff(start, end);
+	const std::size_t memory_used = 0;
+	const std::size_t  memory_wasted = 0;
+
+	print_benchmark_stats(elapsed_time, memory_used, memory_wasted, MAX_OPERATIONS);
+	std::cout << "BENCHMARK MALLOC ALLOCATOR: END" << std::endl;
+}
 
 int main(){
-	//test_linear_allocator();
-	test_stack_allocator();
+	benchmark_stack(1e7);
+	//benchmark_malloc(1e7);
 	return 1;
 }
 
-	/*
-	std::cout << "bar" << std::endl;
-	std::cout << "\tsizeof() = " << sizeof(bar) << std::endl;
-	std::cout << "\talignf() = " << alignof(bar) << std::endl;
-	std::cout << "\toffset(a) =" << offsetof(bar, a) << std::endl;
-	std::cout << "\toffset(b) =" << offsetof(bar, b) << std::endl;
-	std::cout << "\toffset(c) =" << offsetof(bar, c) << std::endl;
 
 
-	std::cout << "foo" << std::endl;
-	std::cout << "\tsizeof() = " << sizeof(foo) << std::endl;
-	std::cout << "\talignf() = " << alignof(foo) << std::endl;
-	std::cout << "\toffset(c) =" << offsetof(foo, c) << std::endl;
-	std::cout << "\toffset(p) =" << offsetof(foo, p) << std::endl;
 
-	std::cout << "foo2" << std::endl;
-	std::cout << "\tsizeof() = " << sizeof(foo2) << std::endl;
-	std::cout << "\talignf() = " << alignof(foo2) << std::endl;
-	std::cout << "\toffset(c) =" << offsetof(foo2, c) << std::endl;
-	std::cout << "\toffset(p) =" << offsetof(foo2, p) << std::endl;
-
-
-	std::cout << "baz" << std::endl;
-	std::cout << "\tsizeof() = " << sizeof(baz) << std::endl;
-	std::cout << "\talignf() = " << alignof(baz) << std::endl;
-	std::cout << "\toffset(s) =" << offsetof(baz, s) << std::endl;
-	std::cout << "\toffset(c) =" << offsetof(baz, c) << std::endl;
-*/
