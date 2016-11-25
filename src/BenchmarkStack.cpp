@@ -153,7 +153,7 @@ BenchmarkResults BenchmarkStack::all() {
 	bool * b;
 	foo * f;
 	while(!outOfTime()){
-		if (operations % 5 < 3){
+		if (operations % 10 < 9){
 			i = (int *) stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
 			b = (bool *) stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5													// 3  -> 8
 			f = (foo *) stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
