@@ -66,7 +66,6 @@ BenchmarkResults BenchmarkStack::freeing() {
 
 BenchmarkResults BenchmarkStack::read() {
 	std::cout << "STACK READ" << std::endl;
-	setStartTimer();
 	
 	StackAllocator stackAllocator(1e10);
 
@@ -100,8 +99,6 @@ BenchmarkResults BenchmarkStack::read() {
 BenchmarkResults BenchmarkStack::write() {
 	std::cout << "STACK WITE" << std::endl;
 	srand (0);
-
-	setStartTimer();
 	
 	StackAllocator stackAllocator(1e10);
 
