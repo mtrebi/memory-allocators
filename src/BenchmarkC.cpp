@@ -21,7 +21,7 @@ BenchmarkResults BenchmarkC::allocation() {
 		++operations;
 	}
 
-	BenchmarkResults results = buildResults(operations, m_runtime, 0, 0);
+	BenchmarkResults results = buildResults(operations, m_runtime, 16*3*operations, (12+15+8)*operations);
 	
 	printResults(results);
 
