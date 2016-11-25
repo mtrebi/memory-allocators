@@ -48,9 +48,11 @@ void Benchmark::printResults(const BenchmarkResults& results) const {
 	std::cout << "\t\tTime elapsed:  \t" << results.elapsedTime << " s" << std::endl;
 	std::cout << "\t\tOp per sec:    \t" << results.operationsPerSec << " ops/s" << std::endl;
 	std::cout << "\t\tTimer per op:  \t" << results.timePerOperation << " s/ops" << std::endl;
-	std::cout << "\t\tMemory used:   \t" << results.memoryUsed  << " bytes" << std::endl;
-	std::cout << "\t\tMemory wasted: \t" << results.memoryWasted  << " bytes\t" << "\t" << ((float) results.memoryWasted / results.memoryUsed)*100 << "%" << std::endl;
-	std::cout << std::endl;
+	if (results.memoryUsed > 0) {
+    std::cout << "\t\tMemory used:   \t" << results.memoryUsed  << " bytes" << std::endl;
+    std::cout << "\t\tMemory wasted: \t" << results.memoryWasted  << " bytes\t" << "\t" << ((float) results.memoryWasted / results.memoryUsed)*100 << "%" << std::endl;
+	}
+  std::cout << std::endl;
 }
 
 const BenchmarkResults Benchmark::buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const{
