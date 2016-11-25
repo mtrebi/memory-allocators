@@ -87,6 +87,10 @@ BenchmarkResults BenchmarkStack::read() {
 		setTimer(after);
 
 		elapsedTime += calculateElapsedTime(before, after);
+		
+		stackAllocator.Free(sizeof(foo));
+		stackAllocator.Free(sizeof(bool));
+		stackAllocator.Free(sizeof(int));
 
 		++operations;
 	}
@@ -124,6 +128,10 @@ BenchmarkResults BenchmarkStack::write() {
 		setTimer(after);
 
 		elapsedTime += calculateElapsedTime(before, after);
+
+		stackAllocator.Free(sizeof(foo));
+		stackAllocator.Free(sizeof(bool));
+		stackAllocator.Free(sizeof(int));	
 
 		++operations;
 	}

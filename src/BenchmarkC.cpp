@@ -84,6 +84,10 @@ BenchmarkResults BenchmarkC::read() {
 		foo f_value = *f;
 		setTimer(after_read);
 
+		free(f);
+		free(b);
+		free(i);
+
 		elapsedTime += calculateElapsedTime(before_read, after_read);
 		++operations;
 	}
@@ -113,6 +117,11 @@ BenchmarkResults BenchmarkC::write() {
 		*b = randomN % 2;
 		*f = foo();
 		setTimer(after_write);
+
+		free(f);
+		free(b);
+		free(i);
+
 
 		elapsedTime += calculateElapsedTime(before_write, after_write);
 
