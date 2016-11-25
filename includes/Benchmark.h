@@ -2,6 +2,7 @@
 #define BENCHMARK_H
 
 #include <time.h> // timespec
+#include <cstddef> // std::size_t
 
 struct foo {
     char *p;     /* 8 bytes */
@@ -44,9 +45,9 @@ struct baz {
     char c;      /* 1 byte */
 };
 
-struct Benchmark_results {
+struct BenchmarkResults {
 	long nOperations;
-	timespec elapsedTime;
+	double elapsedTime;
 	float operationsPerSec;
 	float timePerOperation;
 	int memoryWasted;
@@ -54,24 +55,25 @@ struct Benchmark_results {
 };
 
 class Benchmark {
-private:
+protected:
 	long m_nOperations;
+private:
 	timespec m_start;
 	timespec m_end;
 public:
 	Benchmark(long nOperations);
 
-	virtual Benchmark_results allocation() = 0;
-	virtual Benchmark_results free() = 0;
-	virtual Benchmark_results read() = 0;
-	virtual Benchmark_results write() = 0;
-	virtual Benchmark_results all() = 0;
+	virtual BenchmarkResults allocation() = 0;
+	virtual BenchmarkResults free() = 0;
+	virtual BenchmarkResults read() = 0;
+	virtual BenchmarkResults write() = 0;
+	virtual BenchmarkResults all() = 0;
 protected:
-	void printResults(const Benchmark_results& results) const;
+	void printResults(const BenchmarkResults& results) const;
 	void setStartTimer();
 	void setEndTimer();
 	const timespec calculateElapsedTime() const;
-	const Benchmark_results buildResults(const long nOperations, const timespec elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;
+	const BenchmarkResults buildResults(const long nOperations, const timespec elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;
 private:
 	void setTimer(timespec& timer);
 
