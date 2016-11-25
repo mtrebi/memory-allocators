@@ -143,7 +143,7 @@ BenchmarkResults BenchmarkC::all() {
 	std::size_t operations = 0;
 	double elapsedTime = 0;
 	while(!outOfTime()){
-		if (operations % 2 == 0){
+		if (operations % 5 < 3){
 			i = (int*) malloc(sizeof(int));
 			b = (bool*)malloc(sizeof(bool));
 			f = (foo*) malloc(sizeof(foo));	
