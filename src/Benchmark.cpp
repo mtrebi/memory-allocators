@@ -43,7 +43,6 @@ const bool Benchmark::outOfTime() {
 
 
 void Benchmark::printResults(const BenchmarkResults& results) const {
-	std::cout << std::endl;
 	std::cout << "\tRESULTS:" << std::endl;
 	std::cout << "\t\tOperations:    \t" << results.nOperations  << std::endl;
 	std::cout << "\t\tTime elapsed:  \t" << results.elapsedTime << " s" << std::endl;
