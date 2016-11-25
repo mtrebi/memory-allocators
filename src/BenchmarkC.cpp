@@ -70,8 +70,6 @@ BenchmarkResults BenchmarkC::freeing() {
 BenchmarkResults BenchmarkC::read() {
 	std::cout << "C READ" << std::endl;
 
-	setStartTimer();
-
 	std::size_t operations = 0;
 	double elapsedTime = 0;
 	while(elapsedTime < (m_runtime * 1e3)){
@@ -90,7 +88,7 @@ BenchmarkResults BenchmarkC::read() {
 		++operations;
 	}
 
-	BenchmarkResults results = buildResults(operations/2, m_runtime, 0, 0);
+	BenchmarkResults results = buildResults(operations, m_runtime, 0, 0);
 	
 	printResults(results);
 
@@ -98,8 +96,34 @@ BenchmarkResults BenchmarkC::read() {
 }
 
 BenchmarkResults BenchmarkC::write() {
-	return buildResults(0, 0, 0, 0);
-}
+	std::cout << "C WRITE" << std::endl;
+	srand (0);
+
+	std::size_t operations = 0;
+	double elapsedTime = 0;
+	while(elapsedTime < (m_runtime * 1e3)){
+		int * i = (int*) malloc(sizeof(int));
+		bool * b = (bool*)malloc(sizeof(bool));
+		foo * f = (foo*) malloc(sizeof(foo));	
+
+		int randomN = rand();
+		timespec before_write, after_write;
+		setTimer(before_write);
+		*i =  randomN % 100;
+		*b = randomN % 2;
+		*f = foo();
+		setTimer(after_write);
+
+		elapsedTime += calculateElapsedTime(before_write, after_write);
+
+		++operations;
+	}
+
+	BenchmarkResults results = buildResults(operations, m_runtime, 0, 0);
+	
+	printResults(results);
+
+	return results;}
 
 BenchmarkResults BenchmarkC::all() {
 	return buildResults(0, 0, 0, 0);
