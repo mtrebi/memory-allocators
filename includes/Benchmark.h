@@ -24,7 +24,7 @@ public:
 	virtual Benchmark_results free() = 0;
 	virtual Benchmark_results read() = 0;
 	virtual Benchmark_results write() = 0;
-	virtual Benchmark_results global() = 0;
+	virtual Benchmark_results all() = 0;
 protected:
 	void print_results(const Benchmark_results& results) const;
 	void setStartTimer();
