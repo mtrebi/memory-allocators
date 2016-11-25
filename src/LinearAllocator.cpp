@@ -1,41 +1,44 @@
 #include "LinearAllocator.h"
 #include <iostream>
-#include <assert.h>
 
-LinearAllocator::LinearAllocator(const long totalSize)
-	: Allocator(totalSize) {
-	
+LinearAllocator::LinearAllocator(const std::size_t totalSize) {
+	m_totalSize = totalSize;
+	m_start_ptr = malloc(m_totalSize);
 	m_offset = 0;
 }
 
 LinearAllocator::~LinearAllocator(){
-	// Do nothing - Parent frees memory for us
+	free(m_start_ptr);
 }
 
 void* LinearAllocator::Allocate(const std::size_t size, const std::size_t alignment){
-	const long currentAddress = (long)m_start_ptr + m_offset;
-	uint32_t displacement = 0;
+int padding = 0;
+	std::size_t paddedAddress = 0;
+	const std::size_t currentAddress = (std::size_t)m_start_ptr + m_offset;
+
 	if (alignment!= 0 && m_offset % alignment != 0) {
 		// Alignment is required. Find the next aligned memory address and update offset
-		const long multiplier = (m_offset / alignment) + 1;
-		displacement = (multiplier * alignment) - m_offset;
-		m_offset += (multiplier * alignment) - m_offset;
+		padding = CalculatePadding(m_offset, alignment);
+		m_offset += padding;
 	}
-	// Offset is pointing to an aligned memory address
-	const long nextAddress = (long) m_start_ptr + m_offset;
+
+	const std::size_t nextAddress = (std::size_t) m_start_ptr + m_offset;
+
 	m_offset += size;
 
-#ifdef 	DEBUG
-	std::cout << "\t\tAdress\t\t" << (void*)nextAddress  << "\tOffset\t" << m_offset << "\tDisplacement\t" << displacement << "\tSize\t" << size << "\tAlignment\t" << alignment <<  std::endl;
-#endif
+	if (m_offset > m_totalSize){
+		return nullptr;
+	}
 
 	return (void*) nextAddress;
 }
 
-void LinearAllocator::Free(void* ptr) {
-	assert(ptr==ptr);// Do nothing - A linear allocator does not frees individual memory blocks
-}
-
 void LinearAllocator::Reset() {
 	m_offset = 0;
+}
+
+const std::size_t LinearAllocator::CalculatePadding(const std::size_t offset, const std::size_t alignment) {
+	const std::size_t multiplier = (offset / alignment) + 1;
+	const std::size_t padding = (multiplier * alignment) - offset;
+	return padding;
 }

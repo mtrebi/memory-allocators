@@ -3,13 +3,11 @@
 
 
 StackAllocator::StackAllocator(const std::size_t totalSize)
-	: Allocator(totalSize) {
-	
-	m_offset = 0;
+	: LinearAllocator(totalSize) {
 }
 
 StackAllocator::~StackAllocator() {
-	// Do nothing
+	// Do nothing - Parent already frees memory
 }
 
 void* StackAllocator::Allocate(const std::size_t size, const std::size_t alignment){
@@ -26,6 +24,7 @@ void* StackAllocator::Allocate(const std::size_t size, const std::size_t alignme
 	const std::size_t nextAddress = (std::size_t) m_start_ptr + m_offset;
 
 	if (padding > 0){
+		// Store padding size in the padding itself
 		paddedAddress = (std::size_t) nextAddress  - 1;
 		Padding pad_struct {padding};
 		*(int *) paddedAddress = pad_struct.padding;
@@ -34,19 +33,13 @@ void* StackAllocator::Allocate(const std::size_t size, const std::size_t alignme
 	m_offset += size;
 
 	if (m_offset > m_totalSize){
-		// error
 		return nullptr;
 	}
 
 	return (void*) nextAddress;
 }
 
-void StackAllocator::Free(void* ptr) {
-
-}
-
-
-void StackAllocator::Free(void* ptr, const std::size_t size) {
+void StackAllocator::Free(const std::size_t size) {
 	// Move offset back to clear address
 	m_offset -= size;
 	const std::size_t currentAddress = (std::size_t) m_start_ptr + m_offset;
@@ -56,16 +49,9 @@ void StackAllocator::Free(void* ptr, const std::size_t size) {
 	if (pad_struct.padding > 0) {
 		// There was padding - Move offset back to clear padding
 		m_offset -= pad_struct.padding;
-
 	}
 }
 
 void StackAllocator::Reset() {
-	m_offset = 0;
-}
-
-const std::size_t StackAllocator::CalculatePadding(const std::size_t offset, const std::size_t alignment) {
-	const std::size_t multiplier = (offset / alignment) + 1;
-	const std::size_t padding = (multiplier * alignment) - offset;
-	return padding;
+	LinearAllocator::Reset();
 }

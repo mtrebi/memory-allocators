@@ -1,17 +1,13 @@
-#include "Allocator.h"
-
 #ifndef STACKALLOCATOR_H
 #define STACKALLOCATOR_H
 
+#include "LinearAllocator.h"
 
 struct Padding {
 	char padding;
 };
 
-class StackAllocator : public Allocator {
-protected:
-	/* Offset from the start of the memory block */
-	std::size_t m_offset;
+class StackAllocator : public LinearAllocator {
 public:
 	/* Allocation of real memory */
 	StackAllocator(const std::size_t totalSize);
@@ -20,21 +16,16 @@ public:
 	virtual ~StackAllocator();
 
 	/* Allocate virtual memory */
-	virtual void* Allocate(const std::size_t size, const std::size_t alignment) override;
+	virtual void* Allocate(const std::size_t size, const std::size_t alignment);
 
-	/* Frees virtual memory */
-	virtual void Free(void* ptr, const std::size_t size);
-
-	virtual void Free(void* ptr) override;
+	/* Frees memory from the top of the stack */
+	virtual void Free(const std::size_t size);
 
 	/* Frees all virtual memory */
 	virtual void Reset() override;
 
 private:
 	StackAllocator(StackAllocator &stackAllocator);
-
-private:
-	const std::size_t CalculatePadding(const std::size_t offset, const std::size_t alignment);
 };
 
 #endif /* STACKALLOCATOR_H */
