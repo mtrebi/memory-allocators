@@ -1,12 +1,15 @@
 #include "BenchmarkC.h"
 #include <stdlib.h>     /* malloc, calloc, realloc, free */
 #include <cstddef> // std::size_t
+#include <iostream>
 
 BenchmarkC::BenchmarkC(const int runtime)
 	: Benchmark(runtime) {
 }
 
 BenchmarkResults BenchmarkC::allocation() {
+	std::cout << "C ALLOCATION" << std::endl;
+
 	setStartTimer();
 
 	int operations = 0;
@@ -31,6 +34,8 @@ BenchmarkResults BenchmarkC::allocation() {
 
 */
 BenchmarkResults BenchmarkC::freeing() {
+	std::cout << "C FREEING" << std::endl;
+
 	setStartTimer();
 	int * i;
 	bool * b;

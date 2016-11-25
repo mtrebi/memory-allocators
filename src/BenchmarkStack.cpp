@@ -1,11 +1,13 @@
 #include "BenchmarkStack.h"
 #include "StackAllocator.h"
+#include <iostream>
 
 BenchmarkStack::BenchmarkStack(const int runtime)
 	: Benchmark(runtime) {
 }
 
 BenchmarkResults BenchmarkStack::allocation() {
+	std::cout << "STACK ALLOCATION" << std::endl;
 	setStartTimer();
 	
 	StackAllocator stackAllocator(1e10);
@@ -29,6 +31,8 @@ BenchmarkResults BenchmarkStack::allocation() {
 
 
 BenchmarkResults BenchmarkStack::freeing() {
+	std::cout << "STACK FREEING" << std::endl;
+
 	setStartTimer();
 	
 	StackAllocator stackAllocator(1e10);
