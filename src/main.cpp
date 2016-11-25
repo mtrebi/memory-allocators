@@ -308,10 +308,14 @@ void benchmark_malloc_allocate_free_read_write(long MAX_OPERATIONS = 1e4){
 */
 
 #include "BenchmarkStack.h"
-
+#include "BenchmarkC.h"
 int main(){
-	BenchmarkStack benchmarkStack(1e3);
+	BenchmarkStack benchmarkStack(5);
 	benchmarkStack.allocation();
+
+	BenchmarkC benchmarkC(5);
+	benchmarkC.allocation();
+
 	//benchmarkStack.free();
 	//benchmarkStack.read();
 	//benchmarkStack.write();
