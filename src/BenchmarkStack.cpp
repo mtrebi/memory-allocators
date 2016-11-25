@@ -9,21 +9,32 @@ BenchmarkStack::BenchmarkStack(const int runtime)
 
 BenchmarkResults BenchmarkStack::allocation() {
 	std::cout << "STACK ALLOCATION" << std::endl;
-	setStartTimer();
-	
+	timespec before, after;
+	setTimer(before);
 	StackAllocator stackAllocator(1e10);
+	setTimer(after);
+	double elapsedTime = calculateElapsedTime(before, after);
 
-	int operations = 0;
-	while(!outOfTime()){
-		stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
-		stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
-																	// 3  -> 8
-		stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
-		
+	std::size_t operations = 0;
+	while(elapsedTime < (m_runtime * 1e3)){
+		if (operations % 2 == 0){
+			setTimer(before);
+			stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
+			stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
+																		// 3  -> 8
+			stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
+			setTimer(after);
+			
+			elapsedTime += calculateElapsedTime(before, after);
+		}else {
+			stackAllocator.Free(sizeof(foo));
+			stackAllocator.Free(sizeof(bool));
+			stackAllocator.Free(sizeof(int));
+		}
 		++operations;
 	}
 
-	BenchmarkResults results = buildResults(operations, m_runtime, stackAllocator.m_offset, (3+8)*operations);
+	BenchmarkResults results = buildResults(operations/2, m_runtime, 24*operations, (8+3)*operations);
 	
 	printResults(results);
 	stackAllocator.Reset();
@@ -62,7 +73,8 @@ BenchmarkResults BenchmarkStack::freeing() {
 	
 	printResults(results);
 	stackAllocator.Reset();
-	return results;}
+	return results;
+}
 
 BenchmarkResults BenchmarkStack::read() {
 	std::cout << "STACK READ" << std::endl;
