@@ -407,8 +407,8 @@ int main(){
 	benchmark_stack_allocate_free(1e3);
 	benchmark_stack_allocate_free_read_write(1e3);
 
-	benchmark_malloc_allocate(1e3)
-	benchmark_malloc_allocate_free(1e3)
+	benchmark_malloc_allocate(1e3);
+	benchmark_malloc_allocate_free(1e3);
 	benchmark_malloc_allocate_free_read_write(1e3);
 	return 1;
 }
