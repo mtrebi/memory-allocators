@@ -30,17 +30,15 @@ const timespec Benchmark::calculateElapsedTime() const {
 }
 
 void Benchmark::print_results(const Benchmark_results& results) const {
-	double time_sec = (double) results.elapsedTime.tv_sec;
-  	double time_nsec = (double) results.elapsedTime.tv_nsec;
-  	double time_msec = (time_sec * 1000) + (time_nsec / 1000000);
-
 	std::cout << std::endl;
 	std::cout << "\tRESULTS:" << std::endl;
 	std::cout << "\t\tOperations:    \t" << results.nOperations  << std::endl;
-	std::cout << "\t\tTime elapsed:  \t" << time_msec << " ms" << std::endl;
-	std::cout << "\t\tOp per sec:    \t" << (results.nOperations / 1e3) / time_msec << " mops/ms" << std::endl;
-	std::cout << "\t\tTimer per op:  \t" << time_msec/(results.nOperations / 1e3) << " ms/mops" << std::endl;
+	std::cout << "\t\tTime elapsed:  \t" << results.elapsedTime << " ms" << std::endl;
+	std::cout << "\t\tOp per sec:    \t" << results.operationsPerSec << " mops/ms" << std::endl;
+	std::cout << "\t\tTimer per op:  \t" << results.timePerOperation << " ms/mops" << std::endl;
 	std::cout << "\t\tMemory used:   \t" << results.memoryWasted  << " bytes" << std::endl;
-	std::cout << "\t\tMemory wasted: \t" << results.memoryUsed  << " bytes\t" << ((float) results.memoryWasted / results.memoryUsed) * 100 << " %" << std::endl;
+	std::cout << "\t\tMemory wasted: \t" << results.memoryUsed  << " bytes\t" << std::endl;
 	std::cout << std::endl;
 }
+
+const Benchmark_results Benchmark::buildResults(const long nOperations, const timespec elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;

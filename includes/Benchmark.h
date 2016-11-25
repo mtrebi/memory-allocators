@@ -26,11 +26,11 @@ public:
 	virtual Benchmark_results write() = 0;
 	virtual Benchmark_results all() = 0;
 protected:
-	void print_results(const Benchmark_results& results) const;
+	void printResults(const Benchmark_results& results) const;
 	void setStartTimer();
 	void setEndTimer();
 	const timespec calculateElapsedTime() const;
-
+	const Benchmark_results buildResults(const long nOperations, const timespec elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;
 private:
 	void setTimer(timespec& timer);
 
