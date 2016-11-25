@@ -90,7 +90,7 @@ BenchmarkResults BenchmarkStack::read() {
 		++operations;
 	}
 
-	BenchmarkResults results = buildResults(operations/2, m_runtime, 0, 0);
+	BenchmarkResults results = buildResults(operations, m_runtime, 0, 0);
 	
 	printResults(results);
 	stackAllocator.Reset();
@@ -99,11 +99,12 @@ BenchmarkResults BenchmarkStack::read() {
 
 BenchmarkResults BenchmarkStack::write() {
 	std::cout << "STACK WITE" << std::endl;
+	srand (0);
+
 	setStartTimer();
 	
 	StackAllocator stackAllocator(1e10);
 
-	srand (0);
 	std::size_t operations = 0;
 	double elapsedTime = 0;
 	while(elapsedTime < (m_runtime * 1e3)){
@@ -125,7 +126,7 @@ BenchmarkResults BenchmarkStack::write() {
 		++operations;
 	}
 
-	BenchmarkResults results = buildResults(operations/2, m_runtime, 0, 0);
+	BenchmarkResults results = buildResults(operations, m_runtime, 0, 0);
 	
 	printResults(results);
 	stackAllocator.Reset();
