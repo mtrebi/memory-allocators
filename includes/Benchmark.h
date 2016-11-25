@@ -63,7 +63,7 @@ public:
 	Benchmark(const int runtime);
 
 	virtual BenchmarkResults allocation() = 0;
-	virtual BenchmarkResults free() = 0;
+	virtual BenchmarkResults freeing() = 0;
 	virtual BenchmarkResults read() = 0;
 	virtual BenchmarkResults write() = 0;
 	virtual BenchmarkResults all() = 0;

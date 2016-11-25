@@ -28,7 +28,7 @@ BenchmarkResults BenchmarkStack::allocation() {
 }
 
 
-BenchmarkResults BenchmarkStack::free() {
+BenchmarkResults BenchmarkStack::freeing() {
 	return buildResults(0, 0, 0, 0);
 }
 
