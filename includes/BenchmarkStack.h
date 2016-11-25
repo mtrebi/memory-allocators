@@ -5,7 +5,7 @@
 
 class BenchmarkStack : public Benchmark {
 public:
-	BenchmarkStack(long nOperations);
+	BenchmarkStack(const int runtime);
 
 	virtual BenchmarkResults allocation() override;
 	virtual BenchmarkResults free() override;

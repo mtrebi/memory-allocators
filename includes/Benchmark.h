@@ -56,12 +56,11 @@ struct BenchmarkResults {
 
 class Benchmark {
 protected:
-	long m_nOperations;
+	int m_runtime;
 private:
 	timespec m_start;
-	timespec m_end;
 public:
-	Benchmark(long nOperations);
+	Benchmark(const int runtime);
 
 	virtual BenchmarkResults allocation() = 0;
 	virtual BenchmarkResults free() = 0;
@@ -71,12 +70,12 @@ public:
 protected:
 	void printResults(const BenchmarkResults& results) const;
 	void setStartTimer();
-	void setEndTimer();
-	const timespec calculateElapsedTime() const;
-	const BenchmarkResults buildResults(const long nOperations, const timespec elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;
+
+	const bool outOfTime();
+	const BenchmarkResults buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;
 private:
 	void setTimer(timespec& timer);
-
+	const double calculateElapsedTime(const timespec& start, const timespec& end) const;
 };
 
 #endif /* BENCHMARK_H */
