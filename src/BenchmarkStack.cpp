@@ -1,6 +1,7 @@
 #include "BenchmarkStack.h"
 #include "StackAllocator.h"
-#include <iostream>
+#include <iostream>		// cout cin ...
+#include <stdlib.h>     /* srand, rand */
 
 BenchmarkStack::BenchmarkStack(const int runtime)
 	: Benchmark(runtime) {
@@ -97,7 +98,41 @@ BenchmarkResults BenchmarkStack::read() {
 }
 
 BenchmarkResults BenchmarkStack::write() {
-	return buildResults(0, 0, 0, 0);
+	std::cout << "STACK WITE" << std::endl;
+	setStartTimer();
+	
+	StackAllocator stackAllocator(1e10);
+
+	srand (0);
+	std::size_t operations = 0;
+	double elapsedTime = 0;
+	while(elapsedTime < (m_runtime * 1e3)){
+		int * i = (int *) stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
+		bool * b = (bool *) stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
+																	// 3  -> 8
+		foo * f = (foo *) stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
+		
+		int randomN = rand();
+		timespec before_write, after_write;
+		setTimer(before_write);
+		*i =  randomN % 100;
+		*b = randomN % 2;
+		*f = foo();
+		setTimer(after_write);
+
+		elapsedTime += calculateElapsedTime(before_write, after_write);
+
+		++operations;
+	}
+
+	BenchmarkResults results = buildResults(operations/2, m_runtime, 0, 0);
+	
+	printResults(results);
+	stackAllocator.Reset();
+	return results;
+
+
+
 }
 
 BenchmarkResults BenchmarkStack::all() {
