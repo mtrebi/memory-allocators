@@ -69,13 +69,13 @@ public:
 	virtual BenchmarkResults all() = 0;
 protected:
 	void printResults(const BenchmarkResults& results) const;
+	void setTimer(timespec& timer);
 	void setStartTimer();
 
 	const bool outOfTime();
-	const BenchmarkResults buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;
-private:
-	void setTimer(timespec& timer);
 	const double calculateElapsedTime(const timespec& start, const timespec& end) const;
+	const BenchmarkResults buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;
+
 };
 
 #endif /* BENCHMARK_H */
