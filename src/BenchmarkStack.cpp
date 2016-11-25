@@ -64,7 +64,36 @@ BenchmarkResults BenchmarkStack::freeing() {
 	return results;}
 
 BenchmarkResults BenchmarkStack::read() {
-	return buildResults(0, 0, 0, 0);
+	std::cout << "STACK READ" << std::endl;
+	setStartTimer();
+	
+	StackAllocator stackAllocator(1e10);
+
+	std::size_t operations = 0;
+	double elapsedTime = 0;
+	while(elapsedTime < (m_runtime * 1e3)){
+		int * i = (int *) stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
+		bool * b = (bool *) stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
+																	// 3  -> 8
+		foo * f = (foo *) stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
+		
+		timespec before_read, after_read;
+		setTimer(before_read);
+		int i_value = *i;
+		bool b_value = *b;
+		foo f_value = *f;
+		setTimer(after_read);
+
+		elapsedTime += calculateElapsedTime(before_read, after_read);
+
+		++operations;
+	}
+
+	BenchmarkResults results = buildResults(operations/2, m_runtime, 0, 0);
+	
+	printResults(results);
+	stackAllocator.Reset();
+	return results;
 }
 
 BenchmarkResults BenchmarkStack::write() {
