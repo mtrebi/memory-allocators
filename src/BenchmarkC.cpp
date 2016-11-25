@@ -68,7 +68,33 @@ BenchmarkResults BenchmarkC::freeing() {
 }
 
 BenchmarkResults BenchmarkC::read() {
-	return buildResults(0, 0, 0, 0);
+	std::cout << "C READ" << std::endl;
+
+	setStartTimer();
+
+	std::size_t operations = 0;
+	double elapsedTime = 0;
+	while(elapsedTime < (m_runtime * 1e3)){
+		int * i = (int*) malloc(sizeof(int));
+		bool * b = (bool*)malloc(sizeof(bool));
+		foo * f = (foo*) malloc(sizeof(foo));	
+
+		timespec before_read, after_read;
+		setTimer(before_read);
+		int i_value = *i;
+		bool b_value = *b;
+		foo f_value = *f;
+		setTimer(after_read);
+
+		elapsedTime += calculateElapsedTime(before_read, after_read);
+		++operations;
+	}
+
+	BenchmarkResults results = buildResults(operations/2, m_runtime, 0, 0);
+	
+	printResults(results);
+
+	return results;
 }
 
 BenchmarkResults BenchmarkC::write() {
