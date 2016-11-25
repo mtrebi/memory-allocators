@@ -24,6 +24,7 @@ public:
 	/* Frees all virtual memory */
 	virtual void Reset() override;
 
+	friend class BenchmarkStack;
 private:
 	StackAllocator(StackAllocator &stackAllocator);
 };
