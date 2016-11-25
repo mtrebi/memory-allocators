@@ -23,7 +23,7 @@ BenchmarkResults BenchmarkStack::allocation() {
 	BenchmarkResults results = buildResults(operations, m_runtime, 0, 0);
 	
 	printResults(results);
-
+	stackAllocator.Reset();
 	return results;
 }
 
