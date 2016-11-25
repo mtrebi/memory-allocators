@@ -233,9 +233,9 @@ void benchmark_stack_allocate_free(long MAX_OPERATIONS = 1e4){
 			f = (foo*) stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
 			allocate = false;
 		}else {
-			stackAllocator.Free(nullptr, sizeof(foo));
-			stackAllocator.Free(nullptr, sizeof(bool));
-			stackAllocator.Free(nullptr, sizeof(int));
+			stackAllocator.Free(sizeof(foo));
+			stackAllocator.Free(sizeof(bool));
+			stackAllocator.Free(sizeof(int));
 			allocate = true;
 		}
 		++operations;
@@ -276,9 +276,9 @@ void benchmark_stack_allocate_free_read_write(long MAX_OPERATIONS = 1e4){
 
 			allocate = false;
 		}else {
-			stackAllocator.Free(nullptr, sizeof(foo));
-			stackAllocator.Free(nullptr, sizeof(bool));
-			stackAllocator.Free(nullptr, sizeof(int));
+			stackAllocator.Free(sizeof(foo));
+			stackAllocator.Free(sizeof(bool));
+			stackAllocator.Free(sizeof(int));
 			allocate = true;
 		}
 		++operations;
@@ -398,7 +398,6 @@ void benchmark_malloc_allocate_free_read_write(long MAX_OPERATIONS = 1e4){
 }
 
 /* TODO
-	1-  Deinterface
 	2- Stack/Linear ->Calculate padding (Aligned allocators interface?)
 	4- move to utils file? 
 */
