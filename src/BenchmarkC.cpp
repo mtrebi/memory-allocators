@@ -10,29 +10,18 @@ BenchmarkC::BenchmarkC(const int runtime)
 BenchmarkResults BenchmarkC::allocation() {
 	std::cout << "C ALLOCATION" << std::endl;
 
-	int * i;
-	bool * b;
-	foo * f;
-	std::size_t operations = 0;
-	double elapsedTime = 0;
-	while(elapsedTime < (m_runtime * 1e3)){
-		if (operations % 2 == 0){
-			timespec before_alloc, after_alloc;
-			setTimer(before_alloc);
-			i = (int*) malloc(sizeof(int));
-			b = (bool*)malloc(sizeof(bool));
-			f = (foo*) malloc(sizeof(foo));	
-			setTimer(after_alloc);
-			elapsedTime += calculateElapsedTime(before_alloc, before_alloc);
-		}else {
-			free(f);
-			free(b);
-			free(i);
-		}
+	setStartTimer();
+
+	int operations = 0;
+	while(!outOfTime()){
+		malloc(sizeof(int));
+		malloc(sizeof(bool));
+		malloc(sizeof(foo));		
+
 		++operations;
 	}
 
-	BenchmarkResults results = buildResults(operations/2, m_runtime, 16*3*operations, (12+15+8)*operations);
+	BenchmarkResults results = buildResults(operations, m_runtime, 16*3*operations, (12+15+8)*operations);
 	
 	printResults(results);
 
@@ -42,11 +31,11 @@ BenchmarkResults BenchmarkC::allocation() {
 /*	Theres no way to benchmark only free calls.
 	One option could be allocate and store all pointers in a stack but then the benchmarking would be biased
 	The onyl thing we can do is allocate memory and then free it afterwards.
-
 */
 BenchmarkResults BenchmarkC::freeing() {
 	std::cout << "C FREEING" << std::endl;
 
+	setStartTimer();
 	int * i;
 	bool * b;
 	foo * f;
