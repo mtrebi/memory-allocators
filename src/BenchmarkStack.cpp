@@ -1,61 +1,59 @@
-#include "BenchmarkC.h"
-#include <stdlib.h>     /* malloc, calloc, realloc, free */
-#include <cstddef> // std::size_t
-#include <iostream>
+#include "BenchmarkStack.h"
+#include "StackAllocator.h"
+#include <iostream>		// cout cin ...
+#include <stdlib.h>     /* srand, rand */
 
-BenchmarkC::BenchmarkC(const int runtime)
+BenchmarkStack::BenchmarkStack(const int runtime)
 	: Benchmark(runtime) {
 }
 
-BenchmarkResults BenchmarkC::allocation() {
-	std::cout << "C ALLOCATION" << std::endl;
-
+BenchmarkResults BenchmarkStack::allocation() {
+	std::cout << "STACK ALLOCATION" << std::endl;
 	setStartTimer();
+	
+	StackAllocator stackAllocator(1e10);
 
 	int operations = 0;
 	while(!outOfTime()){
-		malloc(sizeof(int));
-		malloc(sizeof(bool));
-		malloc(sizeof(foo));		
-
+		stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
+		stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
+																	// 3  -> 8
+		stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
+		
 		++operations;
 	}
 
-	BenchmarkResults results = buildResults(operations, m_runtime, 16*3*operations, (12+15+8)*operations);
+	BenchmarkResults results = buildResults(operations, m_runtime, stackAllocator.m_offset, (3+8)*operations);
 	
 	printResults(results);
-
+	stackAllocator.Reset();
 	return results;
 }
 
-/*	Theres no way to benchmark only free calls.
-	One option could be allocate and store all pointers in a stack but then the benchmarking would be biased
-	The onyl thing we can do is allocate memory and then free it afterwards.
 
-*/
-BenchmarkResults BenchmarkC::freeing() {
-	std::cout << "C FREEING" << std::endl;
+BenchmarkResults BenchmarkStack::freeing() {
+	std::cout << "STACK FREEING" << std::endl;
 
-	setStartTimer();
-	int * i;
-	bool * b;
-	foo * f;
+	timespec before, after;
+	setTimer(before);
+	StackAllocator stackAllocator(1e10);
+	setTimer(after);
+	double elapsedTime = calculateElapsedTime(before, after);
+
 	std::size_t operations = 0;
-	double elapsedTime = 0;
 	while(elapsedTime < (m_runtime * 1e3)){
 		if (operations % 2 == 0){
-			i = (int*) malloc(sizeof(int));
-			b = (bool*)malloc(sizeof(bool));
-			f = (foo*) malloc(sizeof(foo));	
-
+			stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
+			stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
+																	// 3  -> 8
+			stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
 		}else {
-			timespec before_free, after_free;
-			setTimer(before_free);
-			free(f);
-			free(b);
-			free(i);
-			setTimer(after_free);
-			elapsedTime += calculateElapsedTime(before_free, after_free);
+			setTimer(before);
+			stackAllocator.Free(sizeof(foo));
+			stackAllocator.Free(sizeof(bool));
+			stackAllocator.Free(sizeof(int));
+			setTimer(after);
+			elapsedTime += calculateElapsedTime(before, after);
 		}
 		++operations;
 	}
@@ -63,67 +61,77 @@ BenchmarkResults BenchmarkC::freeing() {
 	BenchmarkResults results = buildResults(operations/2, m_runtime, 0, 0);
 	
 	printResults(results);
+	stackAllocator.Reset();
+	return results;}
 
-	return results;
-}
-
-BenchmarkResults BenchmarkC::read() {
-	std::cout << "C READ" << std::endl;
+BenchmarkResults BenchmarkStack::read() {
+	std::cout << "STACK READ" << std::endl;
+	
+	timespec before, after;
+	setTimer(before);
+	StackAllocator stackAllocator(1e10);
+	setTimer(after);
+	double elapsedTime = calculateElapsedTime(before, after);
 
 	std::size_t operations = 0;
-	double elapsedTime = 0;
 	while(elapsedTime < (m_runtime * 1e3)){
-		int * i = (int*) malloc(sizeof(int));
-		bool * b = (bool*)malloc(sizeof(bool));
-		foo * f = (foo*) malloc(sizeof(foo));	
-
-		timespec before_read, after_read;
-		setTimer(before_read);
+		int * i = (int *) stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
+		bool * b = (bool *) stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
+																	// 3  -> 8
+		foo * f = (foo *) stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
+		
+		setTimer(before);
 		int i_value = *i;
 		bool b_value = *b;
 		foo f_value = *f;
-		setTimer(after_read);
+		setTimer(after);
 
-		free(f);
-		free(b);
-		free(i);
+		elapsedTime += calculateElapsedTime(before, after);
+		
+		stackAllocator.Free(sizeof(foo));
+		stackAllocator.Free(sizeof(bool));
+		stackAllocator.Free(sizeof(int));
 
-		elapsedTime += calculateElapsedTime(before_read, after_read);
 		++operations;
 	}
 
 	BenchmarkResults results = buildResults(operations, m_runtime, 0, 0);
 	
 	printResults(results);
-
+	stackAllocator.Reset();
 	return results;
 }
 
-BenchmarkResults BenchmarkC::write() {
-	std::cout << "C WRITE" << std::endl;
+BenchmarkResults BenchmarkStack::write() {
+	std::cout << "STACK WRITE" << std::endl;
 	srand (0);
 
-	std::size_t operations = 0;
-	double elapsedTime = 0;
-	while(elapsedTime < (m_runtime * 1e3)){
-		int * i = (int*) malloc(sizeof(int));
-		bool * b = (bool*)malloc(sizeof(bool));
-		foo * f = (foo*) malloc(sizeof(foo));	
 
+	timespec before, after;
+	setTimer(before);
+	StackAllocator stackAllocator(1e10);
+	setTimer(after);
+	double elapsedTime = calculateElapsedTime(before, after);
+
+	std::size_t operations = 0;
+	while(elapsedTime < (m_runtime * 1e3)){
+		int * i = (int *) stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
+		bool * b = (bool *) stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5
+																	// 3  -> 8
+		foo * f = (foo *) stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
+		
 		int randomN = rand();
-		timespec before_write, after_write;
-		setTimer(before_write);
+		setTimer(before);
 		*i =  randomN % 100;
 		*b = randomN % 2;
 		*f = foo();
-		setTimer(after_write);
+		setTimer(after);
 
-		free(f);
-		free(b);
-		free(i);
+		elapsedTime += calculateElapsedTime(before, after);
 
-
-		elapsedTime += calculateElapsedTime(before_write, after_write);
+		stackAllocator.Free(sizeof(foo));
+		stackAllocator.Free(sizeof(bool));
+		stackAllocator.Free(sizeof(int));	
 
 		++operations;
 	}
@@ -131,41 +139,39 @@ BenchmarkResults BenchmarkC::write() {
 	BenchmarkResults results = buildResults(operations, m_runtime, 0, 0);
 	
 	printResults(results);
+	stackAllocator.Reset();
+	return results;
+}
 
-	return results;}
-
-BenchmarkResults BenchmarkC::all() {
-	std::cout << "C ALL" << std::endl;
-
+BenchmarkResults BenchmarkStack::all() {
+	std::cout << "STACK ALL" << std::endl;
 	setStartTimer();
+	StackAllocator stackAllocator(1e10);
+
+	std::size_t operations = 0;
 	int * i;
 	bool * b;
 	foo * f;
-	std::size_t operations = 0;
-	double elapsedTime = 0;
 	while(!outOfTime()){
 		if (operations % 2 == 0){
-			i = (int*) malloc(sizeof(int));
-			b = (bool*)malloc(sizeof(bool));
-			f = (foo*) malloc(sizeof(foo));	
+			i = (int *) stackAllocator.Allocate(sizeof(int), alignof(int));			// 4  -> 4
+			b = (bool *) stackAllocator.Allocate(sizeof(bool), alignof(bool));		// 1  -> 5													// 3  -> 8
+			f = (foo *) stackAllocator.Allocate(sizeof(foo), alignof(foo));			// 16 -> 24
 		}else {
 			*i = *i + 1;
 			*b = !b;
 			*f = foo();
 
-			free(f);
-			free(b);
-			free(i);
+			stackAllocator.Free(sizeof(foo));
+			stackAllocator.Free(sizeof(bool));
+			stackAllocator.Free(sizeof(int));
 		}
+
 		++operations;
 	}
 
 	BenchmarkResults results = buildResults(operations, m_runtime, 0, 0);
 	
 	printResults(results);
-
-	return results;
-
-
-
-}
+	stackAllocator.Reset();
+	return results;}
