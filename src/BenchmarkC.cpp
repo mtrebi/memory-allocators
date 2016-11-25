@@ -126,5 +126,37 @@ BenchmarkResults BenchmarkC::write() {
 	return results;}
 
 BenchmarkResults BenchmarkC::all() {
-	return buildResults(0, 0, 0, 0);
+	std::cout << "C ALL" << std::endl;
+
+	setStartTimer();
+	int * i;
+	bool * b;
+	foo * f;
+	std::size_t operations = 0;
+	double elapsedTime = 0;
+	while(!outOfTime()){
+		if (operations % 2 == 0){
+			i = (int*) malloc(sizeof(int));
+			b = (bool*)malloc(sizeof(bool));
+			f = (foo*) malloc(sizeof(foo));	
+		}else {
+			*i = *i + 1;
+			*b = !b;
+			*f = foo();
+
+			free(f);
+			free(b);
+			free(i);
+		}
+		++operations;
+	}
+
+	BenchmarkResults results = buildResults(operations, m_runtime, 0, 0);
+	
+	printResults(results);
+
+	return results;
+
+
+
 }
