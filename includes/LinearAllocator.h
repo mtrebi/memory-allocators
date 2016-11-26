@@ -1,27 +1,21 @@
 #ifndef LINEARALLOCATOR_H
 #define LINEARALLOCATOR_H
 
-#include <cstddef> // std::size_t
+#include "Allocator.h"
 
-class LinearAllocator {
+class LinearAllocator : public Allocator {
 protected:
-	/* Memory size */
-	std::size_t m_totalSize;
-	/* Pointer to the start of the memory block. Once set, never changes */
 	void* m_start_ptr;
-	/* Offset from the start of the memory block */
 	std::size_t m_offset;
 public:
-	/* Allocation of real memory */
 	LinearAllocator(const std::size_t totalSize);
 
-	/* Frees all memory */
 	virtual ~LinearAllocator();
 
-	/* Allocate virtual memory */
-	virtual void* Allocate(const std::size_t size, const std::size_t alignment);
+	virtual void* Allocate(const std::size_t size, const short alignment = 0) override;
+	
+	virtual void Free(void* ptr) override;
 
-	/* Frees all virtual memory */
 	virtual void Reset();
 private:
 	LinearAllocator(LinearAllocator &linearAllocator);
