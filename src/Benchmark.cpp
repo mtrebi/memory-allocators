@@ -8,7 +8,10 @@ Benchmark::Benchmark(const int runtimeMs, const int allocation_size, const int a
 }
 
 BenchmarkResults Benchmark::Allocation(Allocator* allocator){
-    std::cout << "BENCHMARK: ALLOCATION" << std::endl;
+    std::cout << "BENCHMARK: ALLOCATION" <<  std::endl;
+    std::cout << "\tSize:     \t" << m_allocationSize << std::endl;
+    std::cout << "\tAlignment\t" << m_alignmentSize <<  std::endl;
+
     setTimer(m_start);
 
     int operations = 0;
