@@ -7,7 +7,7 @@
 class Allocator {
 protected:
 	std::size_t m_totalSize;
-        std::size_t m_used;
+    std::size_t m_used;
 public:
 	Allocator(const std::size_t totalSize);
 
