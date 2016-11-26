@@ -1,17 +1,19 @@
 #include "Benchmark.h"
 #include <iostream>
 
-Benchmark::Benchmark(const int runtime){
+Benchmark::Benchmark(const float runtime, const int allocation_size, const int alignment_size){
     m_runtime = runtime;
+    m_allocationSize = allocation_size;
+    m_alignmentSize = alignment_size;
 }
 
-BenchmarkResults Benchmark::Allocation(Allocator* allocator, const int allocation_size, const int alignment_size){
+BenchmarkResults Benchmark::Allocation(Allocator* allocator){
     std::cout << "BENCHMARK: ALLOCATION" << std::endl;
     void setStartTimer();
 
     int operations = 0;
     while(!outOfTime()){
-        allocator->Allocate(allocation_size, alignment_size);
+        allocator->Allocate(m_allocationSize, m_alignmentSize);
         ++operations;
     }
     BenchmarkResults results = buildResults(operations, m_runtime, 0,0);
