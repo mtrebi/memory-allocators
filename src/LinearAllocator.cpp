@@ -6,10 +6,13 @@
 
 LinearAllocator::LinearAllocator(const std::size_t totalSize)
 	: Allocator(totalSize) {
+}
 
+void LinearAllocator::Init() {
 	m_start_ptr = malloc(m_totalSize);
 	m_offset = 0;
 }
+
 
 LinearAllocator::~LinearAllocator(){
 	free(m_start_ptr);

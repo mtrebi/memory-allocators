@@ -5,6 +5,9 @@
 StackAllocator::StackAllocator(const std::size_t totalSize)
 	: Allocator(totalSize) {
 
+}
+
+void LinearAllocator::Init() {
 	m_start_ptr = malloc(m_totalSize);
 	m_offset = 0;
 }
@@ -19,7 +22,7 @@ void* StackAllocator::Allocate(const std::size_t size, const short alignment){
 	std::size_t paddedAddress = 0;
 	const std::size_t currentAddress = (std::size_t)m_start_ptr + m_offset;
 
-	if (alignment!= 0 && m_offset % alignment != 0) {
+	if (alignment!= 0 && m_soffset % alignment != 0) {
 		// Alignment is required. Find the next aligned memory address and update offset
 		padding = Utils::CalculatePadding(m_offset, alignment);
 		m_offset += padding;

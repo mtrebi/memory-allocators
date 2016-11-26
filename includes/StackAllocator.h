@@ -16,6 +16,8 @@ public:
 
 	virtual void Free(const std::size_t size);
 
+	virtual void Init() override;
+
 private:
 	StackAllocator(StackAllocator &stackAllocator);
 

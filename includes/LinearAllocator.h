@@ -16,6 +16,8 @@ public:
 	
 	virtual void Free(void* ptr) override;
 
+	virtual void Init() override;
+
 	virtual void Reset();
 private:
 	LinearAllocator(LinearAllocator &linearAllocator);

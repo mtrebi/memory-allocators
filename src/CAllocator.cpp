@@ -6,6 +6,10 @@ CAllocator::CAllocator()
 
 }
 
+void CAllocator::Init() {
+
+}
+
 CAllocator::~CAllocator(){
     
 }

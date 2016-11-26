@@ -14,6 +14,7 @@ BenchmarkResults Benchmark::Allocation(Allocator* allocator){
 
     setTimer(m_start);
 
+    allocator->Init();
     int operations = 0;
     while(!outOfTime()){
         allocator->Allocate(m_allocationSize, m_alignmentSize);
