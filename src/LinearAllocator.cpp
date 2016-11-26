@@ -1,6 +1,8 @@
 #include "LinearAllocator.h"
+#include "Utils.h"		/* CalculatePadding */
 #include <stdlib.h>     /* malloc, free */
 #include <cassert> 		/*assert		*/
+
 
 LinearAllocator::LinearAllocator(const std::size_t totalSize)
 	: Allocator(totalSize) {
@@ -21,7 +23,7 @@ void* LinearAllocator::Allocate(const std::size_t size, const short alignment){
 
 	if (alignment!= 0 && m_offset % alignment != 0) {
 		// Alignment is required. Find the next aligned memory address and update offset
-		padding = CalculatePadding(m_offset, alignment);
+		padding = Utils::CalculatePadding(m_offset, alignment);
 		m_offset += padding;
 	}
 
@@ -43,10 +45,4 @@ void LinearAllocator::Free(void* ptr){
 void LinearAllocator::Reset() {
 	m_offset = 0;
 	m_used = 0;
-}
-
-const std::size_t LinearAllocator::CalculatePadding(const std::size_t offset, const std::size_t alignment) {
-	const std::size_t multiplier = (offset / alignment) + 1;
-	const std::size_t padding = (multiplier * alignment) - offset;
-	return padding;
 }

@@ -19,10 +19,6 @@ public:
 	virtual void Reset();
 private:
 	LinearAllocator(LinearAllocator &linearAllocator);
-
-protected:
-	const std::size_t CalculatePadding(const std::size_t offset, const std::size_t alignment);
-
 };
 
 #endif /* LINEARALLOCATOR_H */
