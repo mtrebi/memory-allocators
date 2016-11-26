@@ -1,8 +1,8 @@
 #include "CAllocator.h"
 #include <stdlib.h>     /* malloc, free */
 
-CAllocator::CAllocator(const std::size_t totalSize)
-    : Allocator(totalSize) {
+CAllocator::CAllocator()
+    : Allocator(0) {
 
 }
 
