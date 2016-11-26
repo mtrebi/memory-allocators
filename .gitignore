@@ -1,3 +1,7 @@
+#Netbeans
+.dep.inc
+nbproject/
+
 #Linux executable
 main
 
