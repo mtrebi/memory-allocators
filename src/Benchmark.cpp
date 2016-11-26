@@ -2,45 +2,59 @@
 #include <iostream>
 
 Benchmark::Benchmark(const int runtime){
-  m_runtime = runtime;
+    m_runtime = runtime;
 }
+
+BenchmarkResults Benchmark::Allocation(Allocator& allocator, const int allocation_size, const int alignment_size){
+    std::cout << "BENCHMARK: ALLOCATION" << std::endl;
+    void setStartTimer();
+
+    int operations = 0;
+    while(!outOfTime()){
+        allocator.Allocate(allocation_size, alignment_size);
+        ++operations;
+    }
+    BenchmarkResults results = buildResults(operations, m_runtime, 0,0);
+    printResults(results);
+    return results;
+}
+
 
 void Benchmark::setStartTimer(){
 	setTimer(m_start);
 }
 
 void Benchmark::setTimer(timespec& timer){
-  clock_gettime(CLOCK_REALTIME, &timer);
-}
-
-const double Benchmark::calculateElapsedTime(const timespec& start, const timespec& end) const {
-  timespec temp;
-  if ((end.tv_nsec-start.tv_nsec)<0) {
-      temp.tv_sec = end.tv_sec-start.tv_sec-1;
-      temp.tv_nsec = 1e9+end.tv_nsec-start.tv_nsec;
-  } else {
-      temp.tv_sec = end.tv_sec-start.tv_sec;
-      temp.tv_nsec = end.tv_nsec-start.tv_nsec;
-  }
-
-  const double time_sec = (double) temp.tv_sec;
-  const double time_nsec = (double) temp.tv_nsec;
-  const double time_msec = (time_sec * 1e3) + (time_nsec / 1e6);
-
-  return time_msec;
+    clock_gettime(CLOCK_REALTIME, &timer);
 }
 
 const bool Benchmark::outOfTime() {
-  timespec now;
-  setTimer(now);
+    timespec now;
+    setTimer(now);
 
-  double elapsedTime = calculateElapsedTime(m_start, now);
-  if (elapsedTime > (m_runtime * 1e3)){
-    return true;
-  }
-  return false;
+    double elapsedTime = calculateElapsedTime(m_start, now);
+    if (elapsedTime > (m_runtime * 1e3)){
+        return true;
+    }
+    return false;
 }
 
+const double Benchmark::calculateElapsedTime(const timespec& start, const timespec& end) const {
+    timespec temp;
+    if ((end.tv_nsec-start.tv_nsec) < 0) {
+        temp.tv_sec = end.tv_sec-start.tv_sec-1;
+        temp.tv_nsec = 1e9+end.tv_nsec-start.tv_nsec;
+    } else {
+        temp.tv_sec = end.tv_sec-start.tv_sec;
+        temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+    }
+
+    const double time_sec = (double) temp.tv_sec;
+    const double time_nsec = (double) temp.tv_nsec;
+    const double time_msec = (time_sec * 1e3) + (time_nsec / 1e6);
+
+    return time_msec;
+}
 
 void Benchmark::printResults(const BenchmarkResults& results) const {
 	std::cout << "\tRESULTS:" << std::endl;
@@ -49,8 +63,8 @@ void Benchmark::printResults(const BenchmarkResults& results) const {
 	std::cout << "\t\tOp per sec:    \t" << results.operationsPerSec << " ops/s" << std::endl;
 	std::cout << "\t\tTimer per op:  \t" << results.timePerOperation << " s/ops" << std::endl;
 	if (results.memoryUsed > 0) {
-    std::cout << "\t\tMemory used:   \t" << results.memoryUsed  << " bytes" << std::endl;
-    std::cout << "\t\tMemory wasted: \t" << results.memoryWasted  << " bytes\t" << "\t" << ((float) results.memoryWasted / results.memoryUsed)*100 << "%" << std::endl;
+        std::cout << "\t\tMemory used:   \t" << results.memoryUsed  << " bytes" << std::endl;
+        std::cout << "\t\tMemory wasted: \t" << results.memoryWasted  << " bytes\t" << "\t" << ((float) results.memoryWasted / results.memoryUsed)*100 << "%" << std::endl;
 	}
   std::cout << std::endl;
 }
@@ -67,3 +81,5 @@ const BenchmarkResults Benchmark::buildResults(const long nOperations, const dou
 
 	return results;
 }
+
+

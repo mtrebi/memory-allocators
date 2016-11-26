@@ -3,6 +3,7 @@
 
 #include <time.h> // timespec
 #include <cstddef> // std::size_t
+#include "Allocator.h" // base class allocator
 
 struct foo {
     char *p;     /* 8 bytes */
@@ -55,19 +56,19 @@ struct BenchmarkResults {
 };
 
 class Benchmark {
-protected:
-	int m_runtime;
 private:
+	int m_runtime;
 	timespec m_start;
+
+
+
 public:
 	Benchmark(const int runtime);
 
-	virtual BenchmarkResults allocation() = 0;
-	virtual BenchmarkResults freeing() = 0;
-	virtual BenchmarkResults read() = 0;
-	virtual BenchmarkResults write() = 0;
-	virtual BenchmarkResults all() = 0;
-protected:
+	BenchmarkResults Allocation(Allocator& allocator, const int allocation_size, const int alignment_size);
+	//BenchmarkResults AllocationFree(Allocator& allocator);
+
+private:
 	void printResults(const BenchmarkResults& results) const;
 	void setTimer(timespec& timer);
 	void setStartTimer();
