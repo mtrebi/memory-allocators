@@ -56,18 +56,11 @@ struct BenchmarkResults {
 };
 
 class Benchmark {
-private:
-	int m_runtime;
-	timespec m_start;
-
-
-
 public:
 	Benchmark(const int runtime);
 
-	BenchmarkResults Allocation(Allocator& allocator, const int allocation_size, const int alignment_size);
+	BenchmarkResults Allocation(Allocator* allocator, const int allocation_size, const int alignment_size);
 	//BenchmarkResults AllocationFree(Allocator& allocator);
-
 private:
 	void printResults(const BenchmarkResults& results) const;
 	void setTimer(timespec& timer);
@@ -76,6 +69,47 @@ private:
 	const bool outOfTime();
 	const double calculateElapsedTime(const timespec& start, const timespec& end) const;
 	const BenchmarkResults buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;
+private:
+	int m_runtime;
+	timespec m_start;
+public:
+	struct b16 {
+		float a;
+		float b;
+	};
+
+	struct b32 {
+		b16 a;
+		b16 b;
+	};
+
+	struct b64 {
+		b16 a;
+		b16 b;
+		b32 c;
+	};
+
+	struct b128 {
+		b16 a;
+		b16 b;
+		b32 c;
+		b64 d;
+	};
+
+	struct b256 {
+		b128 a;
+		b128 b;
+	};
+
+	struct b512 {
+		b256 a;
+		b256 b;
+	};
+
+	struct b1024 {
+		b512 a;
+		b512 b;
+	};
 
 };
 

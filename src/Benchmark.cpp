@@ -5,13 +5,13 @@ Benchmark::Benchmark(const int runtime){
     m_runtime = runtime;
 }
 
-BenchmarkResults Benchmark::Allocation(Allocator& allocator, const int allocation_size, const int alignment_size){
+BenchmarkResults Benchmark::Allocation(Allocator* allocator, const int allocation_size, const int alignment_size){
     std::cout << "BENCHMARK: ALLOCATION" << std::endl;
     void setStartTimer();
 
     int operations = 0;
     while(!outOfTime()){
-        allocator.Allocate(allocation_size, alignment_size);
+        allocator->Allocate(allocation_size, alignment_size);
         ++operations;
     }
     BenchmarkResults results = buildResults(operations, m_runtime, 0,0);
