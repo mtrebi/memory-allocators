@@ -76,7 +76,7 @@ private:
 	timespec m_start;
 public:
 	struct b16 {
-		float a;
+		int a;
 		float b;
 	};
 

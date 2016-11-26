@@ -9,11 +9,11 @@ Benchmark::Benchmark(const int runtimeMs, const int allocation_size, const int a
 
 BenchmarkResults Benchmark::Allocation(Allocator* allocator){
     std::cout << "BENCHMARK: ALLOCATION" << std::endl;
-    void setStartTimer();
+    setTimer(m_start);
 
     int operations = 0;
     while(!outOfTime()){
-        //allocator->Allocate(m_allocationSize, m_alignmentSize);
+        allocator->Allocate(m_allocationSize, m_alignmentSize);
         ++operations;
     }
     BenchmarkResults results = buildResults(operations, m_runtimeMs, 0,0);
@@ -38,7 +38,7 @@ const bool Benchmark::outOfTime() {
     if (elapsedTime > m_runtimeMs){
         return true;
     }
-    std::cout << elapsedTime << std::endl;
+    //std::cout << elapsedTime << std::endl;
     return false;
 }
 
