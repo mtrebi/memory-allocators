@@ -1,32 +1,28 @@
 #ifndef STACKALLOCATOR_H
 #define STACKALLOCATOR_H
 
-#include "LinearAllocator.h"
+#include "Allocator.h"
 
-struct Padding {
-	char padding;
-};
-
-class StackAllocator : public LinearAllocator {
+class StackAllocator : public Allocator {
+protected:
+	void* m_start_ptr;
+	std::size_t m_offset;
 public:
-	/* Allocation of real memory */
 	StackAllocator(const std::size_t totalSize);
 
-	/* Frees all memory */
 	virtual ~StackAllocator();
 
-	/* Allocate virtual memory */
-	virtual void* Allocate(const std::size_t size, const std::size_t alignment);
+	virtual void* Allocate(const std::size_t size, const short alignment = 0);
 
-	/* Frees memory from the top of the stack */
 	virtual void Free(const std::size_t size);
 
-	/* Frees all virtual memory */
-	virtual void Reset() override;
-
-	friend class BenchmarkStack;
 private:
 	StackAllocator(StackAllocator &stackAllocator);
+
+	struct AllocationHeader {
+		char padding;
+	};
+
 };
 
 #endif /* STACKALLOCATOR_H */
