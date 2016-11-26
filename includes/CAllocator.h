@@ -5,7 +5,7 @@
 
 class CAllocator : public Allocator {
 public:
-	CAllocator(const std::size_t totalSize);
+	CAllocator();
 
 	virtual ~CAllocator();
 
