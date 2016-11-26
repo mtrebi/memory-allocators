@@ -57,7 +57,7 @@ struct BenchmarkResults {
 
 class Benchmark {
 public:
-	Benchmark(const float runtime, const int allocation_size, const int alignment_size);
+	Benchmark(const int runtimeMs, const int allocation_size, const int alignment_size);
 
 	BenchmarkResults Allocation(Allocator* allocator);
 	//BenchmarkResults AllocationFree(Allocator& allocator);
@@ -70,7 +70,7 @@ private:
 	const double calculateElapsedTime(const timespec& start, const timespec& end) const;
 	const BenchmarkResults buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;
 private:
-	int m_runtime,
+	int m_runtimeMs,
 		m_allocationSize,
 		m_alignmentSize;
 	timespec m_start;

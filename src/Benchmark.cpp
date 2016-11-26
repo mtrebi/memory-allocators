@@ -1,8 +1,8 @@
 #include "Benchmark.h"
 #include <iostream>
 
-Benchmark::Benchmark(const float runtime, const int allocation_size, const int alignment_size){
-    m_runtime = runtime;
+Benchmark::Benchmark(const int runtimeMs, const int allocation_size, const int alignment_size){
+    m_runtimeMs = runtimeMs;
     m_allocationSize = allocation_size;
     m_alignmentSize = alignment_size;
 }
@@ -13,10 +13,10 @@ BenchmarkResults Benchmark::Allocation(Allocator* allocator){
 
     int operations = 0;
     while(!outOfTime()){
-        allocator->Allocate(m_allocationSize, m_alignmentSize);
+        //allocator->Allocate(m_allocationSize, m_alignmentSize);
         ++operations;
     }
-    BenchmarkResults results = buildResults(operations, m_runtime, 0,0);
+    BenchmarkResults results = buildResults(operations, m_runtimeMs, 0,0);
     printResults(results);
     return results;
 }
@@ -35,9 +35,10 @@ const bool Benchmark::outOfTime() {
     setTimer(now);
 
     double elapsedTime = calculateElapsedTime(m_start, now);
-    if (elapsedTime > (m_runtime * 1e3)){
+    if (elapsedTime > m_runtimeMs){
         return true;
     }
+    std::cout << elapsedTime << std::endl;
     return false;
 }
 
@@ -61,9 +62,9 @@ const double Benchmark::calculateElapsedTime(const timespec& start, const timesp
 void Benchmark::printResults(const BenchmarkResults& results) const {
 	std::cout << "\tRESULTS:" << std::endl;
 	std::cout << "\t\tOperations:    \t" << results.nOperations  << std::endl;
-	std::cout << "\t\tTime elapsed:  \t" << results.elapsedTime << " s" << std::endl;
-	std::cout << "\t\tOp per sec:    \t" << results.operationsPerSec << " ops/s" << std::endl;
-	std::cout << "\t\tTimer per op:  \t" << results.timePerOperation << " s/ops" << std::endl;
+	std::cout << "\t\tTime elapsed:  \t" << results.elapsedTime << " ms" << std::endl;
+	std::cout << "\t\tOp per sec:    \t" << results.operationsPerSec << " ops/ms" << std::endl;
+	std::cout << "\t\tTimer per op:  \t" << results.timePerOperation << " ms/ops" << std::endl;
 	if (results.memoryUsed > 0) {
         std::cout << "\t\tMemory used:   \t" << results.memoryUsed  << " bytes" << std::endl;
         std::cout << "\t\tMemory wasted: \t" << results.memoryWasted  << " bytes\t" << "\t" << ((float) results.memoryWasted / results.memoryUsed)*100 << "%" << std::endl;
