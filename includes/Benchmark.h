@@ -3,6 +3,7 @@
 
 #include <time.h> // timespec
 #include <cstddef> // std::size_t
+#include <vector>
 #include "Allocator.h" // base class allocator
 
 struct foo {
@@ -57,62 +58,21 @@ struct BenchmarkResults {
 
 class Benchmark {
 public:
-	Benchmark(const int runtimeMs, const int allocation_size, const int alignment_size);
+	Benchmark(const int nOperations, const std::vector<int>& allocationSizes, const int alignment);
 
-	BenchmarkResults Allocation(Allocator* allocator);
-	//BenchmarkResults AllocationFree(Allocator& allocator);
+	void Allocation(Allocator* allocator);
+	void Free(Allocator* allocator);
 private:
 	void printResults(const BenchmarkResults& results) const;
 	void setTimer(timespec& timer);
-	void setStartTimer();
 
-	const bool outOfTime();
-	const double calculateElapsedTime(const timespec& start, const timespec& end) const;
+	const double calculateElapsedTime() const;
 	const BenchmarkResults buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;
 private:
-	int m_runtimeMs,
-		m_allocationSize,
-		m_alignmentSize;
-	timespec m_start;
-public:
-	struct b16 {
-		int a;
-		double b;
-	};
-
-	struct b32 {
-		b16 a;
-		b16 b;
-	};
-
-	struct b64 {
-		b16 a;
-		b16 b;
-		b32 c;
-	};
-
-	struct b128 {
-		b16 a;
-		b16 b;
-		b32 c;
-		b64 d;
-	};
-
-	struct b256 {
-		b128 a;
-		b128 b;
-	};
-
-	struct b512 {
-		b256 a;
-		b256 b;
-	};
-
-	struct b1024 {
-		b512 a;
-		b512 b;
-	};
-
+	int m_nOperations,
+		m_alignment;
+	std::vector<int> m_allocationSizes;
+	timespec m_start, m_end;
 };
 
 #endif /* BENCHMARK_H */

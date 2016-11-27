@@ -108,7 +108,7 @@ void test_stack_allocator(){
 
 //g++ -Iincludes/ src/Allocator.cpp src/CAllocator.cpp src/Benchmark.cpp src/main.cpp -std=c++11 -o main
 
-
+#include <vector>
 #include "Benchmark.h"
 #include "Allocator.h"
 #include "StackAllocator.h"
@@ -119,14 +119,23 @@ void test_stack_allocator(){
 
 
 int main(){
+	const std::vector<int> ALLOCATION_SIZES {16, 32, 64, 256, 512, 1024};
+	const int ALIGNMENT = 8;
+
 	Allocator * cAllocator = new CAllocator();
 	Allocator * linearAllocator = new LinearAllocator(1e5);
 	//Allocator * stackAllocator = new StackAllocator(1e5);
 
-	Benchmark benchmark_16(1000, sizeof(Benchmark::b16), alignof(Benchmark::b16));
-	benchmark_16.Allocation(cAllocator);
-	benchmark_16.Allocation(linearAllocator);
-	//benchmark_16.Allocation(stackAllocator);
+	Benchmark benchmark(1, ALLOCATION_SIZES, ALIGNMENT);
+	
+	std::cout << "C ALLOCATOR" << std::endl;
+	benchmark.Allocation(cAllocator);
+
+	std::cout << "LINEAR ALLOCATOR" << std::endl;
+	benchmark.Allocation(linearAllocator);
+	
+	std::cout << "STACK ALLOCATOR" << std::endl;
+	//benchmark.Allocation(stackAllocator);
 
 	delete cAllocator;
 	delete linearAllocator;

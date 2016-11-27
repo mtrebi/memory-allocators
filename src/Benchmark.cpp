@@ -1,59 +1,73 @@
 #include "Benchmark.h"
 #include <iostream>
 
-Benchmark::Benchmark(const int runtimeMs, const int allocation_size, const int alignment_size){
-    m_runtimeMs = runtimeMs;
-    m_allocationSize = allocation_size;
-    m_alignmentSize = alignment_size;
+Benchmark::Benchmark(const int nOperations, const std::vector<int>& allocationSizes, const int alignment){
+    m_nOperations = nOperations;
+    m_alignment = alignment;
+    m_allocationSizes = allocationSizes;
 }
 
-BenchmarkResults Benchmark::Allocation(Allocator* allocator){
-    std::cout << "BENCHMARK: ALLOCATION" <<  std::endl;
-    std::cout << "\tSize:     \t" << m_allocationSize << std::endl;
-    std::cout << "\tAlignment\t" << m_alignmentSize <<  std::endl;
 
-    setTimer(m_start);
+void Benchmark::Allocation(Allocator* allocator){
+    for (auto& allocation_size : m_allocationSizes) {
+        std::cout << "\tBENCHMARK: ALLOCATION" <<  std::endl;
+        std::cout << "\tSize:     \t" << allocation_size << std::endl;
+        std::cout << "\tAlignment\t" << m_alignment <<  std::endl;
 
-    allocator->Init();
-    int operations = 0;
-    while(!outOfTime()){
-        allocator->Allocate(m_allocationSize, m_alignmentSize);
-        ++operations;
+        setTimer(m_start);
+        allocator->Init();
+        int operations = 0;
+        while(operations < m_nOperations){
+            allocator->Allocate(allocation_size, m_alignment);
+            ++operations;
+        }
+        setTimer(m_end);
+
+        BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), 0,0);
+        printResults(results);
     }
-    BenchmarkResults results = buildResults(operations, m_runtimeMs, 0,0);
-    printResults(results);
-    return results;
 }
 
+void Benchmark::Free(Allocator* allocator){
+    for (auto& allocation_size : m_allocationSizes) {
+        std::cout << "BENCHMARK: ALLOCATION/FREE" <<  std::endl;
+        std::cout << "\tSize:     \t" << allocation_size << std::endl;
+        std::cout << "\tAlignment\t" << m_alignment <<  std::endl;
 
-void Benchmark::setStartTimer(){
-	setTimer(m_start);
+        void* addresses[m_nOperations];
+
+        setTimer(m_start);
+        allocator->Init();
+        int operations = 0;
+        while(operations < m_nOperations){
+            addresses[operations] = allocator->Allocate(allocation_size, m_alignment);
+            ++operations;
+        }
+
+        while(operations > 0){
+            allocator->Free(addresses[operations]);
+            --operations;
+        }
+
+        setTimer(m_end);
+
+        BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), 0,0);
+        printResults(results);
+    }
 }
 
 void Benchmark::setTimer(timespec& timer){
     clock_gettime(CLOCK_REALTIME, &timer);
 }
 
-const bool Benchmark::outOfTime() {
-    timespec now;
-    setTimer(now);
-
-    double elapsedTime = calculateElapsedTime(m_start, now);
-    if (elapsedTime > m_runtimeMs){
-        return true;
-    }
-    //std::cout << elapsedTime << std::endl;
-    return false;
-}
-
-const double Benchmark::calculateElapsedTime(const timespec& start, const timespec& end) const {
+const double Benchmark::calculateElapsedTime() const {
     timespec temp;
-    if ((end.tv_nsec-start.tv_nsec) < 0) {
-        temp.tv_sec = end.tv_sec-start.tv_sec-1;
-        temp.tv_nsec = 1e9+end.tv_nsec-start.tv_nsec;
+    if ((m_end.tv_nsec-m_start.tv_nsec) < 0) {
+        temp.tv_sec = m_end.tv_sec-m_start.tv_sec-1;
+        temp.tv_nsec = 1e9+m_end.tv_nsec-m_start.tv_nsec;
     } else {
-        temp.tv_sec = end.tv_sec-start.tv_sec;
-        temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+        temp.tv_sec = m_end.tv_sec-m_start.tv_sec;
+        temp.tv_nsec = m_end.tv_nsec-m_start.tv_nsec;
     }
 
     const double time_sec = (double) temp.tv_sec;
