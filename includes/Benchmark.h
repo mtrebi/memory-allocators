@@ -77,7 +77,7 @@ private:
 public:
 	struct b16 {
 		int a;
-		float b;
+		double b;
 	};
 
 	struct b32 {
