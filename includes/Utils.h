@@ -9,6 +9,25 @@ public:
 		const std::size_t padding = alignedAddress - baseAddress;
 		return padding;
 	}
+
+	static const std::size_t CalculatePaddingWithHeader(const std::size_t baseAddress, const std::size_t alignment, const std::size_t headerSize) {
+		unsigned short padding = CalculatePadding(baseAddress, alignment);
+		unsigned short neededSpace = headerSize;
+
+		if (padding < neededSpace){
+			// Header does not fit - Calculate next aligned address that header fits
+			neededSpace -= padding;
+
+			// How many alignments I need to fit the header        
+        	if(neededSpace % alignment > 0){
+		        padding += alignment * (1+(neededSpace / alignment));
+        	}else {
+		        padding += alignment * (neededSpace / alignment);
+        	}
+		}
+
+		return padding;
+	}
 };
 
 #endif /* UTILS_H */
