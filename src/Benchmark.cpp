@@ -43,8 +43,8 @@ void Benchmark::Free(Allocator* allocator){
             addresses[operations] = allocator->Allocate(allocation_size, m_alignment);
             ++operations;
         }
-
-        while(operations > 0){
+        --operations;
+        while(operations >= 0){
             allocator->Free(addresses[operations]);
             --operations;
         }
