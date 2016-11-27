@@ -106,23 +106,31 @@ void test_stack_allocator(){
 }
 */
 
-#include "BenchmarkStack.h"
-#include "BenchmarkC.h"
+//g++ -Iincludes/ src/Allocator.cpp src/CAllocator.cpp src/Benchmark.cpp src/main.cpp -std=c++11 -o main
+
+
+#include "Benchmark.h"
+#include "Allocator.h"
+#include "StackAllocator.h"
+#include "CAllocator.h"
+#include "LinearAllocator.h"
+
+
+
+
 int main(){
-	BenchmarkStack benchmarkStack(1);
-	//benchmarkStack.allocation();
-	//benchmarkStack.freeing();
-	//benchmarkStack.read();
-	//benchmarkStack.write();
-	//benchmarkStack.all();
+	Allocator * cAllocator = new CAllocator();
+	Allocator * linearAllocator = new LinearAllocator(1e5);
+	//Allocator * stackAllocator = new StackAllocator(1e5);
 
-	BenchmarkC benchmarkC(1);
-	//benchmarkC.allocation();
-	//benchmarkC.freeing();
-	//benchmarkC.read();
-	//benchmarkC.write();
-	//benchmarkC.all();
+	Benchmark benchmark_16(1000, sizeof(Benchmark::b16), alignof(Benchmark::b16));
+	benchmark_16.Allocation(cAllocator);
+	benchmark_16.Allocation(linearAllocator);
+	//benchmark_16.Allocation(stackAllocator);
 
+	delete cAllocator;
+	delete linearAllocator;
+	//delete stackAllocator;
 	return 1;
 }
 
