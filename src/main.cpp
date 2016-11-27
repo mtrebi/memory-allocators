@@ -106,6 +106,19 @@ void test_stack_allocator(){
 }
 */
 
+void test_stack(){
+	Allocator * stackAllocator = new StackAllocator(1e5);
+	stackAllocator->Init();
+
+	void * a = stackAllocator->Allocate(1, 1);
+	void * b = stackAllocator->Allocate(sizeof(int), alignof(int));
+	void * c = stackAllocator->Allocate(sizeof(double), alignof(double));
+
+	stackAllocator->Free(c);
+	stackAllocator->Free(b);
+	stackAllocator->Free(a);
+}
+
 //g++ -Iincludes/ src/Allocator.cpp src/CAllocator.cpp src/Benchmark.cpp src/main.cpp -std=c++11 -o main
 
 #include <vector>
@@ -124,7 +137,7 @@ int main(){
 
 	Allocator * cAllocator = new CAllocator();
 	Allocator * linearAllocator = new LinearAllocator(1e5);
-	//Allocator * stackAllocator = new StackAllocator(1e5);
+	Allocator * stackAllocator = new StackAllocator(1e5);
 
 	Benchmark benchmark(1, ALLOCATION_SIZES, ALIGNMENT);
 	
@@ -135,11 +148,12 @@ int main(){
 	benchmark.Allocation(linearAllocator);
 	
 	std::cout << "STACK ALLOCATOR" << std::endl;
-	//benchmark.Allocation(stackAllocator);
+	benchmark.Allocation(stackAllocator);
 
 	delete cAllocator;
 	delete linearAllocator;
-	//delete stackAllocator;
+	delete stackAllocator;
+	
 	return 1;
 }
 
