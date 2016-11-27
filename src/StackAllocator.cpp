@@ -2,12 +2,17 @@
 #include "Utils.h"		/* CalculatePadding */
 #include <stdlib.h>     /* malloc, free */
 
+#ifdef _DEBUG
+	#include <iostream>
+#endif
+
 StackAllocator::StackAllocator(const std::size_t totalSize)
 	: Allocator(totalSize) {
 
 }
 
-void LinearAllocator::Init() {
+
+void StackAllocator::Init() {
 	m_start_ptr = malloc(m_totalSize);
 	m_offset = 0;
 }
@@ -16,45 +21,38 @@ StackAllocator::~StackAllocator() {
 	free(m_start_ptr);
 	m_start_ptr = nullptr;
 }
-
 void* StackAllocator::Allocate(const std::size_t size, const short alignment){
-	int padding = 0;
-	std::size_t paddedAddress = 0;
 	const std::size_t currentAddress = (std::size_t)m_start_ptr + m_offset;
 
-	if (alignment!= 0 && m_soffset % alignment != 0) {
-		// Alignment is required. Find the next aligned memory address and update offset
-		padding = Utils::CalculatePadding(m_offset, alignment);
-		m_offset += padding;
-	}
+	unsigned short padding = Utils::CalculatePaddingWithHeader(currentAddress, alignment, sizeof(AllocationHeader));
 
-	const std::size_t nextAddress = (std::size_t) m_start_ptr + m_offset;
-
-	if (padding > 0){
-		// Store padding size in the padding itself
-		paddedAddress = (std::size_t) nextAddress  - 1;
-		AllocationHeader allocationHeader {padding};
-		*(int *) paddedAddress = allocationHeader.padding;
-	}
-
-	m_offset += size;
-
-	if (m_offset > m_totalSize){
+	if (m_offset + padding + size > m_totalSize){
 		return nullptr;
 	}
+	m_offset += padding;
+
+	const std::size_t nextAddress = currentAddress + padding;
+	const std::size_t headerAddress = nextAddress - sizeof(AllocationHeader);
+	const AllocationHeader allocationHeader {padding};
+	*(AllocationHeader *) headerAddress = allocationHeader;
+	m_offset +=size;
+
+#ifdef _DEBUG
+	std::cout << "A" << "\t@C " << (void*) currentAddress << "\t@R " << (void*) nextAddress << "\tO " << m_offset << "\tP " << padding << std::endl;
+#endif
 
 	return (void*) nextAddress;
 }
 
-void StackAllocator::Free(const std::size_t size) {
+void StackAllocator::Free(void *ptr) {
 	// Move offset back to clear address
-	m_offset -= size;
-	const std::size_t currentAddress = (std::size_t) m_start_ptr + m_offset;
-	const std::size_t paddedAddress = currentAddress - 1;
-	const AllocationHeader allocationHeader { *(int *) paddedAddress};
+	const std::size_t currentAddress = (std::size_t) ptr;
+	const std::size_t headerAddress = currentAddress - sizeof(AllocationHeader);
+	const AllocationHeader * allocationHeader { (AllocationHeader *) headerAddress};
 
-	if (allocationHeader.padding > 0) {
-		// There was padding - Move offset back to clear padding
-		m_offset -= allocationHeader.padding;
-	}
+	m_offset = currentAddress - allocationHeader->padding - (std::size_t) m_start_ptr;
+
+#ifdef _DEBUG
+	std::cout << "F" << "\t@C " << (void*) currentAddress << "\t@F " << (void*) m_start_ptr + m_offset << "\tO " << m_offset << std::endl;
+#endif
 }
