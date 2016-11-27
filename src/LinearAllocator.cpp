@@ -27,16 +27,15 @@ void* LinearAllocator::Allocate(const std::size_t size, const short alignment){
 	if (alignment!= 0 && m_offset % alignment != 0) {
 		// Alignment is required. Find the next aligned memory address and update offset
 		padding = Utils::CalculatePadding(currentAddress, alignment);
-		m_offset += padding;
 	}
 
-	const std::size_t nextAddress = (std::size_t) m_start_ptr + m_offset;
-
-	m_offset += size;
-	m_used = m_offset;
-	if (m_offset > m_totalSize){
+	if (m_offset + padding + size > m_totalSize){
 		return nullptr;
 	}
+
+	m_offset += padding;
+	const std::size_t nextAddress = currentAddress + padding;
+	m_offset += size;
 
 	return (void*) nextAddress;
 }
