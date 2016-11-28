@@ -45,6 +45,9 @@ PoolAllocator::PoolAllocator(const std::size_t totalSize, const std::size_t chun
 }
 
 void PoolAllocator::Init(){
+  if (this->head != nullptr){
+    delete this->head;
+  }
   this->head = new StackNode();
   this->head->next = NULL;
   m_start_ptr = malloc(m_totalSize);
