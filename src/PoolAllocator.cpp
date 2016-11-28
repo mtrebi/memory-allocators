@@ -34,9 +34,7 @@ void *PoolAllocator::LinkedStack::Pop()
   assert(this->head != NULL && "The pool allocator is full");
 
   StackNode *_topNode = this->head;
-  std::cout << "\tHead\t" << (void*) this->head << "\tNext: " << (void*) this->head->next <<  std::endl;
   this->head = _topNode->next;
-  std::cout << "\tHead\t" << (void*) this->head << std::endl;
   return (void *) _topNode;
 }
 
