@@ -9,8 +9,7 @@
 
 PoolAllocator::LinkedStack::LinkedStack()
 {
-  this->head = new StackNode();
-  this->head->next = NULL;
+
 }
 
 PoolAllocator::LinkedStack::~LinkedStack(){
@@ -46,6 +45,8 @@ PoolAllocator::PoolAllocator(const std::size_t totalSize, const std::size_t chun
 }
 
 void PoolAllocator::Init(){
+  this->head = new StackNode();
+  this->head->next = NULL;
   m_start_ptr = malloc(m_totalSize);
 
   // Create a linked-list with all free positions
