@@ -16,20 +16,22 @@ struct BenchmarkResults {
 
 class Benchmark {
 public:
-	Benchmark(const unsigned int nOperations, const std::vector<std::size_t>& allocationSizes, const std::size_t alignment);
+	Benchmark(const unsigned int nOperations, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
 
 	void Allocation(Allocator* allocator);
 	void Free(Allocator* allocator);
 private:
 	void printResults(const BenchmarkResults& results) const;
 	void setTimer(timespec& timer);
+	void RandomAllocationAttr(std::size_t & size, std::size_t & alignment);
 
 	const double calculateElapsedTime() const;
 	const BenchmarkResults buildResults(const unsigned int nOperations, const double elapsedTime, const std::size_t memoryUsed) const;
 private:
-	unsigned int m_nOperations,
-		m_alignment;
+	unsigned int m_nOperations;
 	std::vector<std::size_t> m_allocationSizes;
+	std::vector<std::size_t> m_alignments;
+
 	timespec m_start, m_end;
 };
 

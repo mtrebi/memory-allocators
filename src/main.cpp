@@ -9,14 +9,14 @@
 #include "LinearAllocator.h"
 
 int main(){
-	const std::vector<std::size_t> ALLOCATION_SIZES {16, 32, 64, 256, 512, 1024};
-	const std::size_t ALIGNMENT = 8;
+	const std::vector<std::size_t> ALLOCATION_SIZES {2, 4, 16, 32, 64, 256, 512, 1024};
+	const std::vector<std::size_t> ALIGNMENTS {2, 4, 8, 8, 8, 8, 8, 8};
 
 	Allocator * cAllocator = new CAllocator();
-	Allocator * linearAllocator = new LinearAllocator(1e5);
-	Allocator * stackAllocator = new StackAllocator(1e5);
+	Allocator * linearAllocator = new LinearAllocator(1e8);
+	Allocator * stackAllocator = new StackAllocator(1e8);
 
-	Benchmark benchmark(2, ALLOCATION_SIZES, ALIGNMENT);
+	Benchmark benchmark(100, ALLOCATION_SIZES, ALIGNMENTS);
 	
 	std::cout << "C" << std::endl;
 	benchmark.Allocation(cAllocator);
