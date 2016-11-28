@@ -3,6 +3,9 @@
 #include <stdlib.h>     /* malloc, free */
 #include <cassert> 		/*assert		*/
 
+#ifdef _DEBUG
+	#include <iostream>
+#endif
 
 LinearAllocator::LinearAllocator(const std::size_t totalSize)
 	: Allocator(totalSize) {
@@ -40,6 +43,10 @@ void* LinearAllocator::Allocate(const std::size_t size, const short alignment){
 	const std::size_t nextAddress = currentAddress + padding;
 	m_offset += size;
 
+#ifdef _DEBUG
+	std::cout << "A" << "\t@C " << (void*) currentAddress << "\t@R " << (void*) nextAddress << "\tO " << m_offset << "\tP " << padding << std::endl;
+#endif
+	
 	m_used = m_offset;
 	return (void*) nextAddress;
 }
