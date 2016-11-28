@@ -60,3 +60,8 @@ void StackAllocator::Free(void *ptr) {
 	std::cout << "F" << "\t@C " << (void*) currentAddress << "\t@F " << (void*) m_start_ptr + m_offset << "\tO " << m_offset << std::endl;
 #endif
 }
+
+void LinearAllocator::Reset() {
+	m_offset = 0;
+	m_used = 0;
+}

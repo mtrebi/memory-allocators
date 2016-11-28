@@ -18,6 +18,7 @@ public:
 
 	virtual void Init() override;
 
+	virtual void Reset();
 private:
 	StackAllocator(StackAllocator &stackAllocator);
 
