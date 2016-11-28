@@ -14,7 +14,7 @@ CAllocator::~CAllocator(){
     
 }
 
-void* CAllocator::Allocate(const std::size_t size, const short alignment) {
+void* CAllocator::Allocate(const std::size_t size, const std::size_t alignment) {
 	return malloc(size);
 }
 

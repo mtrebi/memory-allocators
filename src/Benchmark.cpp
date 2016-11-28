@@ -1,7 +1,7 @@
 #include "Benchmark.h"
 #include <iostream>
 
-Benchmark::Benchmark(const int nOperations, const std::vector<int>& allocationSizes, const int alignment){
+Benchmark::Benchmark(const unsigned int nOperations, const std::vector<std::size_t>& allocationSizes, const std::size_t alignment){
     m_nOperations = nOperations;
     m_alignment = alignment;
     m_allocationSizes = allocationSizes;
@@ -16,7 +16,7 @@ void Benchmark::Allocation(Allocator* allocator){
 
         setTimer(m_start);
         allocator->Init();
-        int operations = 0;
+        unsigned int operations = 0;
         while(operations < m_nOperations){
             allocator->Allocate(allocation_size, m_alignment);
             ++operations;
@@ -38,7 +38,7 @@ void Benchmark::Free(Allocator* allocator){
 
         setTimer(m_start);
         allocator->Init();
-        int operations = 0;
+        unsigned int operations = 0;
         while(operations < m_nOperations){
             addresses[operations] = allocator->Allocate(allocation_size, m_alignment);
             ++operations;
@@ -88,7 +88,7 @@ void Benchmark::printResults(const BenchmarkResults& results) const {
   std::cout << std::endl;
 }
 
-const BenchmarkResults Benchmark::buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed) const{
+const BenchmarkResults Benchmark::buildResults(const unsigned int nOperations, const double elapsedTime, const std::size_t memoryUsed) const{
 	BenchmarkResults results;
 
 	results.nOperations = nOperations;

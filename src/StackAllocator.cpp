@@ -24,10 +24,10 @@ StackAllocator::~StackAllocator() {
 	free(m_start_ptr);
 	m_start_ptr = nullptr;
 }
-void* StackAllocator::Allocate(const std::size_t size, const short alignment){
+void* StackAllocator::Allocate(const std::size_t size, const std::size_t alignment){
 	const std::size_t currentAddress = (std::size_t)m_start_ptr + m_offset;
 
-	unsigned short padding = Utils::CalculatePaddingWithHeader(currentAddress, alignment, sizeof(AllocationHeader));
+	std::size_t padding = Utils::CalculatePaddingWithHeader(currentAddress, alignment, sizeof(AllocationHeader));
 
 	if (m_offset + padding + size > m_totalSize){
 		return nullptr;

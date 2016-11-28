@@ -11,8 +11,8 @@ public:
 	}
 
 	static const std::size_t CalculatePaddingWithHeader(const std::size_t baseAddress, const std::size_t alignment, const std::size_t headerSize) {
-		unsigned short padding = CalculatePadding(baseAddress, alignment);
-		unsigned short neededSpace = headerSize;
+		std::size_t padding = CalculatePadding(baseAddress, alignment);
+		std::size_t neededSpace = headerSize;
 
 		if (padding < neededSpace){
 			// Header does not fit - Calculate next aligned address that header fits

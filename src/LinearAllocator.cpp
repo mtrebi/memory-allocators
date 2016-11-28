@@ -25,8 +25,8 @@ LinearAllocator::~LinearAllocator(){
 	m_start_ptr = nullptr;
 }
 
-void* LinearAllocator::Allocate(const std::size_t size, const short alignment){
-	int padding = 0;
+void* LinearAllocator::Allocate(const std::size_t size, const std::size_t alignment){
+	std::size_t padding = 0;
 	std::size_t paddedAddress = 0;
 	const std::size_t currentAddress = (std::size_t)m_start_ptr + m_offset;
 
