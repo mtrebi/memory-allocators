@@ -3,69 +3,75 @@
 #include <stdlib.h>     /* srand, rand */
 #include <cassert>
 
-Benchmark::Benchmark(const unsigned int nOperations, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments){
-    assert(allocationSizes.size() == alignments.size() && "Allocation sizes and Alignments must have same length");
+Benchmark::Benchmark(const unsigned int nOperations){
     m_nOperations = nOperations;
-    m_alignments = alignments;
-    m_allocationSizes = allocationSizes;
 }
 
-void Benchmark::Allocation(Allocator* allocator){
-    for (int i = 0; i < m_allocationSizes.size(); ++i){
-        std::cout << "BENCHMARK: ALLOCATION" <<  std::endl;
-        std::cout << "\tSize:     \t" << m_allocationSizes[i] << std::endl;
-        std::cout << "\tAlignment\t" << m_alignments[i] <<  std::endl;
+void Benchmark::SingleAllocation(Allocator* allocator, const std::size_t size, const  std::size_t alignment){
+    std::cout << "BENCHMARK: ALLOCATION" <<  std::endl;
+    std::cout << "\tSize:     \t" << size << std::endl;
+    std::cout << "\tAlignment\t" << alignment <<  std::endl;
 
-        setTimer(m_start);
-        std::size_t allocation_size = m_allocationSizes[i];
-        std::size_t alignment = m_alignments[i];
+    setTimer(m_start);
 
-        allocator->Init();
-        unsigned int operations = 0;
-        while(operations < m_nOperations){
-            allocator->Allocate(allocation_size, alignment);
-            ++operations;
-        }
-        setTimer(m_end);
-
-        BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
-        printResults(results);
+    allocator->Init();
+    unsigned int operations = 0;
+    while(operations < m_nOperations){
+        allocator->Allocate(size, alignment);
+        ++operations;
     }
+    setTimer(m_end);
+
+    BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
+    printResults(results);
 }
 
-void Benchmark::Free(Allocator* allocator){
-    for (int i = 0; i < m_allocationSizes.size(); ++i){
-        std::cout << "BENCHMARK: ALLOCATION/FREE" <<  std::endl;
-        std::cout << "\tSize:     \t" << m_allocationSizes[i] << std::endl;
-        std::cout << "\tAlignment\t" << m_alignments[i] <<  std::endl;
+void Benchmark::SingleFree(Allocator* allocator, const std::size_t size, const  std::size_t alignment){
+    std::cout << "BENCHMARK: ALLOCATION/FREE" <<  std::endl;
+    std::cout << "\tSize:     \t" << size << std::endl;
+    std::cout << "\tAlignment\t" << alignment <<  std::endl;
 
-        void* addresses[m_nOperations];
+    void* addresses[m_nOperations];
 
-        setTimer(m_start);
-        std::size_t allocation_size = m_allocationSizes[i];
-        std::size_t alignment = m_alignments[i];
-        
-        allocator->Init();
-        int operations = 0;
-        while(operations < m_nOperations){
-            addresses[operations] = allocator->Allocate(allocation_size, alignment);
-            ++operations;
-        }
+    setTimer(m_start);
+    
+    allocator->Init();
+    int operations = 0;
+    while(operations < m_nOperations){
+        addresses[operations] = allocator->Allocate(size, alignment);
+        ++operations;
+    }
+    --operations;
+    while(operations >= 0){
+        allocator->Free(addresses[operations]);
         --operations;
-        while(operations >= 0){
-            allocator->Free(addresses[operations]);
-            --operations;
-        }
+    }
 
-        setTimer(m_end);
+    setTimer(m_end);
 
-        BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
-        printResults(results);
+    BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
+    printResults(results);
+}
+
+
+void Benchmark::MultipleAllocation(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments){
+    assert(allocationSizes.size() == alignments.size() && "Allocation sizes and Alignments must have same length");
+
+    for (int i = 0; i < allocationSizes.size(); ++i){
+        SingleAllocation(allocator, allocationSizes[i], alignments[i]);
+    }
+}
+
+void Benchmark::MultipleFree(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments){
+    assert(allocationSizes.size() == alignments.size() && "Allocation sizes and Alignments must have same length");
+
+    for (int i = 0; i < allocationSizes.size(); ++i){
+        SingleFree(allocator, allocationSizes[i], alignments[i]);
     }
 }
 
 
-void Benchmark::AllocationRandom(Allocator* allocator){
+void Benchmark::RandomAllocation(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments){
     srand(1);
 
     std::cout << "\tBENCHMARK: ALLOCATION" <<  std::endl;
@@ -77,7 +83,7 @@ void Benchmark::AllocationRandom(Allocator* allocator){
     allocator->Init();
     unsigned int operations = 0;
     while(operations < m_nOperations){
-        this->RandomAllocationAttr(allocation_size, alignment);
+        this->RandomAllocationAttr(allocationSizes, alignments, allocation_size, alignment);
         allocator->Allocate(allocation_size, alignment);
         ++operations;
     }
@@ -88,7 +94,7 @@ void Benchmark::AllocationRandom(Allocator* allocator){
     
 }
 
-void Benchmark::FreeRandom(Allocator* allocator){
+void Benchmark::RandomFree(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments){
     srand(1);
 
     std::cout << "\tBENCHMARK: ALLOCATION/FREE" <<  std::endl;
@@ -102,7 +108,7 @@ void Benchmark::FreeRandom(Allocator* allocator){
     allocator->Init();
     int operations = 0;
     while(operations < m_nOperations){
-        this->RandomAllocationAttr(allocation_size, alignment);
+        this->RandomAllocationAttr(allocationSizes, alignments, allocation_size, alignment);
         addresses[operations] = allocator->Allocate(allocation_size, alignment);
         ++operations;
     }
@@ -163,9 +169,9 @@ const BenchmarkResults Benchmark::buildResults(const unsigned int nOperations, c
 	return results;
 }
 
-void Benchmark::RandomAllocationAttr(std::size_t & size, std::size_t & alignment){
-    const int r = rand() % m_allocationSizes.size();
-    size = m_allocationSizes[r];
-    alignment = m_alignments[r];
+void Benchmark::RandomAllocationAttr(const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments, std::size_t & size, std::size_t & alignment){
+    const int r = rand() % allocationSizes.size();
+    size = allocationSizes[r];
+    alignment = alignments[r];
 }
 

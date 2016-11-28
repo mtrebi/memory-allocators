@@ -16,25 +16,25 @@ struct BenchmarkResults {
 
 class Benchmark {
 public:
-	Benchmark(const unsigned int nOperations, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
+	Benchmark(const unsigned int nOperations);
 
-	void Allocation(Allocator* allocator);
-	void Free(Allocator* allocator);
+	void SingleAllocation(Allocator* allocator, const std::size_t size, const std::size_t alignment);
+	void SingleFree(Allocator* allocator, const std::size_t size, const std::size_t alignment);
 
-	void AllocationRandom(Allocator* allocator);
-	void FreeRandom(Allocator* allocator);
+	void MultipleAllocation(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
+	void MultipleFree(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
+
+	void RandomAllocation(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
+	void RandomFree(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
 private:
 	void printResults(const BenchmarkResults& results) const;
 	void setTimer(timespec& timer);
-	void RandomAllocationAttr(std::size_t & size, std::size_t & alignment);
+	void RandomAllocationAttr(const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments, std::size_t & size, std::size_t & alignment);
 
 	const double calculateElapsedTime() const;
 	const BenchmarkResults buildResults(const unsigned int nOperations, const double elapsedTime, const std::size_t memoryUsed) const;
 private:
 	unsigned int m_nOperations;
-	std::vector<std::size_t> m_allocationSizes;
-	std::vector<std::size_t> m_alignments;
-
 	timespec m_start, m_end;
 };
 
