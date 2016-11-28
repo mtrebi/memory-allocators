@@ -10,8 +10,62 @@ Benchmark::Benchmark(const unsigned int nOperations, const std::vector<std::size
     m_allocationSizes = allocationSizes;
 }
 
-
 void Benchmark::Allocation(Allocator* allocator){
+    for (int i = 0; i < m_allocationSizes.size(); ++i){
+        std::cout << "BENCHMARK: ALLOCATION" <<  std::endl;
+        std::cout << "\tSize:     \t" << m_allocationSizes[i] << std::endl;
+        std::cout << "\tAlignment\t" << m_alignments[i] <<  std::endl;
+
+        setTimer(m_start);
+        std::size_t allocation_size = m_allocationSizes[i];
+        std::size_t alignment = m_alignments[i];
+
+        allocator->Init();
+        unsigned int operations = 0;
+        while(operations < m_nOperations){
+            allocator->Allocate(allocation_size, alignment);
+            ++operations;
+        }
+        setTimer(m_end);
+
+        BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
+        printResults(results);
+    }
+}
+
+void Benchmark::Free(Allocator* allocator){
+    for (int i = 0; i < m_allocationSizes.size(); ++i){
+        std::cout << "BENCHMARK: ALLOCATION/FREE" <<  std::endl;
+        std::cout << "\tSize:     \t" << m_allocationSizes[i] << std::endl;
+        std::cout << "\tAlignment\t" << m_alignments[i] <<  std::endl;
+
+        void* addresses[m_nOperations];
+
+        setTimer(m_start);
+        std::size_t allocation_size = m_allocationSizes[i];
+        std::size_t alignment = m_alignments[i];
+        
+        allocator->Init();
+        int operations = 0;
+        while(operations < m_nOperations){
+            addresses[operations] = allocator->Allocate(allocation_size, alignment);
+            ++operations;
+        }
+        --operations;
+        while(operations >= 0){
+            allocator->Free(addresses[operations]);
+            --operations;
+        }
+
+        setTimer(m_end);
+
+        BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
+        printResults(results);
+    }
+}
+
+
+void Benchmark::AllocationRandom(Allocator* allocator){
     srand(1);
 
     std::cout << "\tBENCHMARK: ALLOCATION" <<  std::endl;
@@ -34,7 +88,7 @@ void Benchmark::Allocation(Allocator* allocator){
     
 }
 
-void Benchmark::Free(Allocator* allocator){
+void Benchmark::FreeRandom(Allocator* allocator){
     srand(1);
 
     std::cout << "\tBENCHMARK: ALLOCATION/FREE" <<  std::endl;

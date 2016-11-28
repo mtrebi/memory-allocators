@@ -20,6 +20,9 @@ public:
 
 	void Allocation(Allocator* allocator);
 	void Free(Allocator* allocator);
+
+	void AllocationRandom(Allocator* allocator);
+	void FreeRandom(Allocator* allocator);
 private:
 	void printResults(const BenchmarkResults& results) const;
 	void setTimer(timespec& timer);

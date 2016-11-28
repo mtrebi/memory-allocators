@@ -21,13 +21,18 @@ int main(){
 	std::cout << "C" << std::endl;
 	benchmark.Allocation(cAllocator);
 	benchmark.Free(cAllocator);
+	benchmark.AllocationRandom(cAllocator);
+	benchmark.FreeRandom(cAllocator);
+
 	std::cout << "LINEAR" << std::endl;
 	benchmark.Allocation(linearAllocator);
+	benchmark.AllocationRandom(linearAllocator);
 
 	std::cout << "STACK" << std::endl;
 	benchmark.Allocation(stackAllocator);
 	benchmark.Free(stackAllocator);
-
+	benchmark.AllocationRandom(stackAllocator);
+	benchmark.FreeRandom(stackAllocator);
 
 
 	delete cAllocator;
