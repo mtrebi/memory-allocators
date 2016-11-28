@@ -9,7 +9,7 @@ private:
     public:
         struct StackNode {
             StackNode * next;
-        } * topNode;
+        } * head;
 
         LinkedStack();
         void Push(void* freePosition);
