@@ -52,7 +52,6 @@ struct BenchmarkResults {
 	double elapsedTime;
 	float operationsPerSec;
 	float timePerOperation;
-	int memoryWasted;
 	int memoryUsed;
 };
 
@@ -67,7 +66,7 @@ private:
 	void setTimer(timespec& timer);
 
 	const double calculateElapsedTime() const;
-	const BenchmarkResults buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const;
+	const BenchmarkResults buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed) const;
 private:
 	int m_nOperations,
 		m_alignment;

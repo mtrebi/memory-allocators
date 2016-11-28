@@ -23,7 +23,7 @@ void Benchmark::Allocation(Allocator* allocator){
         }
         setTimer(m_end);
 
-        BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), 0,0);
+        BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
         printResults(results);
     }
 }
@@ -51,7 +51,7 @@ void Benchmark::Free(Allocator* allocator){
 
         setTimer(m_end);
 
-        BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), 0,0);
+        BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
         printResults(results);
     }
 }
@@ -83,14 +83,12 @@ void Benchmark::printResults(const BenchmarkResults& results) const {
 	std::cout << "\t\tTime elapsed:  \t" << results.elapsedTime << " ms" << std::endl;
 	std::cout << "\t\tOp per sec:    \t" << results.operationsPerSec << " ops/ms" << std::endl;
 	std::cout << "\t\tTimer per op:  \t" << results.timePerOperation << " ms/ops" << std::endl;
-	if (results.memoryUsed > 0) {
-        std::cout << "\t\tMemory used:   \t" << results.memoryUsed  << " bytes" << std::endl;
-        std::cout << "\t\tMemory wasted: \t" << results.memoryWasted  << " bytes\t" << "\t" << ((float) results.memoryWasted / results.memoryUsed)*100 << "%" << std::endl;
-	}
+    std::cout << "\t\tMemory used:   \t" << results.memoryUsed  << " bytes" << std::endl;
+	
   std::cout << std::endl;
 }
 
-const BenchmarkResults Benchmark::buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed, const std::size_t memoryWasted) const{
+const BenchmarkResults Benchmark::buildResults(const long nOperations, const double elapsedTime, const std::size_t memoryUsed) const{
 	BenchmarkResults results;
 
 	results.nOperations = nOperations;
@@ -98,7 +96,6 @@ const BenchmarkResults Benchmark::buildResults(const long nOperations, const dou
 	results.operationsPerSec = results.nOperations / results.elapsedTime;
 	results.timePerOperation = results.elapsedTime / results.nOperations;
 	results.memoryUsed = memoryUsed;
-	results.memoryWasted = memoryWasted;
 
 	return results;
 }
