@@ -7,14 +7,17 @@
 #include "StackAllocator.h"
 #include "CAllocator.h"
 #include "LinearAllocator.h"
+#include "PoolAllocator.h"
 
 int main(){
+	/*
 	const std::vector<std::size_t> ALLOCATION_SIZES {2, 4, 16, 32, 64, 256, 512, 1024};
 	const std::vector<std::size_t> ALIGNMENTS {2, 4, 8, 8, 8, 8, 8, 8};
 
 	Allocator * cAllocator = new CAllocator();
 	Allocator * linearAllocator = new LinearAllocator(1e8);
 	Allocator * stackAllocator = new StackAllocator(1e8);
+	Allocator * poolAllocator = new PoolAllocator(32, 4);
 
 	Benchmark benchmark(100, ALLOCATION_SIZES, ALIGNMENTS);
 	
@@ -34,11 +37,27 @@ int main(){
 	benchmark.AllocationRandom(stackAllocator);
 	benchmark.FreeRandom(stackAllocator);
 
+	//std::cout << "POOL" << std::endl;
+	//benchmark.Allocation(poolAllocator); 
+	//benchmark.Free(poolAllocator);
 
 	delete cAllocator;
 	delete linearAllocator;
 	delete stackAllocator;
-	
+	delete poolAllocator;
+	*/
+
+	Allocator * poolAllocator = new PoolAllocator(32, 4);
+
+	poolAllocator->Init();
+	void * a = poolAllocator->Allocate(4, 4);
+	void * b = poolAllocator->Allocate(4, 4);
+	void * c = poolAllocator->Allocate(4, 4);
+	poolAllocator->Free(b);
+	poolAllocator->Free(c);
+	poolAllocator->Free(a);
+	void * d = poolAllocator->Allocate(4, 4);
+
 	return 1;
 }
 
