@@ -38,7 +38,7 @@ void Benchmark::Free(Allocator* allocator){
 
         setTimer(m_start);
         allocator->Init();
-        unsigned int operations = 0;
+        int operations = 0;
         while(operations < m_nOperations){
             addresses[operations] = allocator->Allocate(allocation_size, m_alignment);
             ++operations;
