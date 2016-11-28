@@ -132,23 +132,26 @@ void test_stack(){
 
 
 int main(){
-	const std::vector<int> ALLOCATION_SIZES {16, 32, 64, 256, 512, 1024};
-	const int ALIGNMENT = 8;
+	const std::vector<std::size_t> ALLOCATION_SIZES {16, 32, 64, 256, 512, 1024};
+	const std::size_t ALIGNMENT = 8;
 
 	Allocator * cAllocator = new CAllocator();
 	Allocator * linearAllocator = new LinearAllocator(1e5);
 	Allocator * stackAllocator = new StackAllocator(1e5);
 
-	Benchmark benchmark(1, ALLOCATION_SIZES, ALIGNMENT);
+	Benchmark benchmark(2, ALLOCATION_SIZES, ALIGNMENT);
 	
-	std::cout << "C ALLOCATOR" << std::endl;
+	std::cout << "C" << std::endl;
 	benchmark.Allocation(cAllocator);
-
-	std::cout << "LINEAR ALLOCATOR" << std::endl;
+	benchmark.Free(cAllocator);
+	std::cout << "LINEAR" << std::endl;
 	benchmark.Allocation(linearAllocator);
-	
-	std::cout << "STACK ALLOCATOR" << std::endl;
+
+	std::cout << "STACK" << std::endl;
 	benchmark.Allocation(stackAllocator);
+	benchmark.Free(stackAllocator);
+
+
 
 	delete cAllocator;
 	delete linearAllocator;
