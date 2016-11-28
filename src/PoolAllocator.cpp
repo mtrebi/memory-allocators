@@ -1,46 +1,14 @@
-#include "Allocator.h"
+#include "PoolAllocator.h"
 #include <assert.h>
 #include <stdint.h>
-
-class PoolAllocator : public Allocator {
-private:
-  class LinkedStack {
-  public:
-    struct StackNode;
- 
-    struct StackNode {
-      StackNode * next;
-    } * topNode;
-
-    LinkedStack();
-    void Push(void* freePosition);
-    void * Pop();
-    ~LinkedStack();
-
-  } freeStack;
-
-  std::size_t m_chunkSize;
-
-public:
-  /* Allocation of real memory */
-  PoolAllocator(const uint32_t totalSize, const uint32_t chunkSize);
-
-  /* Allocate virtual memory */
-  void *Allocate(const std::size_t allocationSize, const std::size_t alignment);
-  
-  /* Frees a chunk of virtual memory */
-  void Free(void* ptr);
-
-  /* Frees all virtual memory */
-  void Reset();
-
-  /* Free all memory */
-  ~PoolAllocator();
-};
 
 PoolAllocator::LinkedStack::LinkedStack()
 {
   this->topNode->next = NULL;
+}
+
+PoolAllocator::PoolAllocator::~LinkedStack(){
+
 }
 
 void PoolAllocator::LinkedStack::Push(void* freePosition){
@@ -60,12 +28,21 @@ void *PoolAllocator::LinkedStack::Pop()
   return (void *) _topNode;
 }
 
-PoolAllocator::PoolAllocator(const uint32_t totalSize, const uint32_t chunkSize) : Allocator(totalSize)
-{
-  assert(totalSize % chunkSize == 0);
+PoolAllocator::PoolAllocator(const std::size_t totalSize, const std::size_t chunkSize) 
+  : Allocator(totalSize) {
+  assert(totalSize % chunkSize == 0 && "Total Size must be a multiple of Chunk Size" );
   this->m_chunkSize = chunkSize;
   this->Reset();
 }
+
+void PoolAllocator::Init(){
+  //m_start_ptr = malloc(m_totalSize);
+}
+
+PoolAllocator::~PoolAllocator(){
+  //Free everything -> Reset?
+}
+
 
 void *PoolAllocator::Allocate(const std::size_t allocationSize, const std::size_t alignment)
 {
