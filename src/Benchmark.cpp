@@ -8,11 +8,12 @@ Benchmark::Benchmark(const unsigned int nOperations, const std::vector<std::size
     m_nOperations = nOperations;
     m_alignments = alignments;
     m_allocationSizes = allocationSizes;
-    srand(1);
 }
 
 
 void Benchmark::Allocation(Allocator* allocator){
+    srand(1);
+
     std::cout << "\tBENCHMARK: ALLOCATION" <<  std::endl;
 
     setTimer(m_start);
@@ -34,6 +35,8 @@ void Benchmark::Allocation(Allocator* allocator){
 }
 
 void Benchmark::Free(Allocator* allocator){
+    srand(1);
+
     std::cout << "\tBENCHMARK: ALLOCATION/FREE" <<  std::endl;
 
     setTimer(m_start);
