@@ -40,6 +40,7 @@ void* LinearAllocator::Allocate(const std::size_t size, const short alignment){
 	const std::size_t nextAddress = currentAddress + padding;
 	m_offset += size;
 
+	m_used = m_offset;
 	return (void*) nextAddress;
 }
 
