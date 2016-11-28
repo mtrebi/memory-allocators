@@ -61,7 +61,7 @@ void StackAllocator::Free(void *ptr) {
 #endif
 }
 
-void LinearAllocator::Reset() {
+void StackAllocator::Reset() {
 	m_offset = 0;
 	m_used = 0;
 }
