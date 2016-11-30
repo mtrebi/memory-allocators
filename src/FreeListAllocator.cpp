@@ -1,8 +1,8 @@
 #include "FreeListAllocator.h"
 #include "Utils.h"		/* CalculatePaddingWithHeader */
 #include <stdlib.h>     /* malloc, free */
-#include <cassert> 		/*assert		*/
-
+#include <cassert> 		/* assert		*/
+#include <limits>		/* limits_max */
 #ifdef _DEBUG
 	#include <iostream>
 #endif
@@ -35,6 +35,9 @@ FreeListAllocator::~FreeListAllocator(){
 }
 
 void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alignment){
+	// Search through the free list for a free block that has a size equals or bigger than the required one
+	// When found, if the size is bigger, split the block into two and return one of them
+
 	FreeBlock * affectedBlock = this->FindFirst(size);
 
 
@@ -46,13 +49,30 @@ void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alig
 	return (void*) nextAddress;
 }
 
-FreeBlock * FreeListAllocator::FindFirst(const std::size_t){
-	//TODO: Iterate list and return the first free block with a size >= than given size
+FreeBlock * FreeListAllocator::FindFirst(const std::size_t size){
+	//Iterate list and return the first free block with a size >= than given size
+	FreeBlock * it = m_freeList;
+	while(it != nullptr){
+		if (it->size >= size){
+			return it;
+		}
+		it = it->next;
+	}
+	return nullptr;
 }
 
-FreeBlock * FreeListAllocator::FindBest(const std::size_t){
-	//TODO: Iterate WHOLE list keeping a pointer to the best fit
-	return nullptr;
+FreeBlock * FreeListAllocator::FindBest(const std::size_t size){
+	// Iterate WHOLE list keeping a pointer to the best fit
+	std::size_t smallestDiff = 	std::numeric_limits<T>::max();
+	FreeBlock * bestBlock = nullptr;
+	FreeBlock * it = m_freeList;
+	while(it != nullptr){
+		if (it->size >= size && (it->size - size < smallestDiff)){
+			bestBlock = it;
+		}
+		it = it->next;
+	}
+	return bestBlock;
 }
 void FreeListAllocator::Free(void* ptr){
 	//TODO

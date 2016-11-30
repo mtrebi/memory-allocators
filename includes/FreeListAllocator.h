@@ -27,8 +27,9 @@ public:
 	virtual void Reset();
 private:
 	FreeListAllocator(FreeListAllocator &freeListAllocator);
-
-	FreeBlock * FindFirst(const std::size_t);
+	
+	FreeBlock * FindBest(const std::size_t size);
+	FreeBlock * FindFirst(const std::size_t size);
 };
 
 #endif /* FREELISTALLOCATOR_H */
