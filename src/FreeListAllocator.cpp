@@ -145,6 +145,15 @@ FreeBlock * FreeListAllocator::InsertFreeSorted(void * ptr){
 
 void FreeListAllocator::Coalescence(FreeBlock * freeBlock){
 	// TODO: Merge with previous and/or next, or neither
+	if ((std::size_t) freeBlock->previous + 
+		(std::size_t) freeBlock->previous->size + 1 == (std::size_t) freeBlock){
+		//Merge with current and previous
+	}
+
+	if ((std::size_t) freeBlock + 
+		(std::size_t) freeBlock->size + 1 == (std::size_t) freeBlock->next){
+		//Merge with current with next
+	}
 }
 
 void FreeListAllocator::Reset() {
@@ -153,3 +162,10 @@ void FreeListAllocator::Reset() {
 	m_freeList.m_head->previous = NULL;
 	m_freeList.m_head->next = NULL;
 }
+/* 
+	Linked List generic methods: 
+		INSERT (AFTER_PTR, PTR);
+		DELETE (PTR);
+		SPLIT (PTR, OUT_PTR1, OUT_PTR2);
+		MERGE(PTR1, PTR2)
+*/
