@@ -4,6 +4,7 @@ template <class T>
 DoublyLinkedList<T>::DoublyLinkedList(){
 	
 }
+
 template <class T>
 void DoublyLinkedList<T>::insert(Node<T>* previousNode, Node<T>* newNode){
 	if (previousNode == nullptr){
@@ -23,14 +24,15 @@ void DoublyLinkedList<T>::insert(Node<T>* previousNode, Node<T>* newNode){
 		newNode->next = nullptr;
 	}
 }
+
 template <class T>
 void DoublyLinkedList<T>::remove(Node<T>* deleteNode){
-	if (deleteNode->previousNode != nullptr){
+	if (deleteNode->previous != nullptr){
 		// Is not the first node
-		deleteNode->previousNode->next = deleteNode->next;
+		deleteNode->previous->next = deleteNode->next;
 	}
 	if (deleteNode->next != nullptr){
 		// Is not the last node
-		deleteNode->next->previous = deleteNode->previousNode;
+		deleteNode->next->previous = deleteNode->previous;
 	}
 }

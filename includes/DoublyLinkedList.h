@@ -20,8 +20,9 @@ public:
 	void remove(Node<T>* deleteNode);
 private:
 	DoublyLinkedList(DoublyLinkedList &doublyLinkedList);
-	DoublyLinkedList operator=(const DoublyLinkedList&);
 };
+
+#include "DoublyLinkedListImpl.h"
 
 #endif /* DOUBLYLINKEDLIST_H */
 
