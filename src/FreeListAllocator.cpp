@@ -34,8 +34,9 @@ FreeListAllocator::~FreeListAllocator(){
 
 void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alignment){
 	// Search through the free list for a free block that has enough space to allocate our data
-	Node<BlockHeader> * affectedNode = this->Find(size);
-	const int rest = affectedNode->size - size;
+	const std::size_t requiredSpace = size + sizeof(BlockHeader); //TODO ALIGNMENT!!!!
+	Node<BlockHeader> * affectedNode = this->Find(requiredSpace);
+	const int rest = affectedNode->size - requiredSpace;
 	if (rest > 0){
 		// We have to split the block into the data block and a free block of size 'rest'
 		Node<BlockHeader> * newFreeNode = (Node<BlockHeader> *)((std::size_t) affectedNode + size + 1);
@@ -44,11 +45,16 @@ void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alig
 	}
 	m_freeList->delete(affectedNode)
 
+	const std::size_t headerAddress = (std::size_t) affectedNode;
+	const std::size_t dataAddress 	= headerAddress + (std::size_t) + sizeof(BlockHeader) + 1;
+	(*(BlockHeader *) headerAddress).blockSize = BlockHeader { requiredSpace };	//TODO ALIGNMENT!!!!
+
+
 #ifdef _DEBUG
 	std::cout << "A" << "\t@C " << (void*) affectedBlock << std::endl;
 #endif
-	
-	return (void*) affectedBlock;
+
+	return (void*) dataAddress;
 }
 
 Node<BlockHeader> * FreeListAllocator::Find(const std::size_t size){
@@ -104,8 +110,12 @@ Node<BlockHeader> * FreeListAllocator::InsertFree(void * ptr){
 
 Node<BlockHeader> * FreeListAllocator::InsertFreeLIFO(void * ptr){
 	// Insert it in a LIFO (or stack) fashion (at the beginning)
+	const std::size_t currentAddress = (std::size_t) ptr;
+	const std::size_t headerAddress = currentAddress - sizeof(BlockHeader);
+	const BlockHeader * allocationHeader { (BlockHeader *) headerAddress};
+
 	Node<BlockHeader> * freeNode = (Node<BlockHeader> *) ptr;
-	freeNode->data = BlockHeader { 3 }; //TODO SIZE???
+	freeNode->data = BlockHeader { allocationHeader->blockSize };
 	m_freeList.insert(nullptr, freeNode);
 
 	return freeNode;
@@ -113,7 +123,13 @@ Node<BlockHeader> * FreeListAllocator::InsertFreeLIFO(void * ptr){
 
 Node<BlockHeader> * FreeListAllocator::InsertFreeSorted(void * ptr){
 	// Insert it in a sorted position by the address number
+	const std::size_t currentAddress = (std::size_t) ptr;
+	const std::size_t headerAddress = currentAddress - sizeof(BlockHeader);
+	const BlockHeader * allocationHeader { (BlockHeader *) headerAddress};
+
 	Node<BlockHeader> * freeNode = (Node<BlockHeader> *) ptr;
+	freeNode->data = BlockHeader { allocationHeader->blockSize };
+
 	Node<BlockHeader> * it = m_freeList.head;
 	while(it != nullptr){
 		if ((std::size_t) ptr < (std::size_t) it->data.size){
@@ -151,4 +167,4 @@ void FreeListAllocator::Reset() {
 	m_freeList->insert(nullptr, firstNode);
 }
 
-// TODO HEADERS!!!!! and ALIGNMENT and SIZE when deallocate!
+// TODO and ALIGNMENT and 
