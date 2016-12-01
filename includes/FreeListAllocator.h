@@ -8,33 +8,26 @@ class FreeListAllocator : public Allocator {
 public:
 	enum PlacementPolicy {
 		FIND_FIRST, 
-		FIND_BEST;
-	}
+		FIND_BEST
+	};
 
 	enum StoragePolicy {
 		LIFO,
-		SORTED;
-	}
-
-	struct FreeBlockHeader {
-		std::size_t blockSize;
+		SORTED
 	};
 
-	struct AllocatedBlockHeader {
+	struct BlockHeader {
 		std::size_t blockSize;
 	};
-
 
 private:
 	void* m_start_ptr;
 	PlacementPolicy m_pPolicy;
 	StoragePolicy m_sPolicy;
-	DoublyLinkedList<FreeBlockHeader> * m_freeList;
-
-
+	DoublyLinkedList<BlockHeader> m_freeList;
 
 public:
-	FreeListAllocator(const std::size_t totalSize, enum PlacementPolicy pPolicy, enum sPolicy);
+	FreeListAllocator(const std::size_t totalSize, PlacementPolicy pPolicy, StoragePolicy sPolicy);
 
 	virtual ~FreeListAllocator();
 
@@ -48,15 +41,15 @@ public:
 private:
 	FreeListAllocator(FreeListAllocator &freeListAllocator);
 	
-	void Coalescence(Node<FreeBlockHeader> * freeBlock);
+	void Coalescence(Node<BlockHeader> * freeBlock);
 
-	Node<FreeBlockHeader> * InsertFree(void * ptr);
-	Node<FreeBlockHeader> * InsertFreeLIFO(void * ptr);
-	Node<FreeBlockHeader> * InsertFreeSorted(void * ptr);
+	Node<BlockHeader> * InsertFree(void * ptr);
+	Node<BlockHeader> * InsertFreeLIFO(void * ptr);
+	Node<BlockHeader> * InsertFreeSorted(void * ptr);
 
-	Node<FreeBlockHeader> * Find(const std::size_t size);
-	Node<FreeBlockHeader> * FindBest(const std::size_t size);
-	Node<FreeBlockHeader> * FindFirst(const std::size_t size);
+	Node<BlockHeader> * Find(const std::size_t size, const std::size_t alignment, std::size_t& padding);
+	Node<BlockHeader> * FindBest(const std::size_t size, const std::size_t alignment, std::size_t& padding);
+	Node<BlockHeader> * FindFirst(const std::size_t size, const std::size_t alignment, std::size_t& padding);
 };
 
 #endif /* FREELISTALLOCATOR_H */

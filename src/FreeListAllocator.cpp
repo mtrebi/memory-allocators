@@ -8,16 +8,16 @@
 	#include <iostream>
 #endif
 
-FreeListAllocator::FreeListAllocator(const std::size_t totalSize, enum PlacementPolicy pPolicy, enum sPolicy);
+FreeListAllocator::FreeListAllocator(const std::size_t totalSize, PlacementPolicy pPolicy, StoragePolicy sPolicy)
 	: Allocator(totalSize) {
 	m_pPolicy = pPolicy;
 	m_sPolicy = sPolicy;
 }
 
 void FreeListAllocator::Init() {
-	if (m_freeList != nullptr){
-		delete m_freeList;
-	}
+	//if (m_freeList != nullptr){
+	//	delete m_freeList;
+	//}
 	if (m_start_ptr != nullptr){
 		free(m_start_ptr);
 		m_start_ptr = nullptr;
@@ -34,21 +34,30 @@ FreeListAllocator::~FreeListAllocator(){
 
 void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alignment){
 	// Search through the free list for a free block that has enough space to allocate our data
-	const std::size_t requiredSpace = size + sizeof(BlockHeader); //TODO ALIGNMENT!!!!
-	Node<BlockHeader> * affectedNode = this->Find(requiredSpace);
-	const int rest = affectedNode->size - requiredSpace;
+	std::size_t padding;
+	Node<FreeListAllocator::BlockHeader> * affectedNode = this->Find(size, alignment, padding);
+
+	if (padding > 0){
+		// Create a free block with the padding
+		Node<FreeListAllocator::BlockHeader> * paddedBlock = (Node<FreeListAllocator::BlockHeader> *) affectedNode;
+		paddedBlock->data = FreeListAllocator::BlockHeader { padding };
+		m_freeList.insert(affectedNode->previous, paddedBlock);
+	}
+
+	const std::size_t rest = affectedNode->data.blockSize - padding - sizeof(FreeListAllocator::BlockHeader);
+
 	if (rest > 0){
 		// We have to split the block into the data block and a free block of size 'rest'
-		Node<BlockHeader> * newFreeNode = (Node<BlockHeader> *)((std::size_t) affectedNode + size + 1);
-		newFreeNode->data = BlockHeader { rest };
-		m_freeList->insert(affectedNode, newFreeNode);
+		Node<FreeListAllocator::BlockHeader> * newFreeNode = (Node<FreeListAllocator::BlockHeader> *)((std::size_t) affectedNode + size + 1);
+		newFreeNode->data = FreeListAllocator::BlockHeader { rest };
+		m_freeList.insert(affectedNode, newFreeNode);
 	}
-	m_freeList->delete(affectedNode)
+	// Setup the data block
+	m_freeList.remove(affectedNode);
 
-	const std::size_t headerAddress = (std::size_t) affectedNode;
-	const std::size_t dataAddress 	= headerAddress + (std::size_t) + sizeof(BlockHeader) + 1;
-	(*(BlockHeader *) headerAddress).blockSize = BlockHeader { requiredSpace };	//TODO ALIGNMENT!!!!
-
+	const std::size_t headerAddress = (std::size_t) affectedNode + padding;
+	const std::size_t dataAddress 	= headerAddress + sizeof(FreeListAllocator::BlockHeader) + 1;
+	((FreeListAllocator::BlockHeader *) headerAddress)->blockSize = size + sizeof(FreeListAllocator::BlockHeader);
 
 #ifdef _DEBUG
 	std::cout << "A" << "\t@C " << (void*) affectedBlock << std::endl;
@@ -57,22 +66,24 @@ void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alig
 	return (void*) dataAddress;
 }
 
-Node<BlockHeader> * FreeListAllocator::Find(const std::size_t size){
+Node<FreeListAllocator::BlockHeader> * FreeListAllocator::Find(const std::size_t size, const std::size_t alignment, std::size_t& padding){
 	switch(m_pPolicy){
 		case FIND_FIRST:
-			return FindFirst(size);
+			return FindFirst(size, alignment, padding);
 		case FIND_BEST:
-			return FindBest(size);
+			return FindBest(size, alignment, padding);
 		default:
 			return nullptr;
 	}
 }
 
-Node<BlockHeader> * FreeListAllocator::FindFirst(const std::size_t size){
+Node<FreeListAllocator::BlockHeader> * FreeListAllocator::FindFirst(const std::size_t size, const std::size_t alignment, std::size_t& padding){
 	//Iterate list and return the first free block with a size >= than given size
-	Node<BlockHeader> * it = m_freeList->head;
+	Node<FreeListAllocator::BlockHeader> * it = m_freeList.head;
 	while(it != nullptr){
-		if (it->size >= size){
+		padding = Utils::CalculatePaddingWithHeader((std::size_t)it, alignment, sizeof(FreeListAllocator::BlockHeader));
+		const std::size_t requiredSpace = size + padding;
+		if (it->data.blockSize >= requiredSpace){
 			return it;
 		}
 		it = it->next;
@@ -80,13 +91,15 @@ Node<BlockHeader> * FreeListAllocator::FindFirst(const std::size_t size){
 	return nullptr;
 }
 
-Node<BlockHeader> * FreeListAllocator::FindBest(const std::size_t size){
+Node<FreeListAllocator::BlockHeader> * FreeListAllocator::FindBest(const std::size_t size, const std::size_t alignment, std::size_t& padding){
 	// Iterate WHOLE list keeping a pointer to the best fit
 	std::size_t smallestDiff = 	std::numeric_limits<std::size_t>::max();
-	Node<BlockHeader> * bestBlock = nullptr;
-	Node<BlockHeader> * it = m_freeList->head;
+	Node<FreeListAllocator::BlockHeader> * bestBlock = nullptr;
+	Node<FreeListAllocator::BlockHeader> * it = m_freeList.head;
 	while(it != nullptr){
-		if (it->size >= size && (it->size - size < smallestDiff)){
+		padding = Utils::CalculatePaddingWithHeader((std::size_t)it, alignment, sizeof(FreeListAllocator::BlockHeader));
+		const std::size_t requiredSpace = size + padding;
+		if (it->data.blockSize >= requiredSpace && (it->data.blockSize - requiredSpace < smallestDiff)){
 			bestBlock = it;
 		}
 		it = it->next;
@@ -95,11 +108,15 @@ Node<BlockHeader> * FreeListAllocator::FindBest(const std::size_t size){
 }
 
 void FreeListAllocator::Free(void* ptr){
-	Node<BlockHeader> * freeNode = InsertFree(ptr);
-	Coalescence(freeNode);
+	Node<FreeListAllocator::BlockHeader> * freeNode = InsertFree(ptr);
+	switch(m_sPolicy){
+		case SORTED:
+			Coalescence(freeNode);
+			break;
+	}
 }
 
-Node<BlockHeader> * FreeListAllocator::InsertFree(void * ptr){
+Node<FreeListAllocator::BlockHeader> * FreeListAllocator::InsertFree(void * ptr){
 	switch(m_sPolicy){
 		case LIFO:
 			return InsertFreeLIFO(ptr);
@@ -108,32 +125,32 @@ Node<BlockHeader> * FreeListAllocator::InsertFree(void * ptr){
 	}
 }
 
-Node<BlockHeader> * FreeListAllocator::InsertFreeLIFO(void * ptr){
+Node<FreeListAllocator::BlockHeader> * FreeListAllocator::InsertFreeLIFO(void * ptr){
 	// Insert it in a LIFO (or stack) fashion (at the beginning)
 	const std::size_t currentAddress = (std::size_t) ptr;
-	const std::size_t headerAddress = currentAddress - sizeof(BlockHeader);
-	const BlockHeader * allocationHeader { (BlockHeader *) headerAddress};
+	const std::size_t headerAddress = currentAddress - sizeof(FreeListAllocator::BlockHeader);
+	const FreeListAllocator::BlockHeader * allocationHeader { (FreeListAllocator::BlockHeader *) headerAddress};
 
-	Node<BlockHeader> * freeNode = (Node<BlockHeader> *) ptr;
-	freeNode->data = BlockHeader { allocationHeader->blockSize };
+	Node<FreeListAllocator::BlockHeader> * freeNode = (Node<FreeListAllocator::BlockHeader> *) ptr;
+	freeNode->data = *allocationHeader;
 	m_freeList.insert(nullptr, freeNode);
 
 	return freeNode;
 }
 
-Node<BlockHeader> * FreeListAllocator::InsertFreeSorted(void * ptr){
+Node<FreeListAllocator::BlockHeader> * FreeListAllocator::InsertFreeSorted(void * ptr){
 	// Insert it in a sorted position by the address number
 	const std::size_t currentAddress = (std::size_t) ptr;
-	const std::size_t headerAddress = currentAddress - sizeof(BlockHeader);
-	const BlockHeader * allocationHeader { (BlockHeader *) headerAddress};
+	const std::size_t headerAddress = currentAddress - sizeof(FreeListAllocator::BlockHeader);
+	const FreeListAllocator::BlockHeader * allocationHeader { (FreeListAllocator::BlockHeader *) headerAddress};
 
-	Node<BlockHeader> * freeNode = (Node<BlockHeader> *) ptr;
-	freeNode->data = BlockHeader { allocationHeader->blockSize };
+	Node<FreeListAllocator::BlockHeader> * freeNode = (Node<FreeListAllocator::BlockHeader> *) ptr;
+	freeNode->data = *allocationHeader;
 
-	Node<BlockHeader> * it = m_freeList.head;
+	Node<FreeListAllocator::BlockHeader> * it = m_freeList.head;
 	while(it != nullptr){
-		if ((std::size_t) ptr < (std::size_t) it->data.size){
-			m_freeList->insert(it->previous, freeNode);
+		if ((std::size_t) ptr < (std::size_t) it->data.blockSize){
+			m_freeList.insert(it->previous, freeNode);
 			break;
 		}
 		it = it->next;
@@ -142,29 +159,27 @@ Node<BlockHeader> * FreeListAllocator::InsertFreeSorted(void * ptr){
 
 }
 
-void FreeListAllocator::Coalescence(Node<BlockHeader> * freeNode){
+void FreeListAllocator::Coalescence(Node<FreeListAllocator::BlockHeader> * freeNode){
 	if ((std::size_t) freeNode->previous + 
-		(std::size_t) freeNode->previous->size + 1 == (std::size_t) freeNode){
-		freeNode->data.size = BlockHeader { freeNode->previous->data.size + freeNode->data.size };
-		m_freeList->delete(freeNode->previous);
+		(std::size_t) freeNode->previous->data.blockSize + 1 == (std::size_t) freeNode){
+		freeNode->data.blockSize = freeNode->previous->data.blockSize + freeNode->data.blockSize;
+		m_freeList.remove(freeNode->previous);
 	}
 
 	if ((std::size_t) freeNode + 
-		(std::size_t) freeNode->size + 1 == (std::size_t) freeNode->next){
-		freeNode->data.size = BlockHeader { freeNode->next->data.size + freeNode->data.size };
-		m_freeList->delete(freeNode->next);
+		(std::size_t) freeNode->data.blockSize + 1 == (std::size_t) freeNode->next){
+		freeNode->data.blockSize = freeNode->next->data.blockSize + freeNode->data.blockSize;
+		m_freeList.remove(freeNode->next);
 	}
 }
 
 void FreeListAllocator::Reset() {
-	Node<BlockHeader> * firstNode = (Node<BlockHeader> *) m_start_ptr;
-	firstNode->data = BlockHeader { m_totalSize };
+	Node<FreeListAllocator::BlockHeader> * firstNode = (Node<FreeListAllocator::BlockHeader> *) m_start_ptr;
+	firstNode->data.blockSize = m_totalSize;
 	firstNode->previous = nullptr;
 	firstNode->next = nullptr;
 
 	// Init linkedlist with only one element
-	m_freeList = DoublyLinkedList<BlockHeader>(m_start_ptr);
-	m_freeList->insert(nullptr, firstNode);
+	//m_freeList = DoublyLinkedList<FreeListAllocator::BlockHeader>();
+	m_freeList.insert(nullptr, firstNode);
 }
-
-// TODO and ALIGNMENT and 
