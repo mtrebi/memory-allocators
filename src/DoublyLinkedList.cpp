@@ -1,10 +1,11 @@
 #include "DoublyLinkedList.h"
 
-DoublyLinkedList::DoublyLinkedList(){
+template <class T>
+DoublyLinkedList<T>::DoublyLinkedList(){
 	
 }
-
-void DoublyLinkedList::insert(Node<T>* previousNode, Node<T>* newNode){
+template <class T>
+void DoublyLinkedList<T>::insert(Node<T>* previousNode, Node<T>* newNode){
 	if (previousNode == nullptr){
 		// Should be inserted at the beginning
 		if (head != nullptr){
@@ -22,8 +23,8 @@ void DoublyLinkedList::insert(Node<T>* previousNode, Node<T>* newNode){
 		newNode->next = nullptr;
 	}
 }
-
-void DoublyLinkedList::delete(Node<T>* deleteNode){
+template <class T>
+void DoublyLinkedList<T>::remove(Node<T>* deleteNode){
 	if (deleteNode->previousNode != nullptr){
 		// Is not the first node
 		deleteNode->previousNode->next = deleteNode->next;

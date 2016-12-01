@@ -17,9 +17,9 @@ public:
 	DoublyLinkedList();
 
 	void insert(Node<T>* previousNode, Node<T>* newNode);
-	void delete(Node<T>* deleteNode);
+	void remove(Node<T>* deleteNode);
 private:
-	DoublyLinkedList(FreeListAllocator &freeListAllocator);
+	DoublyLinkedList(DoublyLinkedList &doublyLinkedList);
 	DoublyLinkedList operator=(const DoublyLinkedList&);
 };
 
