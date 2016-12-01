@@ -2,6 +2,7 @@
 #define FREELISTALLOCATOR_H
 
 #include "Allocator.h"
+#include "DoublyLinkedList.h"
 
 class FreeListAllocator : public Allocator {
 public:
@@ -15,16 +16,15 @@ public:
 		SORTED;
 	}
 
+	struct FreeBlockHeader {
+		std::size_t blockSize;
+	};
+
 private:
 	void* m_start_ptr;
 	PlacementPolicy m_pPolicy;
 	StoragePolicy m_sPolicy;
-	
-	struct FreeBlock {
-		FreeBlock * previous
-					next;
-		std::size_t size;
-	} * m_freeList;
+	DoublyLinkedList<FreeBlockHeader> * m_freeList;
 
 
 
@@ -43,10 +43,11 @@ public:
 private:
 	FreeListAllocator(FreeListAllocator &freeListAllocator);
 	
+	void Coalescence(FreeBlock * freeBlock);
 
-	void InsertFree(void * ptr);
-	void InsertFreeLIFO(void * ptr);
-	void InsertFreeSorted(void * ptr);
+	FreeBlock * InsertFree(void * ptr);
+	FreeBlock * InsertFreeLIFO(void * ptr);
+	FreeBlock * InsertFreeSorted(void * ptr);
 
 	FreeBlock * Find(const std::size_t size);
 	FreeBlock * FindBest(const std::size_t size);
