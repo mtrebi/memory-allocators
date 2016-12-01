@@ -3,6 +3,7 @@
 #include <stdlib.h>     /* malloc, free */
 #include <cassert> 		/* assert		*/
 #include <limits>		/* limits_max */
+
 #ifdef _DEBUG
 	#include <iostream>
 #endif
@@ -21,13 +22,9 @@ void FreeListAllocator::Init() {
 		free(m_start_ptr);
 		m_start_ptr = nullptr;
 	}
-	// Init linkedlist with only one element
 	m_start_ptr = malloc(m_totalSize);
 
-	m_freeList = (FreeBlock *) m_start_ptr;
-	m_freeList.m_head->size = m_totalSize;
-	m_freeList.m_head->previous = NULL;
-	m_freeList.m_head->next = NULL;
+	this->Reset();
 }
 
 FreeListAllocator::~FreeListAllocator(){
@@ -37,24 +34,15 @@ FreeListAllocator::~FreeListAllocator(){
 
 void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alignment){
 	// Search through the free list for a free block that has enough space to allocate our data
-	FreeBlock * affectedBlock = this->Find(size);
-	const int rest = affectedBlock->size - size;
-	if (rest == 0){
+	Node<BlockHeader> * affectedNode = this->Find(size);
+	const int rest = affectedNode->size - size;
+	if (rest > 0){
 		// We have to split the block into the data block and a free block of size 'rest'
-		FreeBlock * newFreeBlock = (FreeBlock *)((std::size_t) affectedBlock + size + 1);
-		//TODO: linkedlist insert!!!!!
-		//TODO: linkedlist delete!!!!!
-
-		affectedBlock->previous->next = newFreeBlock;
-		newFreeBlock->previous = affectedBlock->previous;
-		newFreeBlock->next = affectedBlock->next;
-		newFreeBlock->size = rest;
-	}else {
-		// Delete block from free list
-		//TODO: linkedlist delete!!!!!
-
-		affectedBlock->previous->next = affectedBlock->next;
+		Node<BlockHeader> * newFreeNode = (Node<BlockHeader> *)((std::size_t) affectedNode + size + 1);
+		newFreeNode->data = BlockHeader { rest };
+		m_freeList->insert(affectedNode, newFreeNode);
 	}
+	m_freeList->delete(affectedNode)
 
 #ifdef _DEBUG
 	std::cout << "A" << "\t@C " << (void*) affectedBlock << std::endl;
@@ -63,7 +51,7 @@ void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alig
 	return (void*) affectedBlock;
 }
 
-FreeBlock * FreeListAllocator::Find(const std::size_t size){
+Node<BlockHeader> * FreeListAllocator::Find(const std::size_t size){
 	switch(m_pPolicy){
 		case FIND_FIRST:
 			return FindFirst(size);
@@ -74,9 +62,9 @@ FreeBlock * FreeListAllocator::Find(const std::size_t size){
 	}
 }
 
-FreeBlock * FreeListAllocator::FindFirst(const std::size_t size){
+Node<BlockHeader> * FreeListAllocator::FindFirst(const std::size_t size){
 	//Iterate list and return the first free block with a size >= than given size
-	FreeBlock * it = m_freeList;
+	Node<BlockHeader> * it = m_freeList->head;
 	while(it != nullptr){
 		if (it->size >= size){
 			return it;
@@ -86,11 +74,11 @@ FreeBlock * FreeListAllocator::FindFirst(const std::size_t size){
 	return nullptr;
 }
 
-FreeBlock * FreeListAllocator::FindBest(const std::size_t size){
+Node<BlockHeader> * FreeListAllocator::FindBest(const std::size_t size){
 	// Iterate WHOLE list keeping a pointer to the best fit
-	std::size_t smallestDiff = 	std::numeric_limits<T>::max();
-	FreeBlock * bestBlock = nullptr;
-	FreeBlock * it = m_freeList;
+	std::size_t smallestDiff = 	std::numeric_limits<std::size_t>::max();
+	Node<BlockHeader> * bestBlock = nullptr;
+	Node<BlockHeader> * it = m_freeList->head;
 	while(it != nullptr){
 		if (it->size >= size && (it->size - size < smallestDiff)){
 			bestBlock = it;
@@ -101,11 +89,11 @@ FreeBlock * FreeListAllocator::FindBest(const std::size_t size){
 }
 
 void FreeListAllocator::Free(void* ptr){
-	FreeBlock * freeBlock = InsertFree(ptr);
-	Coalescence(freeBlock);
+	Node<BlockHeader> * freeNode = InsertFree(ptr);
+	Coalescence(freeNode);
 }
 
-FreeBlock * FreeListAllocator::InsertFree(void * ptr){
+Node<BlockHeader> * FreeListAllocator::InsertFree(void * ptr){
 	switch(m_sPolicy){
 		case LIFO:
 			return InsertFreeLIFO(ptr);
@@ -114,58 +102,53 @@ FreeBlock * FreeListAllocator::InsertFree(void * ptr){
 	}
 }
 
-FreeBlock * FreeListAllocator::InsertFreeLIFO(void * ptr){
+Node<BlockHeader> * FreeListAllocator::InsertFreeLIFO(void * ptr){
 	// Insert it in a LIFO (or stack) fashion (at the beginning)
-	//TODO: linkedlist insert!!!!!
+	Node<BlockHeader> * freeNode = (Node<BlockHeader> *) ptr;
+	freeNode->data = BlockHeader { 3 }; //TODO SIZE???
+	m_freeList.insert(nullptr, freeNode);
 
-	FreeBlock * freeBlock = (FreeBlock *) ptr;
-	freeBlock->next = m_freeList.next;
-	freeBlock->next->previous = freeBlock;
-	freeBlock->previous = m_start_ptr;
-	freeBlock->size = 7; // TODO SIZE ??????????
-	m_freeList.next = freeBlock;
-
-	return freeBlock;
+	return freeNode;
 }
 
-FreeBlock * FreeListAllocator::InsertFreeSorted(void * ptr){
+Node<BlockHeader> * FreeListAllocator::InsertFreeSorted(void * ptr){
 	// Insert it in a sorted position by the address number
-	FreeBlock * freeBlock = (FreeBlock *) ptr;
-	FreeBlock * it = m_freeList;
+	Node<BlockHeader> * freeNode = (Node<BlockHeader> *) ptr;
+	Node<BlockHeader> * it = m_freeList.head;
 	while(it != nullptr){
-		if ((std::size_t) ptr < (std::size_t) it){
-			//TODO: linkedlist insert!!!!!
+		if ((std::size_t) ptr < (std::size_t) it->data.size){
+			m_freeList->insert(it->previous, freeNode);
 			break;
 		}
 		it = it->next;
 	}
-	return freeBlock;
+	return freeNode;
 
 }
 
-void FreeListAllocator::Coalescence(FreeBlock * freeBlock){
-	// TODO: Merge with previous and/or next, or neither
-	if ((std::size_t) freeBlock->previous + 
-		(std::size_t) freeBlock->previous->size + 1 == (std::size_t) freeBlock){
-		//Merge with current and previous
+void FreeListAllocator::Coalescence(Node<BlockHeader> * freeNode){
+	if ((std::size_t) freeNode->previous + 
+		(std::size_t) freeNode->previous->size + 1 == (std::size_t) freeNode){
+		freeNode->data.size = BlockHeader { freeNode->previous->data.size + freeNode->data.size };
+		m_freeList->delete(freeNode->previous);
 	}
 
-	if ((std::size_t) freeBlock + 
-		(std::size_t) freeBlock->size + 1 == (std::size_t) freeBlock->next){
-		//Merge with current with next
+	if ((std::size_t) freeNode + 
+		(std::size_t) freeNode->size + 1 == (std::size_t) freeNode->next){
+		freeNode->data.size = BlockHeader { freeNode->next->data.size + freeNode->data.size };
+		m_freeList->delete(freeNode->next);
 	}
 }
 
 void FreeListAllocator::Reset() {
-	m_freeList = (FreeBlock *) m_start_ptr;
-	m_freeList.m_head->size = m_totalSize;
-	m_freeList.m_head->previous = NULL;
-	m_freeList.m_head->next = NULL;
+	Node<BlockHeader> * firstNode = (Node<BlockHeader> *) m_start_ptr;
+	firstNode->data = BlockHeader { m_totalSize };
+	firstNode->previous = nullptr;
+	firstNode->next = nullptr;
+
+	// Init linkedlist with only one element
+	m_freeList = DoublyLinkedList<BlockHeader>(m_start_ptr);
+	m_freeList->insert(nullptr, firstNode);
 }
-/* 
-	Linked List generic methods: 
-		INSERT (AFTER_PTR, PTR);
-		DELETE (PTR);
-		SPLIT (PTR, OUT_PTR1, OUT_PTR2);
-		MERGE(PTR1, PTR2)
-*/
+
+// TODO HEADERS!!!!! and ALIGNMENT and SIZE when deallocate!

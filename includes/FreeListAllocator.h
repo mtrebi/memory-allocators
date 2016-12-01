@@ -20,6 +20,11 @@ public:
 		std::size_t blockSize;
 	};
 
+	struct AllocatedBlockHeader {
+		std::size_t blockSize;
+	};
+
+
 private:
 	void* m_start_ptr;
 	PlacementPolicy m_pPolicy;
@@ -43,15 +48,15 @@ public:
 private:
 	FreeListAllocator(FreeListAllocator &freeListAllocator);
 	
-	void Coalescence(FreeBlock * freeBlock);
+	void Coalescence(Node<FreeBlockHeader> * freeBlock);
 
-	FreeBlock * InsertFree(void * ptr);
-	FreeBlock * InsertFreeLIFO(void * ptr);
-	FreeBlock * InsertFreeSorted(void * ptr);
+	Node<FreeBlockHeader> * InsertFree(void * ptr);
+	Node<FreeBlockHeader> * InsertFreeLIFO(void * ptr);
+	Node<FreeBlockHeader> * InsertFreeSorted(void * ptr);
 
-	FreeBlock * Find(const std::size_t size);
-	FreeBlock * FindBest(const std::size_t size);
-	FreeBlock * FindFirst(const std::size_t size);
+	Node<FreeBlockHeader> * Find(const std::size_t size);
+	Node<FreeBlockHeader> * FindBest(const std::size_t size);
+	Node<FreeBlockHeader> * FindFirst(const std::size_t size);
 };
 
 #endif /* FREELISTALLOCATOR_H */
