@@ -13,8 +13,13 @@ private:
 		std::size_t size;
 	} * m_freeList;
 
+	enum PlacementPolicy {
+		FIND_FIRST, 
+		FIND_BEST;
+	} m_pPolicy;
+
 public:
-	FreeListAllocator(const std::size_t totalSize);
+	FreeListAllocator(const std::size_t totalSize, enum PlacementPolicy policy);
 
 	virtual ~FreeListAllocator();
 

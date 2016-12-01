@@ -7,8 +7,9 @@
 	#include <iostream>
 #endif
 
-FreeListAllocator::FreeListAllocator(const std::size_t totalSize)
+FreeListAllocator::FreeListAllocator(const std::size_t totalSize, enum PlacementPolicy policy);
 	: Allocator(totalSize) {
+	m_pPolicy = policy;
 }
 
 void FreeListAllocator::Init() {
@@ -23,7 +24,6 @@ void FreeListAllocator::Init() {
 	m_start_ptr = malloc(m_totalSize);
 
 	m_freeList = (FreeBlock *) m_start_ptr;
-	m_freeList = new FreeList();
 	m_freeList.m_head->size = m_totalSize;
 	m_freeList.m_head->previous = NULL;
 	m_freeList.m_head->next = NULL;
@@ -35,18 +35,38 @@ FreeListAllocator::~FreeListAllocator(){
 }
 
 void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alignment){
-	// Search through the free list for a free block that has a size equals or bigger than the required one
-	// When found, if the size is bigger, split the block into two and return one of them
+	// Search through the free list for a free block that has enough space to allocate our data
+	FreeBlock * affectedBlock = this->Find(size);
+	const int rest = affectedBlock->size - size;
+	if (rest == 0){
+		// We have to split the block into the data block and a free block of size 'rest'
+		FreeBlock * newFreeBlock = (FreeBlock *)((std::size_t) affectedBlock + size + 1);
 
-	FreeBlock * affectedBlock = this->FindFirst(size);
+		affectedBlock->previous->next = newFreeBlock;
+		newFreeBlock->previous = affectedBlock->previous;
+		newFreeBlock->next = affectedBlock->next;
+		newFreeBlock->size = rest;
+	}else {
+		// Delete block from free list
+		affectedBlock->previous->next = affectedBlock->next;
+	}
 
-
-
-#ifdef _DEBUGz
-	std::cout << "A" << "\t@C " << (void*) currentAddress << "\t@R " << (void*) nextAddress << "\tO " << m_offset << "\tP " << padding << std::endl;
+#ifdef _DEBUG
+	std::cout << "A" << "\t@C " << (void*) affectedBlock << std::endl;
 #endif
 	
-	return (void*) nextAddress;
+	return (void*) affectedBlock;
+}
+
+FreeBlock * FreeListAllocator::Find(const std::size_t size){
+	switch(m_pPolicy){
+		case FIND_FIRST:
+			return FindFirst(size);
+		case FIND_BEST:
+			return FindBest(size);
+		default:
+			return nullptr;
+	}
 }
 
 FreeBlock * FreeListAllocator::FindFirst(const std::size_t size){
@@ -79,5 +99,8 @@ void FreeListAllocator::Free(void* ptr){
 }
 
 void FreeListAllocator::Reset() {
-	// TODO:Set all adresses on the linked list as free
+	m_freeList = (FreeBlock *) m_start_ptr;
+	m_freeList.m_head->size = m_totalSize;
+	m_freeList.m_head->previous = NULL;
+	m_freeList.m_head->next = NULL;
 }
