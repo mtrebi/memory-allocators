@@ -4,22 +4,32 @@
 #include "Allocator.h"
 
 class FreeListAllocator : public Allocator {
+public:
+	enum PlacementPolicy {
+		FIND_FIRST, 
+		FIND_BEST;
+	}
+
+	enum StoragePolicy {
+		LIFO,
+		SORTED;
+	}
+
 private:
 	void* m_start_ptr;
-
+	PlacementPolicy m_pPolicy;
+	StoragePolicy m_sPolicy;
+	
 	struct FreeBlock {
 		FreeBlock * previous
 					next;
 		std::size_t size;
 	} * m_freeList;
 
-	enum PlacementPolicy {
-		FIND_FIRST, 
-		FIND_BEST;
-	} m_pPolicy;
+
 
 public:
-	FreeListAllocator(const std::size_t totalSize, enum PlacementPolicy policy);
+	FreeListAllocator(const std::size_t totalSize, enum PlacementPolicy pPolicy, enum sPolicy);
 
 	virtual ~FreeListAllocator();
 
@@ -33,6 +43,12 @@ public:
 private:
 	FreeListAllocator(FreeListAllocator &freeListAllocator);
 	
+
+	void InsertFree(void * ptr);
+	void InsertFreeLIFO(void * ptr);
+	void InsertFreeSorted(void * ptr);
+
+	FreeBlock * Find(const std::size_t size);
 	FreeBlock * FindBest(const std::size_t size);
 	FreeBlock * FindFirst(const std::size_t size);
 };

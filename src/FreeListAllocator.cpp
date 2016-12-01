@@ -7,9 +7,10 @@
 	#include <iostream>
 #endif
 
-FreeListAllocator::FreeListAllocator(const std::size_t totalSize, enum PlacementPolicy policy);
+FreeListAllocator::FreeListAllocator(const std::size_t totalSize, enum PlacementPolicy pPolicy, enum sPolicy);
 	: Allocator(totalSize) {
-	m_pPolicy = policy;
+	m_pPolicy = pPolicy;
+	m_sPolicy = sPolicy;
 }
 
 void FreeListAllocator::Init() {
@@ -41,6 +42,8 @@ void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alig
 	if (rest == 0){
 		// We have to split the block into the data block and a free block of size 'rest'
 		FreeBlock * newFreeBlock = (FreeBlock *)((std::size_t) affectedBlock + size + 1);
+		//TODO: linkedlist insert!!!!!
+		//TODO: linkedlist delete!!!!!
 
 		affectedBlock->previous->next = newFreeBlock;
 		newFreeBlock->previous = affectedBlock->previous;
@@ -48,6 +51,8 @@ void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alig
 		newFreeBlock->size = rest;
 	}else {
 		// Delete block from free list
+		//TODO: linkedlist delete!!!!!
+
 		affectedBlock->previous->next = affectedBlock->next;
 	}
 
@@ -94,8 +99,52 @@ FreeBlock * FreeListAllocator::FindBest(const std::size_t size){
 	}
 	return bestBlock;
 }
+
 void FreeListAllocator::Free(void* ptr){
-	//TODO
+	FreeBlock * freeBlock = InsertFree(ptr);
+	Coalescence(freeBlock);
+}
+
+FreeBlock * FreeListAllocator::InsertFree(void * ptr){
+	switch(m_sPolicy){
+		case LIFO:
+			return InsertFreeLIFO(ptr);
+		case SORTED:
+			return InsertFreeSorted(ptr);
+	}
+}
+
+FreeBlock * FreeListAllocator::InsertFreeLIFO(void * ptr){
+	// Insert it in a LIFO (or stack) fashion (at the beginning)
+	//TODO: linkedlist insert!!!!!
+
+	FreeBlock * freeBlock = (FreeBlock *) ptr;
+	freeBlock->next = m_freeList.next;
+	freeBlock->next->previous = freeBlock;
+	freeBlock->previous = m_start_ptr;
+	freeBlock->size = 7; // TODO SIZE ??????????
+	m_freeList.next = freeBlock;
+
+	return freeBlock;
+}
+
+FreeBlock * FreeListAllocator::InsertFreeSorted(void * ptr){
+	// Insert it in a sorted position by the address number
+	FreeBlock * freeBlock = (FreeBlock *) ptr;
+	FreeBlock * it = m_freeList;
+	while(it != nullptr){
+		if ((std::size_t) ptr < (std::size_t) it){
+			//TODO: linkedlist insert!!!!!
+			break;
+		}
+		it = it->next;
+	}
+	return freeBlock;
+
+}
+
+void FreeListAllocator::Coalescence(FreeBlock * freeBlock){
+	// TODO: Merge with previous and/or next, or neither
 }
 
 void FreeListAllocator::Reset() {
