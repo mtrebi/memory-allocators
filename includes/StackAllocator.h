@@ -5,26 +5,26 @@
 
 class StackAllocator : public Allocator {
 protected:
-	void* m_start_ptr;
-	std::size_t m_offset;
+    void* m_start_ptr;
+    std::size_t m_offset;
 public:
-	StackAllocator(const std::size_t totalSize);
+    StackAllocator(const std::size_t totalSize);
 
-	virtual ~StackAllocator();
+    virtual ~StackAllocator();
 
-	virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
+    virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
 
-	virtual void Free(void* ptr);
+    virtual void Free(void* ptr);
 
-	virtual void Init() override;
+    virtual void Init() override;
 
-	virtual void Reset();
+    virtual void Reset();
 private:
-	StackAllocator(StackAllocator &stackAllocator);
+    StackAllocator(StackAllocator &stackAllocator);
 
-	struct AllocationHeader {
-		unsigned short padding;
-	};
+    struct AllocationHeader {
+        char padding;
+    };
 
 };
 
