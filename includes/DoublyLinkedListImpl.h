@@ -11,11 +11,13 @@ void DoublyLinkedList<T>::insert(Node<T>* previousNode, Node<T>* newNode) {
         // Is the first node
         if (head != nullptr) {
             // The list has more elements
-            newNode->next = head;
+            newNode->next = head;           
             newNode->next->previous = newNode;
+        }else {
+            newNode->next = nullptr;
         }
         head = newNode;
-        newNode->previous = nullptr;
+        head->previous = nullptr;
     } else {
         if (previousNode->next == nullptr){
             // Is the last node
@@ -23,10 +25,12 @@ void DoublyLinkedList<T>::insert(Node<T>* previousNode, Node<T>* newNode) {
             newNode->next = nullptr;
         }else {
             // Is a middle node
+            newNode->next = previousNode->next;
+            if (newNode->next != nullptr){
+                newNode->next->previous = newNode;
+            }
             previousNode->next = newNode;
             newNode->previous = previousNode;
-            newNode->next = previousNode->next->next;
-            newNode->next->previous = newNode;
         }
     }
 }
