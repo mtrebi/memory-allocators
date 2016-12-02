@@ -11,7 +11,7 @@ void DoublyLinkedList<T>::insert(Node<T>* previousNode, Node<T>* newNode) {
         // Should be inserted at the beginning
         if (head != nullptr) {
             // There are more nodes
-            newNode->next = head->next;
+            newNode->next = head;
             newNode->next->previous = newNode;
         }
         head = newNode;
