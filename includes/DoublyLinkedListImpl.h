@@ -8,24 +8,52 @@ DoublyLinkedList<T>::DoublyLinkedList() {
 template <class T>
 void DoublyLinkedList<T>::insert(Node<T>* previousNode, Node<T>* newNode) {
     if (previousNode == nullptr) {
-        // Should be inserted at the beginning
+        // Is the first node
         if (head != nullptr) {
-            // There are more nodes
+            // The list has more elements
             newNode->next = head;
             newNode->next->previous = newNode;
         }
         head = newNode;
         newNode->previous = nullptr;
-    } else if (previousNode->next == nullptr) {
-        // Should be inserted at the end
-        previousNode->next = newNode;
-        newNode->previous = previousNode;
-        newNode->next = nullptr;
+    } else {
+        if (previousNode->next == nullptr){
+            // Is the last node
+            previousNode->next = newNode;
+            newNode->next = nullptr;
+        }else {
+            // Is a middle node
+            previousNode->next = newNode;
+            newNode->previous = previousNode;
+            newNode->next->previous = newNode;
+        }
     }
 }
 
 template <class T>
 void DoublyLinkedList<T>::remove(Node<T>* deleteNode) {
+    if (deleteNode->previous == nullptr){
+        // Is the first node
+        if (deleteNode->next == nullptr){
+            // List only has one element
+            head = nullptr;            
+        }else {
+            // List has more elements
+            head = deleteNode->next;
+            head->previous = nullptr;
+        }
+    }else {
+        if (deleteNode->next == nullptr){
+            // Is the last node
+            deleteNode->previous->next = nullptr;
+        }else {
+            // Middle node
+            deleteNode->previous->next = deleteNode->next;
+            deleteNode->next->previous = deleteNode->previous;
+        }
+    }
+    
+    
     if (deleteNode->previous != nullptr) {
         // Is not the first node
         deleteNode->previous->next = deleteNode->next;
