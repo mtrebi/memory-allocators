@@ -25,7 +25,7 @@ void DoublyLinkedList<T>::insert(Node<T>* previousNode, Node<T>* newNode) {
             // Is a middle node
             previousNode->next = newNode;
             newNode->previous = previousNode;
-            newNode->next = previousNode->next;
+            newNode->next = previousNode->next->next;
             newNode->next->previous = newNode;
         }
     }
