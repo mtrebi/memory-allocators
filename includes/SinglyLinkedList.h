@@ -4,14 +4,14 @@
 template <class T>
 class SinglyLinkedList {
 private:
-    struct sNode {
+    struct Node {
         T data;
-        sNode* next;
+        Node* next;
     };
 public:
 
     
-    sNode* head;
+    Node* head;
 public:
     SinglyLinkedList();
 
