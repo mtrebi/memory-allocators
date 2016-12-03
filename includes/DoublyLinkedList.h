@@ -3,14 +3,12 @@
 
 template <class T>
 class DoublyLinkedList {
-    friend class FreeListAllocator;
-private:
+public:
     struct Node {
         T data;
         Node* previous;
         Node* next;
     };
-public:
     Node* head;
 public:
     DoublyLinkedList();

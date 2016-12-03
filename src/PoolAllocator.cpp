@@ -28,24 +28,24 @@ void *PoolAllocator::Allocate(const std::size_t allocationSize, const std::size_
 {
   assert(allocationSize == this->m_chunkSize && "Allocation size must be equal to chunk size");
   
-  FreeHeader freePosition = m_freeList.pop();
+  Node * freePosition = m_freeList.pop();
 
-  assert(freePosition.self != nullptr && "The pool allocator is full");
+  assert(freePosition != nullptr && "The pool allocator is full");
 
   m_used += m_chunkSize;
 
 #ifdef _DEBUG
-  std::cout << "A" << "\t@S " << m_start_ptr << "\t@R " << (void*) freePosition.self << "\tM " << m_used << std::endl;
+  std::cout << "A" << "\t@S " << m_start_ptr << "\t@R " << (void*) freePosition << "\tM " << m_used << std::endl;
 #endif
 
-  return freePosition.self;
+  return (void*) freePosition;
 }
 
 void PoolAllocator::Free(void * ptr)
 {
   m_used -= m_chunkSize;
   
-  m_freeList.push(FreeHeader{ptr}, ptr);
+  m_freeList.push((Node *)ptr);
 
 #ifdef _DEBUG
   std::cout << "F" << "\t@S " << m_start_ptr << "\t@F " << ptr << "\tM " << m_used << std::endl;
@@ -57,6 +57,6 @@ void PoolAllocator::Reset(){
   const int nChunks = m_totalSize / m_chunkSize;
   for (int i = 0; i < nChunks; ++i){
     std::size_t address = (std::size_t) m_start_ptr + i * m_chunkSize;
-    m_freeList.push(FreeHeader{(void*) address},(void*) address);
+    m_freeList.push((Node *) address);
   }
 }

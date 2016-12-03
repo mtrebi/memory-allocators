@@ -3,20 +3,18 @@
 
 template <class T>
 class SinglyLinkedList {
-private:
+public:
     struct Node {
         T data;
         Node* next;
     };
-public:
-
     
     Node* head;
 public:
     SinglyLinkedList();
 
-    void push(T element, void *ptr);
-    T pop();
+    void push(Node * newNode);
+    Node* pop();
 private:
     SinglyLinkedList(SinglyLinkedList &singlyLinkedList);
 };

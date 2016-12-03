@@ -3,15 +3,13 @@
 
 class PoolAllocator : public Allocator {
 private:
-
     struct  FreeHeader{
-        void * self;
     };
+    typedef SinglyLinkedList<FreeHeader>::Node Node;
+    SinglyLinkedList<FreeHeader> m_freeList;
 
     void * m_start_ptr;
     std::size_t m_chunkSize;
-
-    SinglyLinkedList<FreeHeader> m_freeList;
 public:
     PoolAllocator(const std::size_t totalSize, const std::size_t chunkSize);
 
