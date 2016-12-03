@@ -1,27 +1,20 @@
 #include "Allocator.h"
+#include "SinglyLinkedList.h"
 
 class PoolAllocator : public Allocator {
 private:
+
+    struct  FreeHeader{
+        void * self;
+    };
+
     void * m_start_ptr;
     std::size_t m_chunkSize;
 
-    class LinkedStack {
-    public:
-        struct StackNode {
-            StackNode * next;
-        } * head;
-
-        LinkedStack();
-        void Push(void* freePosition);
-        void * Pop();
-        ~LinkedStack();
-    };
-
-    LinkedStack freeStack;
-
+    SinglyLinkedList<FreeHeader> m_freeList;
 public:
     PoolAllocator(const std::size_t totalSize, const std::size_t chunkSize);
-    
+
     virtual ~PoolAllocator();
 
     virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
