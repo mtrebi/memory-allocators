@@ -1,12 +1,12 @@
 #include "Allocator.h"
-#include "SinglyLinkedList.h"
+#include "StackLinkedList.h"
 
 class PoolAllocator : public Allocator {
 private:
     struct  FreeHeader{
     };
-    typedef SinglyLinkedList<FreeHeader>::Node Node;
-    SinglyLinkedList<FreeHeader> m_freeList;
+    typedef StackLinkedList<FreeHeader>::Node Node;
+    StackLinkedList<FreeHeader> m_freeList;
 
     void * m_start_ptr;
     std::size_t m_chunkSize;
