@@ -22,7 +22,7 @@ void Benchmark::SingleAllocation(Allocator* allocator, const std::size_t size, c
     }
     setTimer(m_end);
 
-    BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
+    BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_peak);
     printResults(results);
 }
 
@@ -155,14 +155,14 @@ void Benchmark::printResults(const BenchmarkResults& results) const {
     std::cout << std::endl;
 }
 
-const BenchmarkResults Benchmark::buildResults(const unsigned int nOperations, const double elapsedTime, const std::size_t memoryUsed) const {
+const BenchmarkResults Benchmark::buildResults(const unsigned int nOperations, const double elapsedTime, const std::size_t memoryPeak) const {
     BenchmarkResults results;
 
     results.nOperations = nOperations;
     results.elapsedTime = elapsedTime;
     results.operationsPerSec = results.nOperations / results.elapsedTime;
     results.timePerOperation = results.elapsedTime / results.nOperations;
-    results.memoryUsed = memoryUsed;
+    results.memoryPeak = memoryPeak;
 
     return results;
 }
