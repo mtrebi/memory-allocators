@@ -9,10 +9,9 @@
 #include <iostream>
 #endif
 
-FreeListAllocator::FreeListAllocator(const std::size_t totalSize, PlacementPolicy pPolicy, StoragePolicy sPolicy)
+FreeListAllocator::FreeListAllocator(const std::size_t totalSize, const PlacementPolicy pPolicy)
 : Allocator(totalSize) {
     m_pPolicy = pPolicy;
-    m_sPolicy = sPolicy;
 }
 
 void FreeListAllocator::Init() {
@@ -122,36 +121,6 @@ void FreeListAllocator::FindBest(const std::size_t size, const std::size_t align
 }
 
 void FreeListAllocator::Free(void* ptr) {
-    Node * freeNode = InsertFree(ptr);    
-
-#ifdef _DEBUG
-    std::cout << "F" << "\t@ptr " <<  ptr <<"\tH@ " << (void*) freeNode << "\tS " << freeNode->data.blockSize << "\tM " << m_used << std::endl;
-#endif
-}
-
-FreeListAllocator::Node * FreeListAllocator::InsertFree(void * ptr) {
-    switch (m_sPolicy) {
-        case LIFO:
-            return InsertFreeLIFO(ptr);
-        case SORTED:
-            return InsertFreeSorted(ptr);
-    }
-}
-
-FreeListAllocator::Node * FreeListAllocator::InsertFreeLIFO(void * ptr) {
-    // Insert it in a LIFO (or stack) fashion (at the beginning)
-    const std::size_t currentAddress = (std::size_t) ptr;
-    const std::size_t headerAddress = currentAddress - sizeof (FreeListAllocator::FreeHeader);
-    const FreeListAllocator::FreeHeader * allocationHeader{ (FreeListAllocator::FreeHeader *) headerAddress};
-
-    Node * freeNode = (Node *) ptr;
-    freeNode->data = *allocationHeader;
-    m_freeList.insert(nullptr, freeNode);
-
-    return freeNode;
-}
-
-FreeListAllocator::Node * FreeListAllocator::InsertFreeSorted(void * ptr) {
     // Insert it in a sorted position by the address number
     const std::size_t currentAddress = (std::size_t) ptr;
     const std::size_t headerAddress = currentAddress - sizeof (FreeListAllocator::AllocationHeader);
@@ -175,9 +144,11 @@ FreeListAllocator::Node * FreeListAllocator::InsertFreeSorted(void * ptr) {
     m_used -= freeNode->data.blockSize;
 
     // Merge contiguous nodes
-    Coalescence(itPrev, freeNode);
-    
-    return freeNode;
+    Coalescence(itPrev, freeNode);  
+
+#ifdef _DEBUG
+    std::cout << "F" << "\t@ptr " <<  ptr <<"\tH@ " << (void*) freeNode << "\tS " << freeNode->data.blockSize << "\tM " << m_used << std::endl;
+#endif
 }
 
 void FreeListAllocator::Coalescence(Node* previousNode, Node * freeNode) {   

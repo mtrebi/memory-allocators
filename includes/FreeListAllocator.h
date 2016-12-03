@@ -11,11 +11,6 @@ public:
         FIND_BEST
     };
 
-    enum StoragePolicy {
-        LIFO,
-        SORTED
-    };
-
 private:
     struct FreeHeader {
         std::size_t blockSize;
@@ -30,11 +25,10 @@ private:
     
     void* m_start_ptr;
     PlacementPolicy m_pPolicy;
-    StoragePolicy m_sPolicy;
     SinglyLinkedList<FreeHeader> m_freeList;
 
 public:
-    FreeListAllocator(const std::size_t totalSize, PlacementPolicy pPolicy, StoragePolicy sPolicy);
+    FreeListAllocator(const std::size_t totalSize, const PlacementPolicy pPolicy);
 
     virtual ~FreeListAllocator();
 
@@ -49,10 +43,6 @@ private:
     FreeListAllocator(FreeListAllocator &freeListAllocator);
 
     void Coalescence(Node* prevBlock, Node * freeBlock);
-
-    Node * InsertFree(void * ptr);
-    Node * InsertFreeLIFO(void * ptr);
-    Node * InsertFreeSorted(void * ptr);
 
     void Find(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode);
     void FindBest(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode);
