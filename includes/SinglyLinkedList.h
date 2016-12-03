@@ -4,12 +4,11 @@
 template <class T>
 class SinglyLinkedList {
 public:
-
     struct Node {
         T data;
         Node * next;
     };
-private:
+    
     Node * head;
     
 public:
