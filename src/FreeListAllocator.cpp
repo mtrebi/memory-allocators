@@ -33,6 +33,8 @@ void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alig
     const std::size_t allocationHeaderSize = sizeof(FreeListAllocator::AllocationHeader);
     const std::size_t freeHeaderSize = sizeof(FreeListAllocator::FreeHeader);
     assert("Allocation size must be bigger" && size >= sizeof(Node));
+    assert("Alignment must be 8 at least" && alignment >= 8);
+
     // Search through the free list for a free block that has enough space to allocate our data
     std::size_t padding;
     Node * affectedNode = this->Find(size, alignment, padding);
