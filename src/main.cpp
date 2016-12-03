@@ -20,7 +20,7 @@ int main() {
     Allocator * linearAllocator = new LinearAllocator(1e8);
     Allocator * stackAllocator = new StackAllocator(1e8);
     //Allocator * poolAllocator = new PoolAllocator(4096, 8);
-    Allocator * freeListAllocator = new FreeListAllocator(1e8, FreeListAllocator::PlacementPolicy::FIND_FIRST, FreeListAllocator::StoragePolicy::SORTED);
+    Allocator * freeListAllocator = new FreeListAllocator(1e8, FreeListAllocator::PlacementPolicy::FIND_FIRST);
 
     Benchmark benchmark(100);
     
