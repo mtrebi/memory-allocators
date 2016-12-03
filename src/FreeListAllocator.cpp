@@ -112,9 +112,9 @@ FreeListAllocator::Node * FreeListAllocator::FindBest(const std::size_t size, co
 }
 
 void FreeListAllocator::Free(void* ptr) {
-    Node * freeNode = InsertFree(ptr);
+    Node * freeNode = InsertFree(ptr);    
     m_used -= freeNode->data.blockSize;
-    
+
 #ifdef _DEBUG
     std::cout << "F" << "\t@ptr " <<  ptr <<"\tN@ " << (void*) freeNode << "\tS " << freeNode->data.blockSize << "\tM " << m_used << std::endl;
 #endif
@@ -123,6 +123,7 @@ void FreeListAllocator::Free(void* ptr) {
             Coalescence(freeNode);
             break;
     }
+
 }
 
 FreeListAllocator::Node * FreeListAllocator::InsertFree(void * ptr) {
@@ -192,6 +193,7 @@ void FreeListAllocator::Coalescence(Node * freeNode) {
 }
 
 void FreeListAllocator::Reset() {
+    m_used = 0;
     Node * firstNode = (Node *) m_start_ptr;
     firstNode->data.blockSize = m_totalSize;
     firstNode->previous = nullptr;
