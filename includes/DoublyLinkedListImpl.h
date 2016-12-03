@@ -6,7 +6,7 @@ DoublyLinkedList<T>::DoublyLinkedList() {
 }
 
 template <class T>
-void DoublyLinkedList<T>::insert(Node<T>* previousNode, Node<T>* newNode) {
+void DoublyLinkedList<T>::insert(Node* previousNode, Node* newNode) {
     if (previousNode == nullptr) {
         // Is the first node
         if (head != nullptr) {
@@ -36,7 +36,7 @@ void DoublyLinkedList<T>::insert(Node<T>* previousNode, Node<T>* newNode) {
 }
 
 template <class T>
-void DoublyLinkedList<T>::remove(Node<T>* deleteNode) {
+void DoublyLinkedList<T>::remove(Node* deleteNode) {
     if (deleteNode->previous == nullptr){
         // Is the first node
         if (deleteNode->next == nullptr){
