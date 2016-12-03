@@ -2,7 +2,7 @@
 #define FREELISTALLOCATOR_H
 
 #include "Allocator.h"
-#include "DoublyLinkedList.h"
+#include "SinglyLinkedList.h"
 
 class FreeListAllocator : public Allocator {
 public:
@@ -25,13 +25,13 @@ private:
         std::size_t padding;
     };
     
-    typedef DoublyLinkedList<FreeHeader>::Node Node;
+    typedef SinglyLinkedList<FreeHeader>::Node Node;
 
     
     void* m_start_ptr;
     PlacementPolicy m_pPolicy;
     StoragePolicy m_sPolicy;
-    DoublyLinkedList<FreeHeader> m_freeList;
+    SinglyLinkedList<FreeHeader> m_freeList;
 
 public:
     FreeListAllocator(const std::size_t totalSize, PlacementPolicy pPolicy, StoragePolicy sPolicy);
@@ -48,15 +48,15 @@ public:
 private:
     FreeListAllocator(FreeListAllocator &freeListAllocator);
 
-    void Coalescence(Node * freeBlock);
+    void Coalescence(Node* prevBlock, Node * freeBlock);
 
     Node * InsertFree(void * ptr);
     Node * InsertFreeLIFO(void * ptr);
     Node * InsertFreeSorted(void * ptr);
 
-    Node * Find(const std::size_t size, const std::size_t alignment, std::size_t& padding);
-    Node * FindBest(const std::size_t size, const std::size_t alignment, std::size_t& padding);
-    Node * FindFirst(const std::size_t size, const std::size_t alignment, std::size_t& padding);
+    void Find(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode);
+    void FindBest(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode);
+    void FindFirst(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode);
 };
 
 #endif /* FREELISTALLOCATOR_H */
