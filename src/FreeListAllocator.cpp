@@ -3,6 +3,7 @@
 #include <stdlib.h>     /* malloc, free */
 #include <cassert>   /* assert		*/
 #include <limits>  /* limits_max */
+#include <algorithm>    // std::max
 
 #ifdef _DEBUG
 #include <iostream>
@@ -62,6 +63,7 @@ void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alig
     ((FreeListAllocator::AllocationHeader *) headerAddress)->padding = alignmentPadding;
 
     m_used += requiredSize;
+    m_peak = std::max(m_peak, m_used);
 
 #ifdef _DEBUG
     std::cout << "A" << "\t@H " << (void*) headerAddress << "\tD@ " <<(void*) dataAddress << "\tS " << ((FreeListAllocator::AllocationHeader *) headerAddress)->blockSize <<  "\tAP " << alignmentPadding << "\tP " << padding << "\tM " << m_used << "\tR " << rest << std::endl;
@@ -116,7 +118,7 @@ void FreeListAllocator::Free(void* ptr) {
     m_used -= freeNode->data.blockSize;
 
 #ifdef _DEBUG
-    std::cout << "F" << "\t@ptr " <<  ptr <<"\tN@ " << (void*) freeNode << "\tS " << freeNode->data.blockSize << "\tM " << m_used << std::endl;
+    std::cout << "F" << "\t@ptr " <<  ptr <<"\tH@ " << (void*) freeNode << "\tS " << freeNode->data.blockSize << "\tM " << m_used << std::endl;
 #endif
     switch (m_sPolicy) {
         case SORTED:
@@ -194,6 +196,7 @@ void FreeListAllocator::Coalescence(Node * freeNode) {
 
 void FreeListAllocator::Reset() {
     m_used = 0;
+    m_peak = 0;
     Node * firstNode = (Node *) m_start_ptr;
     firstNode->data.blockSize = m_totalSize;
     firstNode->previous = nullptr;

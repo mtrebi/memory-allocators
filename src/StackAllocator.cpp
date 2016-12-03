@@ -1,7 +1,7 @@
 #include "StackAllocator.h"
 #include "Utils.h"  /* CalculatePadding */
 #include <stdlib.h>     /* malloc, free */
-
+#include <algorithm>    /* max */
 #ifdef _DEBUG
 #include <iostream>
 #endif
@@ -44,6 +44,8 @@ void* StackAllocator::Allocate(const std::size_t size, const std::size_t alignme
     std::cout << "A" << "\t@C " << (void*) currentAddress << "\t@R " << (void*) nextAddress << "\tO " << m_offset << "\tP " << padding << std::endl;
 #endif
     m_used = m_offset;
+    m_peak = std::max(m_peak, m_used);
+
     return (void*) nextAddress;
 }
 
@@ -64,4 +66,5 @@ void StackAllocator::Free(void *ptr) {
 void StackAllocator::Reset() {
     m_offset = 0;
     m_used = 0;
+    m_peak = 0;
 }

@@ -12,6 +12,7 @@ struct BenchmarkResults {
 	float operationsPerSec;
 	float timePerOperation;
 	int memoryUsed;
+        int memoryPeak;
 };
 
 class Benchmark {
