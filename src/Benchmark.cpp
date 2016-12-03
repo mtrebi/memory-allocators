@@ -49,7 +49,7 @@ void Benchmark::SingleFree(Allocator* allocator, const std::size_t size, const s
 
     setTimer(m_end);
 
-    BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
+    BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_peak);
     printResults(results);
 }
 
@@ -87,7 +87,7 @@ void Benchmark::RandomAllocation(Allocator* allocator, const std::vector<std::si
     }
     setTimer(m_end);
 
-    BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
+    BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_peak);
     printResults(results);
 
 }
@@ -118,7 +118,7 @@ void Benchmark::RandomFree(Allocator* allocator, const std::vector<std::size_t>&
 
     setTimer(m_end);
 
-    BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_used);
+    BenchmarkResults results = buildResults(m_nOperations, calculateElapsedTime(), allocator->m_peak);
     printResults(results);
 
 }
