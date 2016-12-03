@@ -150,7 +150,6 @@ void Benchmark::printResults(const BenchmarkResults& results) const {
     std::cout << "\t\tTime elapsed:  \t" << results.elapsedTime << " ms" << std::endl;
     std::cout << "\t\tOp per sec:    \t" << results.operationsPerSec << " ops/ms" << std::endl;
     std::cout << "\t\tTimer per op:  \t" << results.timePerOperation << " ms/ops" << std::endl;
-    std::cout << "\t\tMemory used:   \t" << results.memoryUsed << " bytes" << std::endl;
     std::cout << "\t\tMemory peak:   \t" << results.memoryPeak << " bytes" << std::endl;
 
     std::cout << std::endl;
