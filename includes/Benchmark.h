@@ -11,7 +11,6 @@ struct BenchmarkResults {
 	double elapsedTime;
 	float operationsPerSec;
 	float timePerOperation;
-	int memoryUsed;
         int memoryPeak;
 };
 
