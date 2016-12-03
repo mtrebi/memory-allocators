@@ -57,25 +57,4 @@ void DoublyLinkedList<T>::remove(Node* deleteNode) {
             deleteNode->next->previous = deleteNode->previous;
         }
     }
-    
-    
-    if (deleteNode->previous != nullptr) {
-        // Is not the first node
-        deleteNode->previous->next = deleteNode->next;
-    } else {
-        // Is the first node
-        head = deleteNode->next;
-        if (deleteNode->next != nullptr) {
-            deleteNode->next->previous = nullptr;
-        }
-    }
-    if (deleteNode->next != nullptr) {
-        // Is not the last node
-        deleteNode->next->previous = deleteNode->previous;
-    }else {
-        // Is the last node
-        if (deleteNode->previous != nullptr) {
-            deleteNode->previous->next = nullptr;
-        }
-    }
 }
