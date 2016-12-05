@@ -17,7 +17,7 @@ private:
     };
     struct AllocationHeader {
         std::size_t blockSize;
-        std::size_t padding;
+        char padding;
     };
     
     typedef SinglyLinkedList<FreeHeader>::Node Node;
