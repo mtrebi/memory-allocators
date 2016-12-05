@@ -23,11 +23,17 @@ This is the simplest kind of allocator. The idea is to keep a pointer at the fir
 #### Data structure
 This allocator only requires a pointer (or an offset) to tell us the position of the last allocation. It doesn't require any extra information or data structure.
 
-_Complexity: *O(1)*_
+_Complexity: **O(1)**_
+
+(Data structure of a Linear Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/linear1.jpg]
+
 #### Allocate
 Simply move the pointer (or offset) forward.
 
-_Complexity: *O(1)*_
+_Complexity: **O(1)**_
+
+(Allocating memory in a Linear Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/linear2.jpg]
+
 #### Free
 Due to its simplicity, this allocator doesn't allow specific positions of memory to be freed. Usually, all memory is freed together.
 
@@ -37,73 +43,99 @@ This is a smart evolution of the Linear Allocator. The idea is to manage the mem
 #### Data structure
 As I said, we need the pointer (or offset) to keep track of the last allocation. In order to be able to free memory, we also need to store a _header_ for each allocation that tell us the size of the allocated block. Thus, when we free, we know how many positions we have to move back the pointer. 
 
-_Complexity: *O(N\*H)*_ where H is the Header size and N is the number of allocations
+_Complexity: **O(N*H)**_ where H is the Header size and N is the number of allocations
+
+(Data structure of a Stack Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/stack1.jpg]
+
 #### Allocate
 Simply move the pointer (or offset) forward and place a header right before the memory block indicating its size.
 
-_Complexity: *O(1)*_
-#### Free
-Simply read the block size from the header and move the pointer backwards.
+_Complexity: **O(1)**_
 
-_Complexity: *O(1)*_
+(Allocating memory in a Stack Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/stack2.jpg]
+
+#### Free
+Simply read the block size from the header and move the pointer backwards given that size.
+
+_Complexity: **O(1)**_
+
+(Freeing memory in a Stack Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/stack3.jpg]
+
 ### Pool allocator
 A Pool allocator is quite different from the previous ones. It splits the big memory chunk in smaller chunks of the same size and keeps track of which of them are free. When an allocation is requested it returns the free chunk size. When a freed is done, it just stores it to be used in the next allocation. This way, allocations work super fast and the fragmentation is still very low.
 
-#### Data structure
-To keep track of the free blocks of memory, the Pool allocator uses a Linked List that links the address of each free memory block. To reduce the space needed, this Linked List is stored in the same free blocks (smart right?). However, this set the constraint that the data chunks must be at least as big as our nodes in the Linked List (so that, we can store the Linked List in the free memory blocks).
+(Splitting scheme in a Pool Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/pool1.jpg]
 
-_Complexity: *O(1)*_ 
+#### Data structure
+To keep track of the free blocks of memory, the Pool allocator uses a Linked List that links the address of each free memory block. 
+
+(Linked List used in a Pool Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/pool2.jpg]
+
+To reduce the space needed, this Linked List is stored in the same free blocks (smart right?). However, this set the constraint that the data chunks must be at least as big as our nodes in the Linked List (so that, we can store the Linked List in the free memory blocks).
+
+(In memory Linked List used in a Pool Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/pool3.jpg]
+
+_Complexity: **O(1)**_ 
 #### Allocate
 An allocation simply means to take (pop) the first free block of the Linked List.
 
-_Complexity: *O(1)*_
+(Allocation in a Pool Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/pool4.jpg]
+
+The linked list doesn't have to be sorted. Its order its determined by the how the allocations and free are done.
+
+(Random State of a Linked List in a Pool Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/pool5.jpg]
+
+_Complexity: **O(1)**_
 #### Free
 Free means to add (push) the freed element as the first element in the Linked List.
 
-_Complexity: *O(1)*_
+_Complexity: **O(1)**_
 ### Free list allocator
 
-#### Sequential implementation
-##### Data structure
+This is a general purpose allocator that, contrary to the others, doesn't impose any restriction. It allows allocations and deallocations to be done in any order. For this reason, its performance is not as good as its predecessors. Depending on the data structure used to speed up this allocator, there are two common implementations: one that uses a Linked List and one that uses a Red black tree.
 
+#### Linked list data structure
+As the name says, this implementation uses a Linked List to store, in a sorted manner, the start address of each free contiguous block in memory and its size.
+When an allocation is requested, it searches in the linked list for a block where the data can fit. Then it removes the element from the linked list and places an allocation header (used on deallocations) right before the data (as we did in the Stack allocator).
+On deallocations, we get back the allocation header to know the size of the block that we are going to free. Once we free it we insert it into the sorted linked list and we try to merge contiguous memory blocks together creating bigger blocks.
 
-_Complexity: *O(N\*HF + M\*HA)*_ where N is the number of free blocks, HF is the size of the header of free blocks, M the number of allocator blocks and HA the size of the header of allocated blocks
-##### Allocate
-Simply look for the first free block that has a size equal or bigger than the size requested (it can store this data) and remove it from the Linked List.
+_Complexity: **O(N*HF + M*HA)**_ where N is the number of free blocks, HF is the size of the header of free blocks, M the number of allocator blocks and HA the size of the header of allocated blocks
+
+(Data structure in a Free list Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/freelist_seq1.jpg]
+
+#### Linked list Allocate
+ When an allocation is requested, we look for a block in memory where our data can fit. This means that we have to iterate our linked list until we find a block that has a size equal or bigger than the size requested (it can store this data plus the allocation header) and remove it from the linked list. This would be a **first-fit** allocation because it stops when it finds the first block where the memory fits. There is another type of search called **best-fit** that looks for the free memory block of smaller size that can handle our data. The latter operation may take more time because is always iterating through all elements but it can reduce fragmentation.
+
+_Complexity: **O(N)**_ where N is the number of free blocks 
+
+(Allocating in a Free list Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/freelist_seq1.jpg]
+
+#### Linked list Free
+First of all we get back the information about the allocation from the header. Then, we iterate the Linked List to intert the free block in the right position (because is sorted by address). Once we've inserted it, we merge contiguous blocks. We can merge in _O(1) because our Linked List is sorted. We only need to look at the previous and next elements in the linked list to see if we can merge this contiguous blocks. This operation of merging contiguous memory blocks to create bigger blocks is called _Coalescence_
+If we used instead a Sorted Linked List of free and allocated blocks, the complexity would be *O(1)* but the allocation compleixity would be *O(N) where N is the number of free and allocated blocks and space complexity would be much higher. When we free a memory block we also look at the previous and next blocks to see if we can merge them into one bigger block. 
 
 _Complexity: *O(N)*_ where N is the number of free blocks
-##### Free
-Simply look the right position where the free block should be put in the Sorted Linked List of free blocks. If we used instead a Sorted Linked List of free and allocated blocks, the complexity would be *O(1)* but the allocation compleixity would be *O(N) where N is the number of free and allocated blocks and space complexity would be much higher. When we free a memory block we also look at the previous and next blocks to see if we can merge them into one bigger block. This operations is called coalescence and is O(1) because the Linked List is sorted.
 
-_Complexity: *O(N)*_ where N is the number of free blocks
-#### Red black tree implementation
-##### Data structure
+(Freeing in a Free list Allocator)[https://github.com/mtrebi/memory-allocators/blob/master/docs/images/freelist_seq1.jpg]
 
-_Complexity: *O(N\*HF + M\*HA)*_ 
-##### Allocate
-Now, instead of iterating the Linked List (as before) to find the a free memory block where our data can fit, we find in the Red Black Tree. This operation is not only faster, but also allows us to pick the best free memory block. This means that the space wasted is minimized. Once we have the node, we remove it from the tree.
+#### Red black tree data structure
+The purpose of using a Red black tree is to speed up allocations and deallocations. In the Linked List (or sequential) implementation every time an operation was made we needed to iterate the Linked List. This was O(N) in all cases.
+Using Red Black trees we can reduce its complexity to O(log N) while keeping space complexity quite low because the tree data is stored inside the free memory blocks. In addition, this structure allows a **best-fit** algorithm to be used, reducing the fragmentation and keeping performance. However, an additional sorted Doubly Linked list is required to store allocated and free elements in order to be able to do coalescence operations in O(1).
+This implementation is the most common and most used in real systems because it offers high flexibility while keeping performance very high.
 
-_Complexity: *O(log N)*_ where N is the number of free blocks
-##### Free
-
-_Complexity: *O(log N)*_ where N is the number of free blocks
-
-### Buddy allocator
- *TODO*
-### Slab allocator
- *TODO*
 ## Benchmarks
     *TODO*:
         What is measured, how
         Individual results
         Comparisions
+
 ## Which allocator should I use?
 This is a brief summary describing when you should use each allocator. From more restrictive and efficient allocators to less efficient and general.
 
 * **Linear allocator**. If your data does not follows any specific structure. However, there's a common behavior in time: all data "expires" after a certain time and then is no longer useful and thus can be freed. Think about games for example, you can allocate data in one frame using a this allocator and free all data at the start of the next frame.  
 * **Stack allocator**. The same as the Linear allocator but think if it useful to free elements in a LIFO fashion.
 * **Pool allocator**. Your data has definitely a structure. All elements of your data have the same size. This is your choice, fast and no fragmentation.
-* **Buddy allocator**. Your data is organized in exponential sizes power-of-two (1,2,4,8,16...). This allocator performs extremely well when data is structure in that way, being fast and wasting so little space.
+* **Buddy allocator**. Your data is organized in exponential sizes power-of-two (1,2,4,8,16,32...). This allocator performs extremely well when data is structure in that way, being fast and wasting so little space.
 * **Slab allocator**. No structure or common behavior. **TODO**
 * **Free list allocator**. No structure or common behavior. This allocator allows you to allocate and free memory as you wish. This is a general purpose allocator that works much better than malloc, but is not as good as the previous allocators, given its flexibility to work in all situations.
 
@@ -115,10 +147,12 @@ Last thoughts:
 * Always choose a less restrictive (or more general) allocator if unsure. If you later see that your data is structured you can always change to use a more restrictive one.
 
 ## Future work
+* Implement a Free list allocator using Red Black Trees to improve performance from O(N) to O(log N)
+* Implement a Buddy allocator
+* Implement a Slab allocator
 * Benchmark internal fragmentation
 * Benchmark spatial location (cache misses)
 
 ## Acknowledgments
 
 Thanks to [Vanessa](https://github.com/vipyne) and [Krish](https://github.com/sigmasleep) for helping me in the various stages of this project.
-
