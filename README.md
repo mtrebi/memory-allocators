@@ -119,18 +119,55 @@ If we used instead a Sorted Linked List of free and allocated blocks, the comple
 
 ![Freeing in a Free list Allocator](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/freelist_seq3.jpg)
 
-_Complexity: *O(N)*_ where N is the number of free blocks
+_Complexity: **O(N)**_ where N is the number of free blocks
 
 #### Red black tree data structure
 The purpose of using a Red black tree is to speed up allocations and deallocations. In the Linked List (or sequential) implementation every time an operation was made we needed to iterate the Linked List. This was O(N) in all cases.
+
 Using Red Black trees we can reduce its complexity to O(log N) while keeping space complexity quite low because the tree data is stored inside the free memory blocks. In addition, this structure allows a **best-fit** algorithm to be used, reducing the fragmentation and keeping performance. However, an additional sorted Doubly Linked list is required to store allocated and free elements in order to be able to do coalescence operations in O(1).
 This implementation is the most common and most used in real systems because it offers high flexibility while keeping performance very high.
 
 ## Benchmarks
-    *TODO*:
-        What is measured, how
-        Individual results
-        Comparisions
+Now its time to make sure that all the effort in designing and implementing custom memory allocators is worth. 
+
+We're going to benchmark the execution time and the space required in memory. I've designed four benchmarks:
+* Multiple allocation. Performs allocations to allocate multiple elements of the same size: from 32 to 4096 bytes.
+* Multiple allocation/free. The same as before but now we also free the memory at the end. One by one.
+* Random allocation. Performs allocations of random size. This size, goes as before, from 32 to 4096 bytes.
+* Random allocation/free. The same as before but the memory is free at the end, one by one.
+
+### Malloc
+#### Multiple allocation
+#### Multiple allocation/free
+#### Random allocation
+#### Random allocation/free
+
+### Linear allocator
+#### Multiple allocation
+#### Multiple allocation/free
+#### Random allocation
+#### Random allocation/free
+
+### Stack allocator
+#### Multiple allocation
+#### Multiple allocation/free
+#### Random allocation
+#### Random allocation/free
+
+### Pool allocator
+#### Multiple allocation
+#### Multiple allocation/free
+#### Random allocation
+#### Random allocation/free
+
+### Freelist allocator
+#### Multiple allocation
+#### Multiple allocation/free
+#### Random allocation
+#### Random allocation/free
+
+### All together
+
 
 ## Which allocator should I use?
 This is a brief summary describing when you should use each allocator. From more restrictive and efficient allocators to less efficient and general.
@@ -139,7 +176,6 @@ This is a brief summary describing when you should use each allocator. From more
 * **Stack allocator**. The same as the Linear allocator but think if it useful to free elements in a LIFO fashion.
 * **Pool allocator**. Your data has definitely a structure. All elements of your data have the same size. This is your choice, fast and no fragmentation.
 * **Buddy allocator**. Your data is organized in exponential sizes power-of-two (1,2,4,8,16,32...). This allocator performs extremely well when data is structure in that way, being fast and wasting so little space.
-* **Slab allocator**. No structure or common behavior. **TODO**
 * **Free list allocator**. No structure or common behavior. This allocator allows you to allocate and free memory as you wish. This is a general purpose allocator that works much better than malloc, but is not as good as the previous allocators, given its flexibility to work in all situations.
 
 ## Conclusions
