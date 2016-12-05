@@ -98,12 +98,22 @@ _Complexity: *O(log N)*_ where N is the number of free blocks
         Individual results
         Comparisions
 ## Which allocator should I use?
-    *TODO*:
-        Avoid dynamic memory as much as possible (unexpected behavior)
-        Draw what to choose (know your data)
-            Anything better than malloc
-            Know your program, know your data
-            A freelist allocator is a "general purpose" custom allocator that works better than malloc
+This is a brief summary describing when you should use each allocator. From more restrictive and efficient allocators to less efficient and general.
+
+* **Linear allocator**. If your data does not follows any specific structure. However, there's a common behavior in time: all data "expires" after a certain time and then is no longer useful and thus can be freed. Think about games for example, you can allocate data in one frame using a this allocator and free all data at the start of the next frame.  
+* **Stack allocator**. The same as the Linear allocator but think if it useful to free elements in a LIFO fashion.
+* **Pool allocator**. Your data has definitely a structure. All elements of your data have the same size. This is your choice, fast and no fragmentation.
+* **Buddy allocator**. Your data is organized in exponential sizes power-of-two (1,2,4,8,16...). This allocator performs extremely well when data is structure in that way, being fast and wasting so little space.
+* **Slab allocator**. No structure or common behavior. **TODO**
+* **Free list allocator**. No structure or common behavior. This allocator allows you to allocate and free memory as you wish. This is a general purpose allocator that works much better than malloc, but is not as good as the previous allocators, given its flexibility to work in all situations.
+
+## Conclusions
+Last thoughts:
+* Avoid dynamic memory as much as possible. Its behavior is unexpected and a source of problems
+* If you are worried about performance and your application uses dynamic memory, think about using a custom allocator instead of malloc
+* Try to understand your data and its behavior to choose the right allocator for you. 
+* Always choose a less restrictive (or more general) allocator if unsure. If you later see that your data is structured you can always change to use a more restrictive one.
+
 ## Future work
 * Benchmark internal fragmentation
 * Benchmark spatial location (cache misses)
