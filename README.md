@@ -46,7 +46,6 @@ _Complexity: *O(1)*_
 Simply read the block size from the header and move the pointer backwards.
 
 _Complexity: *O(1)*_
-
 ### Pool allocator
 A Pool allocator is quite different from the previous ones. It splits the big memory chunk in smaller chunks of the same size and keeps track of which of them are free. When an allocation is requested it returns the free chunk size. When a freed is done, it just stores it to be used in the next allocation. This way, allocations work super fast and the fragmentation is still very low.
 
@@ -60,28 +59,33 @@ An allocation simply means to take (pop) the first free block of the Linked List
 _Complexity: *O(1)*_
 #### Free
 Free means to add (push) the freed element as the first element in the Linked List.
+
 _Complexity: *O(1)*_
-
-
 ### Free list allocator
 
 #### Sequential implementation
 ##### Data structure
+
+
 _Complexity: *O(N\*HF + M\*HA)*_ where N is the number of free blocks, HF is the size of the header of free blocks, M the number of allocator blocks and HA the size of the header of allocated blocks
 ##### Allocate
 Simply look for the first free block that has a size equal or bigger than the size requested (it can store this data) and remove it from the Linked List.
+
 _Complexity: *O(N)*_ where N is the number of free blocks
 ##### Free
 Simply look the right position where the free block should be put in the Sorted Linked List of free blocks. If we used instead a Sorted Linked List of free and allocated blocks, the complexity would be *O(1)* but the allocation compleixity would be *O(N) where N is the number of free and allocated blocks and space complexity would be much higher. When we free a memory block we also look at the previous and next blocks to see if we can merge them into one bigger block. This operations is called coalescence and is O(1) because the Linked List is sorted.
 
 _Complexity: *O(N)*_ where N is the number of free blocks
-
 #### Red black tree implementation
 ##### Data structure
+
 _Complexity: *O(N\*HF + M\*HA)*_ 
 ##### Allocate
+Now, instead of iterating the Linked List (as before) to find the a free memory block where our data can fit, we find in the Red Black Tree. This operation is not only faster, but also allows us to pick the best free memory block. This means that the space wasted is minimized. Once we have the node, we remove it from the tree.
+
 _Complexity: *O(log N)*_ where N is the number of free blocks
 ##### Free
+
 _Complexity: *O(log N)*_ where N is the number of free blocks
 
 ### Buddy allocator
@@ -93,14 +97,13 @@ _Complexity: *O(log N)*_ where N is the number of free blocks
         What is measured, how
         Individual results
         Comparisions
-## Conclusions
+## Which allocator should I use?
     *TODO*:
         Avoid dynamic memory as much as possible (unexpected behavior)
-        Anything better than malloc
-        Know your program, know your data
-        Choose wisely given your specific needs
-        A freelist allocator is a "general purpose" custom allocator that works better than malloc
-
+        Draw what to choose (know your data)
+            Anything better than malloc
+            Know your program, know your data
+            A freelist allocator is a "general purpose" custom allocator that works better than malloc
 ## Future work
 * Benchmark internal fragmentation
 * Benchmark spatial location (cache misses)
