@@ -12,7 +12,7 @@ set(SOURCES src/Allocator.cpp src/CAllocator.cpp src/LinearAllocator.cpp src/Sta
 
 add_compile_options(
 	-std=c++11
-	-D_DEBUG
+        -D_DEBUG
         -g
 ) 
 
