@@ -7,6 +7,5 @@ Allocator::Allocator(const std::size_t totalSize){
 }
 
 Allocator::~Allocator(){
-    assert(m_used == 0);
     m_totalSize = 0;
 }
