@@ -8,9 +8,9 @@ Benchmark::Benchmark(const unsigned int nOperations) {
 }
 
 void Benchmark::SingleAllocation(Allocator* allocator, const std::size_t size, const std::size_t alignment) {
-    std::cout << "BENCHMARK: ALLOCATION" << std::endl;
-    std::cout << "\tSize:     \t" << size << std::endl;
-    std::cout << "\tAlignment\t" << alignment << std::endl;
+    //std::cout << "BENCHMARK: ALLOCATION" << std::endl;
+    //std::cout << "\tSize:     \t" << size << std::endl;
+    //std::cout << "\tAlignment\t" << alignment << std::endl;
 
     setTimer(m_start);
 
@@ -145,11 +145,11 @@ const double Benchmark::calculateElapsedTime() const {
 }
 
 void Benchmark::printResults(const BenchmarkResults& results) const {
-    std::cout << "\tRESULTS:" << std::endl;
+    //std::cout << "\tRESULTS:" << std::endl;
     std::cout << "\t\tOperations:    \t" << results.nOperations << std::endl;
     std::cout << "\t\tTime elapsed:  \t" << results.elapsedTime << " ms" << std::endl;
-    std::cout << "\t\tOp per sec:    \t" << results.operationsPerSec << " ops/ms" << std::endl;
-    std::cout << "\t\tTimer per op:  \t" << results.timePerOperation << " ms/ops" << std::endl;
+    //std::cout << "\t\tOp per sec:    \t" << results.operationsPerSec << " ops/ms" << std::endl;
+    //std::cout << "\t\tTimer per op:  \t" << results.timePerOperation << " ms/ops" << std::endl;
     std::cout << "\t\tMemory peak:   \t" << results.memoryPeak << " bytes" << std::endl;
 
     std::cout << std::endl;
