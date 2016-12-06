@@ -104,7 +104,7 @@ On deallocations, we get back the allocation header to know the size of the bloc
 
 ![Data structure in a Free list Allocator](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/freelist_seq1.jpg)
 
-_Complexity: **O(N*HF + M*HA)--> O(N*M)**_ where N is the number of free blocks, HF is the size of the header of free blocks, M the number of allocator blocks and HA the size of the header of allocated blocks
+_Complexity: **O(N*HF + M*HA)--> O(N+M)**_ where N is the number of free blocks, HF is the size of the header of free blocks, M the number of allocator blocks and HA the size of the header of allocated blocks
 
 #### Linked list Allocate
  When an allocation is requested, we look for a block in memory where our data can fit. This means that we have to iterate our linked list until we find a block that has a size equal or bigger than the size requested (it can store this data plus the allocation header) and remove it from the linked list. This would be a **first-fit** allocation because it stops when it finds the first block where the memory fits. There is another type of search called **best-fit** that looks for the free memory block of smaller size that can handle our data. The latter operation may take more time because is always iterating through all elements but it can reduce fragmentation.
