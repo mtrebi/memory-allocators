@@ -146,7 +146,7 @@ _Note: When allocating memory I notice that when the block size increase the tim
 ### Space complexity
 As we can see, even that the space complexity for each allocator is slightly different(due to constants), in the end, all of them have the same space complexity **O(N)**. It is very clear, then, why when denoting big O, constants can be ignored: because its weight in the overall equation is very low when N grows.
 
-![Space complexity of different allocators](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/operations_over_space.jpg)
+![Space complexity of different allocators](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/operations_over_space.png)
 
 ## Which allocator should I use?
 This is a brief summary describing when you should use each allocator. From more restrictive and efficient allocators to less efficient and general.
