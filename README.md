@@ -164,6 +164,7 @@ This is a brief summary describing when you should use each allocator. From more
 * Always choose a less restrictive (or more general) allocator if unsure. If you later see that your data is structured you can always change to use a more restrictive one.
 
 ## Future work
+* Implement every memory allocator assuming that the alignment is always 8 bytes and thus everything is always align (we no longer need headers).
 * Implement a Free list allocator using Red Black Trees to improve performance from O(N) to O(log N)
 * Implement a Buddy allocator
 * Implement a Slab allocator
