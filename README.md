@@ -139,7 +139,7 @@ The first one is the **Pool allocator** that forces us to always allocate the sa
 Very close to it we have the **Stack allocator** that can allocate any size, but deallocations must be done in a LIFO fashion.
 The **best allocator** is the **Linear** one. But its also the most restrictive because single free operations are not allowed.
 
-![Time complexity of different allocators](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/operations_over_time.jpg)
+![Time complexity of different allocators](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/operations_over_time.png)
 
 _Note: When allocating memory I notice that when the block size increase the time complexity also does in a linear fashion O(N)_
 
