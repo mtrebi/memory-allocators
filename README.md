@@ -189,6 +189,7 @@ Last thoughts:
 * Implement a Free list allocator using Red Black Trees to improve performance from O(N) to O(log N)
 * Implement a Buddy allocator
 * Implement a Slab allocator
+* User bigger values to benchmark (around MB instead KB)
 * Benchmark internal fragmentation
 * Benchmark spatial location (cache misses)
 
