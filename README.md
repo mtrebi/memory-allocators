@@ -10,7 +10,7 @@ The goal, then, is to understand how the most common allocators work, what they 
 * **Slow**: Sometimes, when allocating memory, malloc needs to change from user to kernel mode to get more memory from the OS. When this happens, malloc turns out to be super slow!
 
 ## Custom allocators
-Because every program has specific needs, it makes no sense to use a general purpose allocator. We can choose the right allocator that works best for us. This way we can have a huge gain in _performance_.
+Because every program has specific needs, it makes no sense to use a general purpose allocator. We can choose the right allocator that works best for us. This way we can have increase our **performance**.
 
 In general, custom allocators share some features:
 * **Low number of mallocs**: Any custom allocator tries to keep the number of mallocs low. To do that, they malloc _big chunks of memory_ and then, they manage this chunk internally to provide smaller allocations.
