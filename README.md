@@ -129,15 +129,18 @@ This implementation is the most common and most used in real systems because it 
 
 ## Benchmarks
 Now its time to make sure that all the effort in designing and implementing custom memory allocators is worth. 
-I've made several benchmarks with different block sizes, number of operations, random order, etc. Here I'm going to show only what I think that is relevant for the goal of this project.
+I've made several benchmarks with different block sizes, number of operations, random order, etc. The time benchmark measures the time execution that takes initializing the allocator 'Init()' (malloc big chunk, setup additional data structures...) and untill the last operation (allocation or free) is performed.
+
+Here I'm only showing what I believe is relevant for the goal of this project.
 
 ### Time complexity
-We can easily see that **malloc** is by far the **worst allocator**, due to its general and flexible use. 
-Following malloc we have the **Free List Allocator**. Another general purpose allocator that uses a Linked List to speed up allocations/free. **A much better choice than malloc** because, even that it has a linear complexity, it's about three times better.
-The **next allocators** are even better BUT they are no longer general purpose allocators. They **impose restrictions** in how we can use them. 
-The first one is the **Pool allocator** that forces us to always allocate the same size but then we can allocate and deallocate in any order. The complexity of this one is slightly better than the free list allocator.
-Then with a much better complexity, almost constant we have the **Stack allocator** that can allocate any size, but deallocations must be done in a LIFO fashion.
-The **best allocator** is the **Linear** one, with a constant complexity. But its also the most restrictive because single free operations are not allowed.
+* **Malloc** is without doubt the **worst allocator**.Due to its general and flexible use. _**O(n)**_
+* **Free list allocator** is **A much better choice than malloc** as a general purpose allocator.It uses Linked List to speed up allocations/free. It's about three times better than malloc _**O(n)**_
+
+The next allocator are even better BUT they are no longer general purpose allocators. They **impose restrictions** in how we can use them:
+* **Pool allocator** forces us to always allocate the same size but then we can allocate and deallocate in any order. The complexity of this one is slightly better than the free list allocator, wait what? The complexity of the pool allocator was supposed to be constant not linear! And that's true. What its happening here is that the initialization of the additional data structure (the linked list) is _**O(n)**_. It has to create all memory chunks in then linked them in the linked list. This operation is hiding the truly complexity of the allocation and free operations that is _**O(1)**_.  So, take into account to initialize the Pool allocator (and all the allocators in general) before to avoid this kind of behaviors.
+* **Stack allocator** can allocate any size, but deallocations must be done in a LIFO fashion with a _**O(1)**_ complexity
+* **Linear allocator** is the simplest and the best performant allocator with a _**O(1)**_ complexity but its also the most restrictive because single free operations are not allowed.
 
 ![Time complexity of different allocators](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/operations_over_time.png)
 
