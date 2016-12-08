@@ -6,7 +6,7 @@ For this project I've implemented different ways to manage by ourselves dynamic 
 The goal, then, is to understand how the most common allocators work, what they offer and compare them to see which one performs better.
 
 ## What's wrong with Malloc?
-* **General purpose**: Being a general purpose operation means that it must work in all cases (from 1byte to 1GB or more...). Achieving this means that the implementation is not as efficient as it could be if the needs were more specific.
+* **General purpose**: Being a general purpose operation means that it must work in all cases (from 1byte to 1GB or more...). For this reason the implementation is not as efficient as it could be if the needs were more specific.
 * **Slow**: Sometimes, when allocating memory, malloc needs to change from user to kernel mode to get more memory from the system. When this happens, malloc turns out to be super slow!
 
 ## Custom allocators
