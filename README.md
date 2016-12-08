@@ -104,7 +104,7 @@ On deallocations, we get back the allocation header to know the size of the bloc
 
 ![Data structure in a Free list Allocator](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/freelist_seq1.jpg)
 
-_Complexity: **O(N*HF + M*HA)--> O(N+M)**_ where N is the number of free blocks, HF is the size of the header of free blocks, M the number of allocator blocks and HA the size of the header of allocated blocks
+_Complexity: **O(N*HF + M*HA)--> O(M)**_ where N is the number of free blocks, HF is the size of the header of free blocks, M the number of allocated blocks and HA the size of the header of allocated blocks
 
 #### Linked list Allocate
  When an allocation is requested, we look for a block in memory where our data can fit. This means that we have to iterate our linked list until we find a block that has a size equal or bigger than the size requested (it can store this data plus the allocation header) and remove it from the linked list. This would be a **first-fit** allocation because it stops when it finds the first block where the memory fits. There is another type of search called **best-fit** that looks for the free memory block of smaller size that can handle our data. The latter operation may take more time because is always iterating through all elements but it can reduce fragmentation.
@@ -133,11 +133,11 @@ I've made several benchmarks with different block sizes, number of operations, r
 
 ### Time complexity
 We can easily see that **malloc** is by far the **worst allocator**, due to its general and flexible use. 
-Following malloc we have the **Free List Allocator**. Another general purpose allocator that uses a Linked List to speed up allocations/free. **A much better choice than malloc**.
+Following malloc we have the **Free List Allocator**. Another general purpose allocator that uses a Linked List to speed up allocations/free. **A much better choice than malloc** because, even that it has a linear complexity, it's about three times better.
 The **next allocators** are even better BUT they are no longer general purpose allocators. They **impose restrictions** in how we can use them. 
-The first one is the **Pool allocator** that forces us to always allocate the same size but then we can allocate and deallocate in any order.
-Very close to it we have the **Stack allocator** that can allocate any size, but deallocations must be done in a LIFO fashion.
-The **best allocator** is the **Linear** one. But its also the most restrictive because single free operations are not allowed.
+The first one is the **Pool allocator** that forces us to always allocate the same size but then we can allocate and deallocate in any order. The complexity of this one is slightly better than the free list allocator.
+Then with a much better complexity, almost constant we have the **Stack allocator** that can allocate any size, but deallocations must be done in a LIFO fashion.
+The **best allocator** is the **Linear** one, with a constant complexity. But its also the most restrictive because single free operations are not allowed.
 
 ![Time complexity of different allocators](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/operations_over_time.png)
 
