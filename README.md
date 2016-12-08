@@ -6,16 +6,16 @@ For this project I've implemented different ways to manage by ourselves dynamic 
 The goal, then, is to understand how the most common allocators work, what they offer and compare them to see which one performs better.
 
 ## What's wrong with Malloc?
-* _General purpose_: Being a general purpose operation means that it must work in all cases (from 1byte to 1GB). To achieve that, most of the times, the implementation is not as efficient as it could be if the needs were more specific.
-* _Slow_: Sometimes, when allocating memory, malloc needs to change from user to kernel mode to get more memory from the OS. When this happens, malloc turns out to be super slow!
+* **General purpose**: Being a general purpose operation means that it must work in all cases (from 1byte to 1GB). To achieve that, most of the times, the implementation is not as efficient as it could be if the needs were more specific.
+* **Slow**: Sometimes, when allocating memory, malloc needs to change from user to kernel mode to get more memory from the OS. When this happens, malloc turns out to be super slow!
 
 ## Custom allocators
 Because every program has specific needs, it makes no sense to use a general purpose allocator. We can choose the right allocator that works best for us. This way we can have a huge gain in _performance_.
 
 In general, custom allocators share some features:
-* _Low number of mallocs_: Any custom allocator tries to keep the number of mallocs low. To do that, they malloc _big chunks of memory_ and then, they manage this chunk internally to provide smaller allocations.
-* _Data structures_: Secondary data structures like _Linked Lists_, _Trees_, _Stacks_ to manage these big chunks of memory. Usually they are used to keep track of the allocated and/or free portions of memory to _speed up_ operations.
-* _Constraints_: Some allocators are very specific and have constraints over the data or operations that can be performed. This allows them to achieve a high performance but can only be used in some applications. 
+* **Low number of mallocs**: Any custom allocator tries to keep the number of mallocs low. To do that, they malloc _big chunks of memory_ and then, they manage this chunk internally to provide smaller allocations.
+* **Data structures**: Secondary data structures like _Linked Lists_, _Trees_, _Stacks_ to manage these big chunks of memory. Usually they are used to keep track of the allocated and/or free portions of memory to _speed up_ operations.
+* **Constraints**: Some allocators are very specific and have constraints over the data or operations that can be performed. This allows them to achieve a high performance but can only be used in some applications. 
 
 ### Linear allocator
 This is the simplest kind of allocator. The idea is to keep a pointer at the first memory address of your memory chunk and move it every time an allocation is done. In this allocator, the internal fragmentation is kept to a minimum because all elements are sequentially (spatial locality) inserted and the only fragmentation between them is the alignment.
