@@ -71,7 +71,7 @@ To keep track of the free blocks of memory, the Pool allocator uses a Linked Lis
 
 ![Linked List used in a Pool Allocator](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/pool2.jpg)
 
-To reduce the space needed, this Linked List is stored in the same free blocks (smart right?). However, this set the constraint that the data chunks must be at least as big as our nodes in the Linked List (so that, we can store the Linked List in the free memory blocks).
+To reduce the space needed, this **Linked List is stored in the same free blocks** (smart right?). However, this set the constraint that the data chunks must be at least as big as our nodes in the Linked List (so that, we can store the Linked List in the free memory blocks).
 
 ![In memory Linked List used in a Pool Allocator](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/pool3.jpg)
 
