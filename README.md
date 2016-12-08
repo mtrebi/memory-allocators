@@ -7,7 +7,7 @@ The goal, then, is to understand how the most common allocators work, what they 
 
 ## What's wrong with Malloc?
 * **General purpose**: Being a general purpose operation means that it must work in all cases (from 1byte to 1GB or more...). Achieving this means that the implementation is not as efficient as it could be if the needs were more specific.
-* **Slow**: Sometimes, when allocating memory, malloc needs to change from user to kernel mode to get more memory from the OS. When this happens, malloc turns out to be super slow!
+* **Slow**: Sometimes, when allocating memory, malloc needs to change from user to kernel mode to get more memory from the system. When this happens, malloc turns out to be super slow!
 
 ## Custom allocators
 Because every program has specific needs, it makes no sense to use a general purpose allocator. We can choose the right allocator that works best for us. This way we can have increase our **performance**.
