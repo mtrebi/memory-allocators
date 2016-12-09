@@ -139,8 +139,8 @@ Here I'm only showing what I believe is relevant for the goal of this project.
 
 The next allocator are even better BUT they are no longer general purpose allocators. They **impose restrictions** in how we can use them:
 * **Pool allocator** forces us to always allocate the same size but then we can allocate and deallocate in any order. The complexity of this one is slightly better than the free list allocator, wait what? The complexity of the pool allocator was supposed to be constant not linear! And that's true. What its happening here is that the initialization of the additional data structure (the linked list) is _**O(n)**_. It has to create all memory chunks in then linked them in the linked list. This operation is hiding the truly complexity of the allocation and free operations that is _**O(1)**_.  So, take into account to initialize the Pool allocator (and all the allocators in general) before to avoid this kind of behaviors.
-* **Stack allocator** can allocate any size, but deallocations must be done in a LIFO fashion with a _**O(1)**_ complexity
-* **Linear allocator** is the simplest and the best performant allocator with a _**O(1)**_ complexity but its also the most restrictive because single free operations are not allowed.
+* **Stack allocator** can allocate any size, but deallocations must be done in a LIFO fashion with a _**O(1)**_ complexity. In the chart the complexity is not completely constant due to init function that has to allocate the first big chunk of memory, similarly as before in the pool allocator.
+* **Linear allocator** is the simplest and the best performant allocator with a _**O(1)**_ complexity but its also the most restrictive because single free operations are not allowed. As with the stack, the complexity doesn't look completely constant due to the init function.
 
 ![Time complexity of different allocators](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/operations_over_time.png)
 
@@ -157,7 +157,7 @@ This is a brief summary describing when you should use each allocator. From more
 * **Linear allocator**. If your data does not follows any specific structure. However, there's a common behavior in time: all data "expires" after a certain time and then is no longer useful and thus can be freed. Think about games for example, you can allocate data in one frame using a this allocator and free all data at the start of the next frame.  
 * **Stack allocator**. The same as the Linear allocator but think if it useful to free elements in a LIFO fashion.
 * **Pool allocator**. Your data has definitely a structure. All elements of your data have the same size. This is your choice, fast and no fragmentation.
-* **Buddy allocator**. Your data is organized in exponential sizes power-of-two (1,2,4,8,16,32...). This allocator performs extremely well when data is structure in that way, being fast and wasting so little space.
+* **Buddy allocator** (_Not implemented here_). Your data is organized in exponential sizes power-of-two (1,2,4,8,16,32...). This allocator performs extremely well when data is structure in that way, being fast and wasting so little space.
 * **Free list allocator**. No structure or common behavior. This allocator allows you to allocate and free memory as you wish. This is a general purpose allocator that works much better than malloc, but is not as good as the previous allocators, given its flexibility to work in all situations.
 
 ## Last thoughts
@@ -171,6 +171,7 @@ This is a brief summary describing when you should use each allocator. From more
 * Implement a Free list allocator using Red Black Trees to improve performance from O(N) to O(log N)
 * Implement a Buddy allocator
 * Implement a Slab allocator
+* Benchmark allocators without taking into account the init function to show the real complexity of the operations. Even that I did it to make sure that everything works, I should include a chart here.
 * Benchmark internal fragmentation
 * Benchmark spatial location (cache misses)
 
