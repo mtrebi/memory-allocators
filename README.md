@@ -6,16 +6,16 @@ For this project I've implemented different ways to manage by ourselves dynamic 
 The goal, then, is to understand how the most common allocators work, what they offer and compare them to see which one performs better.
 
 ## What's wrong with Malloc?
-* _General purpose_: Being a general purpose operation means that it must work in all cases (from 1byte to 1GB). To achieve that, most of the times, the implementation is not as efficient as it could be if the needs were more specific.
-* _Slow_: Sometimes, when allocating memory, malloc needs to change from user to kernel mode to get more memory from the OS. When this happens, malloc turns out to be super slow!
+* **General purpose**: Being a general purpose operation means that it must work in all cases (from 1byte to 1GB or more...). For this reason the implementation is not as efficient as it could be if the needs were more specific.
+* **Slow**: Sometimes, when allocating memory, malloc needs to change from user to kernel mode to get more memory from the system. When this happens, malloc turns out to be super slow!
 
 ## Custom allocators
-Because every program has specific needs, it makes no sense to use a general purpose allocator. We can choose the right allocator that works best for us. This way we can have a huge gain in _performance_.
+Because every program has specific needs, it makes no sense to use a general purpose allocator. We can choose the right allocator that works best for us. This way we can have increase our **performance**.
 
 In general, custom allocators share some features:
-* _Low number of mallocs_: Any custom allocator tries to keep the number of mallocs low. To do that, they malloc _big chunks of memory_ and then, they manage this chunk internally to provide smaller allocations.
-* _Data structures_: Secondary data structures like _Linked Lists_, _Trees_, _Stacks_ to manage these big chunks of memory. Usually they are used to keep track of the allocated and/or free portions of memory to _speed up_ operations.
-* _Constraints_: Some allocators are very specific and have constraints over the data or operations that can be performed. This allows them to achieve a high performance but can only be used in some applications. 
+* **Low number of mallocs**: Any custom allocator tries to keep the number of mallocs low. To do that, they malloc _big chunks of memory_ and then, they manage this chunk internally to provide smaller allocations.
+* **Data structures**: Secondary data structures like _Linked Lists_, _Trees_, _Stacks_ to manage these big chunks of memory. Usually they are used to keep track of the allocated and/or free portions of memory to _speed up_ operations.
+* **Constraints**: Some allocators are very specific and have constraints over the data or operations that can be performed. This allows them to achieve a high performance but can only be used in some applications. 
 
 ### Linear allocator
 This is the simplest kind of allocator. The idea is to keep a pointer at the first memory address of your memory chunk and move it every time an allocation is done. In this allocator, the internal fragmentation is kept to a minimum because all elements are sequentially (spatial locality) inserted and the only fragmentation between them is the alignment.
@@ -71,7 +71,7 @@ To keep track of the free blocks of memory, the Pool allocator uses a Linked Lis
 
 ![Linked List used in a Pool Allocator](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/pool2.png)
 
-To reduce the space needed, this Linked List is stored in the same free blocks (smart right?). However, this set the constraint that the data chunks must be at least as big as our nodes in the Linked List (so that, we can store the Linked List in the free memory blocks).
+To reduce the space needed, this **Linked List is stored in the same free blocks** (smart right?). However, this set the constraint that the data chunks must be at least as big as our nodes in the Linked List (so that, we can store the Linked List in the free memory blocks).
 
 ![In memory Linked List used in a Pool Allocator](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/pool3.png)
 
@@ -129,15 +129,18 @@ This implementation is the most common and most used in real systems because it 
 
 ## Benchmarks
 Now its time to make sure that all the effort in designing and implementing custom memory allocators is worth. 
-I've made several benchmarks with different block sizes, number of operations, random order, etc. Here I'm going to show only what I think that is relevant for the goal of this project.
+I've made several benchmarks with different block sizes, number of operations, random order, etc. The time benchmark measures the time execution that takes initializing the allocator 'Init()' (malloc big chunk, setup additional data structures...) and untill the last operation (allocation or free) is performed.
+
+Here I'm only showing what I believe is relevant for the goal of this project.
 
 ### Time complexity
-We can easily see that **malloc** is by far the **worst allocator**, due to its general and flexible use. 
-Following malloc we have the **Free List Allocator**. Another general purpose allocator that uses a Linked List to speed up allocations/free. **A much better choice than malloc** because, even that it has a linear complexity, it's about three times better.
-The **next allocators** are even better BUT they are no longer general purpose allocators. They **impose restrictions** in how we can use them. 
-The first one is the **Pool allocator** that forces us to always allocate the same size but then we can allocate and deallocate in any order. The complexity of this one is slightly better than the free list allocator.
-Then with a much better complexity, almost constant we have the **Stack allocator** that can allocate any size, but deallocations must be done in a LIFO fashion.
-The **best allocator** is the **Linear** one, with a constant complexity. But its also the most restrictive because single free operations are not allowed.
+* **Malloc** is without doubt the **worst allocator**.Due to its general and flexible use. _**O(n)**_
+* **Free list allocator** is **A much better choice than malloc** as a general purpose allocator.It uses Linked List to speed up allocations/free. It's about three times better than malloc _**O(n)**_
+
+The next allocator are even better BUT they are no longer general purpose allocators. They **impose restrictions** in how we can use them:
+* **Pool allocator** forces us to always allocate the same size but then we can allocate and deallocate in any order. The complexity of this one is slightly better than the free list allocator, wait what? The complexity of the pool allocator was supposed to be constant not linear! And that's true. What its happening here is that the initialization of the additional data structure (the linked list) is _**O(n)**_. It has to create all memory chunks in then linked them in the linked list. This operation is hiding the truly complexity of the allocation and free operations that is _**O(1)**_.  So, take into account to initialize the Pool allocator (and all the allocators in general) before to avoid this kind of behaviors.
+* **Stack allocator** can allocate any size, but deallocations must be done in a LIFO fashion with a _**O(1)**_ complexity
+* **Linear allocator** is the simplest and the best performant allocator with a _**O(1)**_ complexity but its also the most restrictive because single free operations are not allowed.
 
 ![Time complexity of different allocators](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/operations_over_time.png)
 
