@@ -144,6 +144,10 @@ The next allocator are even better BUT they are no longer general purpose alloca
 
 ![Time complexity of different allocators](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/operations_over_time.png)
 
+In the next chart we can see that if we don't include the Init() function in the benchmark, the overall execution time is reduced and as a consequence we can effectively see that the Linear, Stack and Pool allocators are constant while malloc and free list are clearly linear. The free list implementation using black tree can reduce the complexity to _**O(log n)**_ and therefore its position in the chart would be between the pool allocator and the free list.
+
+![Time complexity of different allocators](https://github.com/mtrebi/memory-allocators/blob/master/docs/images/operations_over_time_no_init.png)
+
 _Note: When allocating memory I notice that when the block size increase the time complexity also does in a linear fashion O(N)_
 
 ### Space complexity
@@ -163,7 +167,7 @@ This is a brief summary describing when you should use each allocator. From more
 ## Last thoughts
 * Avoid dynamic memory as much as possible. Its behavior is unexpected and a source of problems
 * If you are worried about performance and your application uses dynamic memory, think about using a custom allocator instead of malloc
-* Try to understand your data and its behavior to choose the right allocator for you. 
+* Try to understand your data and its behavior to choose the right allocator for you. Specific allocators (that impose restrictions on how we can structure/use our data) are far more better than the generic ones. We saw a huge gap between the specific purpose allocator: **Linear, Stack and Pool** and the general purpose: **Free list and Malloc**
 * Always choose a less restrictive (or more general) allocator if unsure. If you later see that your data is structured you can always change to use a more restrictive one.
 
 ## Future work
