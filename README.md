@@ -1,3 +1,4 @@
+<a href='http://www.recurse.com' title='Made with love at the Recurse Center'><img src='https://cloud.githubusercontent.com/assets/2883345/11325206/336ea5f4-9150-11e5-9e90-d86ad31993d8.png' height='20px'/></a>
 # Memory allocators in C++
 ## Introduction
 When applications need more memory this can be allocated in the heap (rather than in the stack) in _runtime_. This memory is called 'dynamic memory' because it can't be known at compile time and its need changes during the execution. Our programs can ask for dynamic memory usin 'malloc'. Malloc returns an address to a position in memory where we can store our data. Once we're done with that data, we can call 'free' to free the memory and let others processes use it.
@@ -182,5 +183,3 @@ This is a brief summary describing when you should use each allocator. From more
 ## Acknowledgments
 
 Thanks to [Vanessa](https://github.com/vipyne) and [Krish](https://github.com/sigmasleep) for helping me in the various stages of this project.
-
-<a href='http://www.recurse.com' title='Made with love at the Recurse Center'><img src='https://cloud.githubusercontent.com/assets/2883345/11325206/336ea5f4-9150-11e5-9e90-d86ad31993d8.png' height='20px'/></a>
