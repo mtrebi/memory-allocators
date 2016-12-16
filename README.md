@@ -162,7 +162,7 @@ This is a brief summary describing when you should use each allocator. From more
 * **Linear allocator**. If your data does not follows any specific structure. However, there's a common behavior in time: all data "expires" after a certain time and then is no longer useful and thus can be freed. Think about games for example, you can allocate data in one frame using a this allocator and free all data at the start of the next frame.  
 * **Stack allocator**. The same as the Linear allocator but think if it useful to free elements in a LIFO fashion.
 * **Pool allocator**. Your data has definitely a structure. All elements of your data have the same size. This is your choice, fast and no fragmentation.
-* **Buddy allocator** (_Not implemented here_). Your data is organized in exponential sizes power-of-two (1,2,4,8,16,32...). This allocator performs extremely well when data is structure in that way, being fast and wasting so little space.
+* **Buddy allocator** (_Not implemented here_). Your data is organized in exponential sizes power-of-two (1,2,4,8,16,32...). This allocator performs extremely well when data is structure in that way, being fast and wasting little space.
 * **Free list allocator**. No structure or common behavior. This allocator allows you to allocate and free memory as you wish. This is a general purpose allocator that works much better than malloc, but is not as good as the previous allocators, given its flexibility to work in all situations.
 
 ## Last thoughts
@@ -176,7 +176,6 @@ This is a brief summary describing when you should use each allocator. From more
 * Implement a Free list allocator using Red Black Trees to improve performance from O(N) to O(log N)
 * Implement a Buddy allocator
 * Implement a Slab allocator
-* Benchmark allocators without taking into account the init function to show the real complexity of the operations. Even that I did it to make sure that everything works, I should include a chart here.
 * Benchmark internal fragmentation
 * Benchmark spatial location (cache misses)
 
