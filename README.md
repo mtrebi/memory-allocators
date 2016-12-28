@@ -181,4 +181,4 @@ This is a brief summary describing when you should use each allocator. From more
 
 ## Acknowledgments
 
-Thanks to [Vanessa](https://github.com/vipyne) and [Krish](https://github.com/sigmasleep) for helping me in the various stages of this project.
+Thanks to [Vanessa](https://github.com/vipyne) and [Krish](https://github.com/sigmasleep) for helping me in the different stages of this project.
