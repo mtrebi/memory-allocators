@@ -34,7 +34,9 @@ cd build/
 cmake .. "Visual Studio 15 2017 Win64"
 ```
 
-Then, from VS you can edit and execute the project. If you are using Linux, you need to change the generator (use the default) and execute an extra operation to actually make the executable:
+Then, from VS you can edit and execute the project. Make sure that __main project is set up as the startup project__
+
+If you are using Linux, you need to change the generator (use the default) and execute an extra operation to actually make the executable:
 
 ```c
 // Linux
