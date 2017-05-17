@@ -2,8 +2,9 @@
 
 # Table of Contents
 &nbsp;[Introduction](https://github.com/mtrebi/memory-allocators#introduction)  <br/> 
+&nbsp;[Build instructions](https://github.com/mtrebi/memory-allocators#build-instructions)  <br/> 
 &nbsp;[What's wrong with Malloc?](https://github.com/mtrebi/memory-allocators#whats-wrong-with-malloc)  <br/> 
-&nbsp;[CUstom allocators](https://github.com/mtrebi/memory-allocators#custom-allocators)  <br/> 
+&nbsp;[Custom allocators](https://github.com/mtrebi/memory-allocators#custom-allocators)  <br/> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Linear Allocator](https://github.com/mtrebi/memory-allocators#linear-allocator)  <br/> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Stack Allocator](https://github.com/mtrebi/memory-allocators#stack-allocator)  <br/> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Pool Allocator](https://github.com/mtrebi/memory-allocators#pool-allocator)  <br/> 
@@ -20,6 +21,29 @@ When applications need more memory this can be allocated in the heap (rather tha
 
 For this project I've implemented different ways to manage by ourselves dynamic memory in C++.This means that instead of using native calls like 'malloc' or 'free' we're going to use a custom memory allocator that will do this for us but in a more efficient way.
 The goal, then, is to understand how the most common allocators work, what they offer and compare them to see which one performs better.
+
+# Build instructions
+
+This project has been developed using Netbeans and Linux but it should work on Windows, MAC OS and Linux. It can be easily build using CMake and different generators. The following code can be used to generate the VS 2017 project files:
+
+```c
+// VS 2017
+cd <project-folder>
+mkdir build
+cd build/
+cmake .. "Visual Studio 15 2017 Win64"
+```
+
+Then, from VS you can edit and execute the project. If you are using Linux, you need to change the generator (use the default) and execute an extra operation to actually make the executable:
+
+```c
+// Linux
+cd <project-folder>
+mkdir build
+cd build/
+cmake ..
+make
+```
 
 # What's wrong with Malloc?
 * **General purpose**: Being a general purpose operation means that it must work in all cases (from 1byte to 1GB or more...). For this reason the implementation is not as efficient as it could be if the needs were more specific.
