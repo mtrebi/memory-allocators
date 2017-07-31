@@ -61,7 +61,7 @@ void StackAllocator::Free(void *ptr) {
     m_used = m_offset;
 
 #ifdef _DEBUG
-    std::cout << "F" << "\t@C " << (void*) currentAddress << "\t@F " << (void*) m_start_ptr + m_offset << "\tO " << m_offset << std::endl;
+    std::cout << "F" << "\t@C " << (void*) currentAddress << "\t@F " << (void*) ((char*) m_start_ptr + m_offset) << "\tO " << m_offset << std::endl;
 #endif
 }
 
