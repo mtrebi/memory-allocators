@@ -8,7 +8,7 @@ private:
     typedef StackLinkedList<FreeHeader>::Node Node;
     StackLinkedList<FreeHeader> m_freeList;
 
-    void * m_start_ptr;
+    void * m_start_ptr = nullptr;
     std::size_t m_chunkSize;
 public:
     PoolAllocator(const std::size_t totalSize, const std::size_t chunkSize);

@@ -5,7 +5,7 @@
 
 class LinearAllocator : public Allocator {
 protected:
-	void* m_start_ptr;
+	void* m_start_ptr = nullptr;
 	std::size_t m_offset;
 public:
 	LinearAllocator(const std::size_t totalSize);

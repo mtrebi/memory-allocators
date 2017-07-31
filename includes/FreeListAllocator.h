@@ -23,7 +23,7 @@ private:
     typedef SinglyLinkedList<FreeHeader>::Node Node;
 
     
-    void* m_start_ptr;
+    void* m_start_ptr = nullptr;
     PlacementPolicy m_pPolicy;
     SinglyLinkedList<FreeHeader> m_freeList;
 
