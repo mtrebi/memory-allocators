@@ -10,17 +10,21 @@
 #include "PoolAllocator.h"
 #include "FreeListAllocator.h"
 
-int main() {
+int main()
+{
+    const std::size_t A = static_cast<std::size_t>(1e9);
+    const std::size_t B = static_cast<std::size_t>(1e8);
+
     const std::vector<std::size_t> ALLOCATION_SIZES {32, 64, 256, 512, 1024, 2048, 4096};
     const std::vector<std::size_t> ALIGNMENTS {8, 8, 8, 8, 8, 8, 8};
 
     Allocator * cAllocator = new CAllocator();
-    Allocator * linearAllocator = new LinearAllocator(1e9);
-    Allocator * stackAllocator = new StackAllocator(1e9);
+    Allocator * linearAllocator = new LinearAllocator(A);
+    Allocator * stackAllocator = new StackAllocator(A);
     Allocator * poolAllocator = new PoolAllocator(16777216, 4096);
-    Allocator * freeListAllocator = new FreeListAllocator(1e8, FreeListAllocator::PlacementPolicy::FIND_FIRST);
+    Allocator * freeListAllocator = new FreeListAllocator(B, FreeListAllocator::PlacementPolicy::FIND_FIRST);
 
-    Benchmark benchmark(1e1);
+    Benchmark benchmark(OPERATIONS);
 
     std::cout << "C" << std::endl;
     benchmark.MultipleAllocation(cAllocator, ALLOCATION_SIZES, ALIGNMENTS);
