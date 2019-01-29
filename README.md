@@ -24,7 +24,7 @@ The goal, then, is to understand how the most common allocators work, what they 
 
 # Build instructions
 
-This project has been developed using Netbeans and Linux but it should work on Windows, MAC OS and Linux. It can be easily build using CMake and different generators. The following code can be used to generate the VS 2017 project files:
+This project has been developed using Netbeans and Linux but it should work on Windows, macOS and Linux. It can be easily built using CMake and different generators. The following code can be used to generate the VS 2017 project files:
 
 ```c
 // VS 2017
@@ -34,9 +34,9 @@ cd build/
 cmake .. "Visual Studio 15 2017 Win64"
 ```
 
-Then, from VS you can edit and execute the project. Make sure that __main project is set up as the startup project__
+Then, from VS you can edit and execute the project. Make sure that __the main project is set up as the startup project__
 
-If you are using Linux, you need to change the generator (use the default) and execute an extra operation to actually make the executable:
+If you are using Linux, you need to change the generator (or use the default) and execute an extra operation to actually make the executable:
 
 ```c
 // Linux
@@ -52,7 +52,7 @@ make
 * **Slow**: Sometimes, when allocating memory, malloc needs to change from user to kernel mode to get more memory from the system. When this happens, malloc turns out to be super slow!
 
 # Custom allocators
-Because every program has specific needs, it makes no sense to use a general purpose allocator. We can choose the right allocator that works best for us. This way we can have increase our **performance**.
+Because every program has specific needs, it makes no sense to use a general purpose allocator. We can choose the right allocator that works best for us. This way we can increase our **performance**.
 
 In general, custom allocators share some features:
 * **Low number of mallocs**: Any custom allocator tries to keep the number of mallocs low. To do that, they malloc _big chunks of memory_ and then, they manage this chunk internally to provide smaller allocations.
