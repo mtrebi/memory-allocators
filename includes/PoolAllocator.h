@@ -5,7 +5,7 @@ class PoolAllocator : public Allocator {
 private:
     struct  FreeHeader{
     };
-    typedef StackLinkedList<FreeHeader>::Node Node;
+    using Node = StackLinkedList<FreeHeader>::Node;
     StackLinkedList<FreeHeader> m_freeList;
 
     void * m_start_ptr = nullptr;
