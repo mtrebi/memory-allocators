@@ -11,12 +11,10 @@ public:
     
     Node* head;
 public:
-    StackLinkedList();
-
+    StackLinkedList() = default;
+    StackLinkedList(StackLinkedList &stackLinkedList) = delete;
     void push(Node * newNode);
     Node* pop();
-private:
-    StackLinkedList(StackLinkedList &stackLinkedList);
 };
 
 #include "StackLinkedListImpl.h"
