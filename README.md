@@ -24,27 +24,10 @@ The goal, then, is to understand how the most common allocators work, what they 
 
 # Build instructions
 
-This project has been developed using Netbeans and Linux but it should work on Windows, macOS and Linux. It can be easily built using CMake and different generators. The following code can be used to generate the VS 2017 project files:
-
 ```c
-// VS 2017
-cd <project-folder>
-mkdir build
-cd build/
-cmake .. "Visual Studio 15 2017 Win64"
-```
-
-Then, from VS you can edit and execute the project. Make sure that __the main project is set up as the startup project__
-
-If you are using Linux, you need to change the generator (or use the default) and execute an extra operation to actually make the executable:
-
-```c
-// Linux
-cd <project-folder>
-mkdir build
-cd build/
-cmake ..
-make
+git clone https://github.com/mtrebi/memory-allocators.git
+cmake -S memory-allocator -B build 
+cmake --build build
 ```
 
 # What's wrong with Malloc?
