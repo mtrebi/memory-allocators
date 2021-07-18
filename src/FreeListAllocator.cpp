@@ -44,9 +44,15 @@ void* FreeListAllocator::Allocate(const std::size_t size, const std::size_t alig
 
 
     const std::size_t alignmentPadding =  padding - allocationHeaderSize;
-    const std::size_t requiredSize = size + padding;    
+    std::size_t requiredSize = size + padding;    
 
-    const std::size_t rest = affectedNode->data.blockSize - requiredSize;
+    std::size_t rest = affectedNode->data.blockSize - requiredSize;
+
+    if (rest && rest < sizeof(Node)) {
+        requiredSize += rest;
+        rest = 0;
+    }
+
 
     if (rest > 0) {
         // We have to split the block into the data block and a free block of size 'rest'
@@ -126,20 +132,26 @@ void FreeListAllocator::Free(void* ptr) {
     const std::size_t headerAddress = currentAddress - sizeof (FreeListAllocator::AllocationHeader);
     const FreeListAllocator::AllocationHeader * allocationHeader{ (FreeListAllocator::AllocationHeader *) headerAddress};
 
-    Node * freeNode = (Node *) (headerAddress);
-    freeNode->data.blockSize = allocationHeader->blockSize + allocationHeader->padding;
+    Node *freeNode           = (Node *)(headerAddress - allocationHeader->padding);
+    freeNode->data.blockSize = allocationHeader->blockSize;
     freeNode->next = nullptr;
 
     Node * it = m_freeList.head;
     Node * itPrev = nullptr;
-    while (it != nullptr) {
-        if (ptr < it) {
-            m_freeList.insert(itPrev, freeNode);
-            break;
+    
+    if (!it) {
+        m_freeList.head = freeNode;
+    } else {
+        while (it != nullptr) {
+            if (ptr < it) {
+                m_freeList.insert(itPrev, freeNode);
+                break;
+            }
+            itPrev = it;
+            it     = it->next;
         }
-        itPrev = it;
-        it = it->next;
     }
+    
     
     m_used -= freeNode->data.blockSize;
 
