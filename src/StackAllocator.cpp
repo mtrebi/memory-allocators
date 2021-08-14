@@ -27,7 +27,7 @@ StackAllocator::~StackAllocator() {
 void* StackAllocator::Allocate(const std::size_t size, const std::size_t alignment) {
     const std::size_t currentAddress = (std::size_t)m_start_ptr + m_offset;
 
-    std::size_t padding = Utils::CalculatePaddingWithHeader(currentAddress, alignment, sizeof (AllocationHeader));
+    const std::size_t padding = Utils::CalculatePaddingWithHeader(currentAddress, alignment, sizeof (AllocationHeader));
 
     if (m_offset + padding + size > m_totalSize) {
         return nullptr;
@@ -51,7 +51,7 @@ void* StackAllocator::Allocate(const std::size_t size, const std::size_t alignme
     return (void*) nextAddress;
 }
 
-void StackAllocator::Free(void *ptr) {
+void StackAllocator::Free(void* ptr) {
     // Move offset back to clear address
     const std::size_t currentAddress = (std::size_t) ptr;
     const std::size_t headerAddress = currentAddress - sizeof (AllocationHeader);
