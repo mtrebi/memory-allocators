@@ -157,7 +157,7 @@ This implementation is the most common and most used in real systems because it 
 
 # Benchmarks
 Now its time to make sure that all the effort in designing and implementing custom memory allocators is worth. 
-I've made several benchmarks with different block sizes, number of operations, random order, etc. The time benchmark measures the time execution that takes initializing the allocator 'Init()' (malloc big chunk, setup additional data structures...) and untill the last operation (allocation or free) is performed.
+I've made several benchmarks with different block sizes, number of operations, random order, etc. The time benchmark measures the time execution that takes initializing the allocator 'Init()' (malloc big chunk, setup additional data structures...) and until the last operation (allocation or free) is performed.
 
 Here I'm only showing what I believe is relevant for the goal of this project.
 
