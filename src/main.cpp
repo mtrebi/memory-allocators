@@ -12,54 +12,51 @@
 
 int main()
 {
-    const std::size_t A = static_cast<std::size_t>(1e9);
-    const std::size_t B = static_cast<std::size_t>(1e8);
+    const std::size_t GB = static_cast<std::size_t>(1e9);
+    const std::size_t MB = static_cast<std::size_t>(1e8);
+    const std::size_t POOL_SIZE = 16777216;
+    const std::size_t CHUNK_SIZE = 4096;
 
-    const std::vector<std::size_t> ALLOCATION_SIZES {32, 64, 256, 512, 1024, 2048, 4096};
-    const std::vector<std::size_t> ALIGNMENTS {8, 8, 8, 8, 8, 8, 8};
+    const std::size_t sizes_arr[] = { 32, 64, 256, 512, 1024, 2048, 4096 };
+    const std::size_t alignments_arr[] = { 8, 8, 8, 8, 8, 8, 8 };
 
-    Allocator * cAllocator = new CAllocator();
-    Allocator * linearAllocator = new LinearAllocator(A);
-    Allocator * stackAllocator = new StackAllocator(A);
-    Allocator * poolAllocator = new PoolAllocator(16777216, 4096);
-    Allocator * freeListAllocator = new FreeListAllocator(B, FreeListAllocator::PlacementPolicy::FIND_FIRST);
+    const std::vector<std::size_t> ALLOCATION_SIZES(sizes_arr, sizes_arr + 7);
+    const std::vector<std::size_t> ALIGNMENTS(alignments_arr, alignments_arr + 7);
 
-    Benchmark benchmark(OPERATIONS);
+    CAllocator cAllocator;
+    LinearAllocator linearAllocator(GB);
+    StackAllocator stackAllocator(GB);
+    PoolAllocator poolAllocator(POOL_SIZE, CHUNK_SIZE);
+    FreeListAllocator freeListAllocator(MB, FreeListAllocator::PlacementPolicy::FIND_FIRST);
 
-    std::cout << "C" << std::endl;
-    benchmark.MultipleAllocation(cAllocator, ALLOCATION_SIZES, ALIGNMENTS);
-    benchmark.MultipleFree(cAllocator, ALLOCATION_SIZES, ALIGNMENTS);
-    benchmark.RandomAllocation(cAllocator, ALLOCATION_SIZES, ALIGNMENTS);
-    benchmark.RandomFree(cAllocator, ALLOCATION_SIZES, ALIGNMENTS); 
+    const unsigned int N_OPERATIONS = 1000;
+    Benchmark benchmark(N_OPERATIONS);
 
-    std::cout << "LINEAR" << std::endl;
-    benchmark.MultipleAllocation(linearAllocator, ALLOCATION_SIZES, ALIGNMENTS);
-    benchmark.RandomAllocation(linearAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    std::cout << "=== C ALLOCATOR ===" << IO::endl;
+    benchmark.MultipleAllocation(&cAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    benchmark.MultipleFree(&cAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    benchmark.RandomAllocation(&cAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    benchmark.RandomFree(&cAllocator, ALLOCATION_SIZES, ALIGNMENTS);
 
-    std::cout << "STACK" << std::endl;
-    benchmark.MultipleAllocation(stackAllocator, ALLOCATION_SIZES, ALIGNMENTS);
-    benchmark.MultipleFree(stackAllocator, ALLOCATION_SIZES, ALIGNMENTS);
-    benchmark.RandomAllocation(stackAllocator, ALLOCATION_SIZES, ALIGNMENTS);
-    benchmark.RandomFree(stackAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    std::cout << "=== LINEAR ALLOCATOR ===" << IO::endl;
+    benchmark.MultipleAllocation(&linearAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    benchmark.RandomAllocation(&linearAllocator, ALLOCATION_SIZES, ALIGNMENTS);
 
-    std::cout << "POOL" << std::endl;
-    benchmark.SingleAllocation(poolAllocator, 4096, 8);
-    benchmark.SingleFree(poolAllocator, 4096, 8);
+    std::cout << "=== STACK ALLOCATOR ===" << IO::endl;
+    benchmark.MultipleAllocation(&stackAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    benchmark.MultipleFree(&stackAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    benchmark.RandomAllocation(&stackAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    benchmark.RandomFree(&stackAllocator, ALLOCATION_SIZES, ALIGNMENTS);
 
-    std::cout << "FREE LIST" << std::endl;
-    benchmark.MultipleAllocation(freeListAllocator, ALLOCATION_SIZES, ALIGNMENTS);
-    benchmark.MultipleFree(freeListAllocator, ALLOCATION_SIZES, ALIGNMENTS);
-    benchmark.RandomAllocation(freeListAllocator, ALLOCATION_SIZES, ALIGNMENTS);
-    benchmark.RandomFree(freeListAllocator, ALLOCATION_SIZES, ALIGNMENTS);
-    
-    delete cAllocator;
-    delete linearAllocator;
-    delete stackAllocator;
-    delete poolAllocator;
-    
-    return 1;
+    std::cout << "=== POOL ALLOCATOR ===" << IO::endl;
+    benchmark.SingleAllocation(&poolAllocator, CHUNK_SIZE, 8);
+    benchmark.SingleFree(&poolAllocator, CHUNK_SIZE, 8);
+
+    std::cout << "=== FREE LIST ALLOCATOR ===" << IO::endl;
+    benchmark.MultipleAllocation(&freeListAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    benchmark.MultipleFree(&freeListAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    benchmark.RandomAllocation(&freeListAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+    benchmark.RandomFree(&freeListAllocator, ALLOCATION_SIZES, ALIGNMENTS);
+
+    return 0;
 }
-
-
-
-

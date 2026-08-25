@@ -1,29 +1,29 @@
+#ifndef POOLALLOCATOR_H
+#define POOLALLOCATOR_H
+
 #include "Allocator.h"
 #include "StackLinkedList.h"
 
 class PoolAllocator : public Allocator {
 private:
-    struct  FreeHeader{
-    };
-    using Node = StackLinkedList<FreeHeader>::Node;
+    struct FreeHeader {};
+    typedef StackLinkedList<FreeHeader>::Node Node;
+
     StackLinkedList<FreeHeader> m_freeList;
-
-    void * m_start_ptr = nullptr;
+    void* m_start_ptr;
     std::size_t m_chunkSize;
-    std::size_t m_offset = 0;
+
 public:
-    PoolAllocator(const std::size_t totalSize, const std::size_t chunkSize);
+    PoolAllocator(std::size_t totalSize, std::size_t chunkSize) noexcept;
+    virtual ~PoolAllocator() noexcept;
 
-    virtual ~PoolAllocator();
+    virtual void* Allocate(std::size_t size, std::size_t alignment = 0);
 
-    virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
+    virtual void Free(void* ptr);
 
-    virtual void Free(void* ptr) override;
+    virtual void Init();
 
-    virtual void Init() override;
-
-    virtual void Reset();
-private:
-    PoolAllocator(PoolAllocator &poolAllocator);
-
+    void Reset() noexcept;
 };
+
+#endif

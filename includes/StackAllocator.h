@@ -6,27 +6,22 @@
 
 class StackAllocator : public Allocator {
 protected:
-    void* m_start_ptr = nullptr;
-    std::size_t m_offset = 0;
+    void* m_start_ptr;
+    std::size_t m_offset;
     std::vector<std::size_t> m_markers;
-    std::vector<std::size_t> m_checkpoints;
+
 public:
-    StackAllocator(const std::size_t totalSize);
+    explicit StackAllocator(std::size_t totalSize) noexcept;
+    virtual ~StackAllocator() noexcept;
 
-    virtual ~StackAllocator();
+    virtual void* Allocate(std::size_t size, std::size_t alignment = 0);
 
-    virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
+    virtual void Free(void* ptr);
 
-    virtual void Free(void* ptr) override;
+    virtual void Init();
 
-    virtual void Init() override;
-
-    virtual void Reset();
-    std::size_t Push();
-    void Pop(const std::size_t marker);
-private:
-    StackAllocator(StackAllocator &stackAllocator);
-
+    void Reset() noexcept;
+    void Pop(std::size_t marker) noexcept;
 };
 
 #endif /* STACKALLOCATOR_H */

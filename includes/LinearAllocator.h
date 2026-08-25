@@ -5,22 +5,20 @@
 
 class LinearAllocator : public Allocator {
 protected:
-	void* m_start_ptr = nullptr;
-	std::size_t m_offset;
+    void* m_start_ptr;
+    std::size_t m_offset;
+
 public:
-	LinearAllocator(const std::size_t totalSize);
+    explicit LinearAllocator(std::size_t totalSize) noexcept;
+    virtual ~LinearAllocator() noexcept;
 
-	virtual ~LinearAllocator();
+    virtual void* Allocate(std::size_t size, std::size_t alignment = 0);
 
-	virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
-	
-	virtual void Free(void* ptr) override;
+    virtual void Free(void* ptr);
 
-	virtual void Init() override;
-
-	virtual void Reset();
-private:
-	LinearAllocator(LinearAllocator &linearAllocator);
+    virtual void Init();
+    
+    void Reset() noexcept;
 };
 
 #endif /* LINEARALLOCATOR_H */

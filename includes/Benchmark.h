@@ -1,73 +1,59 @@
 #ifndef BENCHMARK_H
 #define BENCHMARK_H
 
-#include <time.h> // timespec
-#include <cstddef> // std::size_t
 #include <chrono>
-#include <ratio>
+#include <cstddef> // std::size_t
+#include <random>
 #include <vector>
 
 #include "Allocator.h" // base class allocator
 #include "IO.h"
 
-#if 0
-#define OPERATIONS (m_nOperations)
-#else
-#define OPERATIONS (10)
-#endif
-
 struct BenchmarkResults
 {
-	std::size_t Operations;
-	std::chrono::milliseconds Milliseconds;
-	double OperationsPerSec;
-	double TimePerOperation;
+    std::size_t Operations;
+    std::chrono::nanoseconds Nanoseconds;
+    double OperationsPerSec;
+    double TimePerOperation;
     std::size_t MemoryPeak;
 };
 
 class Benchmark {
 public:
     Benchmark() = delete;
+    explicit Benchmark(unsigned int nOperations) noexcept;
 
-    Benchmark(const unsigned int nOperations) : m_nOperations { nOperations } { }
+    void SingleAllocation(Allocator* allocator, std::size_t size, std::size_t alignment);
+    void SingleFree(Allocator* allocator, std::size_t size, std::size_t alignment);
 
-	void SingleAllocation(Allocator* allocator, const std::size_t size, const std::size_t alignment);
-	void SingleFree(Allocator* allocator, const std::size_t size, const std::size_t alignment);
+    void MultipleAllocation(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
+    void MultipleFree(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
 
-	void MultipleAllocation(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
-	void MultipleFree(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
-
-	void RandomAllocation(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
-	void RandomFree(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
+    void RandomAllocation(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
+    void RandomFree(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments);
 
 private:
-	void PrintResults(const BenchmarkResults& results) const;
+    void PrintResults(const BenchmarkResults& results) const;
 
-	void RandomAllocationAttr(const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments, std::size_t & size, std::size_t & alignment);
+    void RandomAllocationAttr(const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments, std::size_t& size, std::size_t& alignment) noexcept;
 
-	const BenchmarkResults buildResults(std::size_t nOperations, std::chrono::milliseconds&& ellapsedTime, const std::size_t memoryUsed) const;
-    
-    void SetStartTime() noexcept { Start = std::chrono::high_resolution_clock::now(); }
+    BenchmarkResults BuildResults(std::size_t nOperations, std::chrono::nanoseconds elapsedTime, std::size_t memoryPeak) const noexcept;
 
-    void SetFinishTime() noexcept { Finish = std::chrono::high_resolution_clock::now(); }
-
-    void SetElapsedTime() noexcept { TimeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(Finish - Start); }
-
-    void StartRound() noexcept { SetStartTime(); }
-
-    void FinishRound() noexcept
-    {
-        SetFinishTime();
-        SetElapsedTime();
+    void StartRound() noexcept  {
+        m_start = std::chrono::high_resolution_clock::now();
     }
 
-private:
-	std::size_t m_nOperations;
+    void FinishRound() noexcept {
+        m_finish = std::chrono::high_resolution_clock::now();
+        m_elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(m_finish - m_start);
+    }
 
-    std::chrono::time_point<std::chrono::high_resolution_clock> Start;
-    std::chrono::time_point<std::chrono::high_resolution_clock> Finish;
+    unsigned int m_nOperations;
+    std::mt19937 m_rng;
 
-    std::chrono::milliseconds TimeElapsed;
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_start;
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_finish;
+    std::chrono::nanoseconds m_elapsed;
 };
 
 #endif /* BENCHMARK_H */

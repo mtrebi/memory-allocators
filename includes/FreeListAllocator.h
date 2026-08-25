@@ -6,7 +6,7 @@
 
 class FreeListAllocator : public Allocator {
 public:
-    enum PlacementPolicy {
+    enum class PlacementPolicy {
         FIND_FIRST,
         FIND_BEST
     };
@@ -17,37 +17,33 @@ private:
     };
     struct AllocationHeader {
         std::size_t blockSize;
-        char padding;
+        std::size_t padding;
     };
-    
+
     typedef SinglyLinkedList<FreeHeader>::Node Node;
 
-    
-    void* m_start_ptr = nullptr;
+    void* m_start_ptr;
     PlacementPolicy m_pPolicy;
     SinglyLinkedList<FreeHeader> m_freeList;
 
 public:
-    FreeListAllocator(const std::size_t totalSize, const PlacementPolicy pPolicy);
+    FreeListAllocator(std::size_t totalSize, PlacementPolicy pPolicy) noexcept;
+    virtual ~FreeListAllocator() noexcept;
 
-    virtual ~FreeListAllocator();
+    virtual void* Allocate(std::size_t size, std::size_t alignment = 0);
 
-    virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
+    virtual void Free(void* ptr);
 
-    virtual void Free(void* ptr) override;
+    virtual void Init();
 
-    virtual void Init() override;
+    void Reset() noexcept;
 
-    virtual void Reset();
 private:
-    FreeListAllocator(FreeListAllocator &freeListAllocator);
+    void Coalescence(Node* prevBlock, Node* freeBlock) noexcept;
 
-    void Coalescence(Node* prevBlock, Node * freeBlock);
-
-    void Find(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode);
-    void FindBest(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode);
-    void FindFirst(const std::size_t size, const std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode);
+    void Find(std::size_t size, std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode) noexcept;
+    void FindFirst(std::size_t size, std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode) noexcept;
+    void FindBest(std::size_t size, std::size_t alignment, std::size_t& padding, Node*& previousNode, Node*& foundNode) noexcept;
 };
 
 #endif /* FREELISTALLOCATOR_H */
-

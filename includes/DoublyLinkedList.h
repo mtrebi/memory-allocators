@@ -1,6 +1,8 @@
 #ifndef DOUBLYLINKEDLIST_H
 #define DOUBLYLINKEDLIST_H
 
+#include <cstddef>
+
 template <class T>
 class DoublyLinkedList {
 public:
@@ -10,16 +12,16 @@ public:
         Node* next;
     };
     Node* head;
-public:
-    DoublyLinkedList();
 
-    void insert(Node* previousNode, Node* newNode);
-    void remove(Node* deleteNode);
-private:
-    DoublyLinkedList(DoublyLinkedList &doublyLinkedList);
+    DoublyLinkedList() : head(NULL) {}
+
+    DoublyLinkedList(const DoublyLinkedList&) = delete;
+    DoublyLinkedList& operator=(const DoublyLinkedList&) = delete;
+
+    void insert(Node* previousNode, Node* newNode) noexcept;
+    void remove(Node* deleteNode) noexcept;
 };
 
 #include "DoublyLinkedListImpl.h"
 
 #endif /* DOUBLYLINKEDLIST_H */
-

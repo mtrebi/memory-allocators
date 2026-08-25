@@ -1,170 +1,135 @@
-
 #include "Benchmark.h"
 #include <iostream>
-#include <stdlib.h>     /* srand, rand */
 #include <cassert>
+
+Benchmark::Benchmark(const unsigned int nOperations) noexcept : m_nOperations(nOperations), m_rng(42), m_elapsed(0) {}
 
 void Benchmark::SingleAllocation(Allocator* allocator, const std::size_t size, const std::size_t alignment) {
     std::cout << "BENCHMARK: ALLOCATION" << IO::endl;
-    std::cout << "\tSize:     \t" << size << IO::endl;
-    std::cout << "\tAlignment\t" << alignment << IO::endl;
-
-    StartRound();
+    std::cout << "\tSize:      \t" << size << IO::endl;
+    std::cout << "\tAlignment: \t" << alignment << IO::endl;
 
     allocator->Init();
+    StartRound();
 
-    auto operations = 0u;
-
-    while (operations < m_nOperations) {
+    for (unsigned int i = 0; i < m_nOperations; ++i)
         allocator->Allocate(size, alignment);
-        ++operations;
-    }
-    
+
     FinishRound();
-
-    BenchmarkResults results = buildResults(m_nOperations, std::move(TimeElapsed), allocator->m_peak);
-
-    PrintResults(results);
+    PrintResults(BuildResults(m_nOperations, m_elapsed, allocator->m_peak));
 }
 
 void Benchmark::SingleFree(Allocator* allocator, const std::size_t size, const std::size_t alignment) {
     std::cout << "BENCHMARK: ALLOCATION/FREE" << IO::endl;
-    std::cout << "\tSize:     \t" << size << IO::endl;
-    std::cout << "\tAlignment\t" << alignment << IO::endl;
+    std::cout << "\tSize:      \t" << size << IO::endl;
+    std::cout << "\tAlignment: \t" << alignment << IO::endl;
 
-    // BUG: (https://github.com/mtrebi/memory-allocators/issues/6)
-    // void* addresses[m_nOperations];
-    void* addresses[OPERATIONS];
-
-    StartRound();
+    std::vector<void*> addresses(m_nOperations);
 
     allocator->Init();
+    StartRound();
 
-    auto operations = 0u;
+    for (unsigned int i = 0; i < m_nOperations; ++i)
+        addresses[i] = allocator->Allocate(size, alignment);
 
-    while (operations < m_nOperations) {
-        addresses[operations] = allocator->Allocate(size, alignment);
-        ++operations;
-    }
-
-    while (operations) {
-        allocator->Free(addresses[--operations]);
-    }
+    for (unsigned int i = m_nOperations; i > 0; --i)
+        allocator->Free(addresses[i - 1]);
 
     FinishRound();
-
-    BenchmarkResults results = buildResults(m_nOperations, std::move(TimeElapsed), allocator->m_peak);
-
-    PrintResults(results);
+    PrintResults(BuildResults(m_nOperations, m_elapsed, allocator->m_peak));
 }
 
 void Benchmark::MultipleAllocation(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments) {
-    assert(allocationSizes.size() == alignments.size() && "Allocation sizes and Alignments must have same length");
+    assert(allocationSizes.size() == alignments.size() && "Allocation sizes and alignments must have the same length");
 
-    for (auto i = 0u; i < allocationSizes.size(); ++i) {
+    for (std::size_t i = 0; i < allocationSizes.size(); ++i) {
         SingleAllocation(allocator, allocationSizes[i], alignments[i]);
     }
 }
 
 void Benchmark::MultipleFree(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments) {
-    assert(allocationSizes.size() == alignments.size() && "Allocation sizes and Alignments must have same length");
+    assert(allocationSizes.size() == alignments.size() && "Allocation sizes and alignments must have the same length");
 
-    for (auto i = 0u; i < allocationSizes.size(); ++i) {
+    for (std::size_t i = 0; i < allocationSizes.size(); ++i) {
         SingleFree(allocator, allocationSizes[i], alignments[i]);
     }
 }
 
 void Benchmark::RandomAllocation(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments) {
-    
-    // NOTE: Is this actually initializing the RNG? Jose Fernando Lopez Fernandez 11/07/2018 @ 12:54am (UTC)
-    srand(1);
+    std::cout << "\tBENCHMARK: RANDOM ALLOCATION" << IO::endl;
 
-    std::cout << "\tBENCHMARK: ALLOCATION" << IO::endl;
-
+    allocator->Init();
     StartRound();
 
     std::size_t allocation_size;
     std::size_t alignment;
 
-    allocator->Init();
+    for (unsigned int i = 0; i < m_nOperations; ++i) {
+        RandomAllocationAttr(allocationSizes, alignments, allocation_size, alignment);
 
-    auto operations = 0u;
-
-    while (operations < m_nOperations) {
-        this->RandomAllocationAttr(allocationSizes, alignments, allocation_size, alignment);
         allocator->Allocate(allocation_size, alignment);
-        ++operations;
     }
-    
-    FinishRound();
 
-    BenchmarkResults results = buildResults(m_nOperations, std::move(TimeElapsed), allocator->m_peak);
-    
-    PrintResults(results);
+    FinishRound();
+    PrintResults(BuildResults(m_nOperations, m_elapsed, allocator->m_peak));
 }
 
 void Benchmark::RandomFree(Allocator* allocator, const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments) {
-    
-    // NOTE: Is this actually initializing the RNG? Jose Fernando Lopez Fernandez 11/07/2018 @ 1:51am (UTC)
-    srand(1);
+    std::cout << "\tBENCHMARK: RANDOM ALLOCATION/FREE" << IO::endl;
 
-    std::cout << "\tBENCHMARK: ALLOCATION/FREE" << IO::endl;
-
-    StartRound();
-
-    void* addresses[OPERATIONS];
-
+    std::vector<void*> addresses(m_nOperations);
     std::size_t allocation_size;
     std::size_t alignment;
 
     allocator->Init();
+    StartRound();
 
-    auto operations = 0u;
+    for (unsigned int i = 0; i < m_nOperations; ++i) {
+        RandomAllocationAttr(allocationSizes, alignments, allocation_size, alignment);
 
-    while (operations < m_nOperations) {
-        this->RandomAllocationAttr(allocationSizes, alignments, allocation_size, alignment);
-        addresses[operations] = allocator->Allocate(allocation_size, alignment);
-        ++operations;
+        addresses[i] = allocator->Allocate(allocation_size, alignment);
     }
 
-    while (operations) {
-        allocator->Free(addresses[--operations]);
-    }
+    for (unsigned int i = m_nOperations; i > 0; --i)
+        allocator->Free(addresses[i - 1]);
 
     FinishRound();
-
-    BenchmarkResults results = buildResults(m_nOperations, std::move(TimeElapsed), allocator->m_peak);
-
-    PrintResults(results);
-
+    PrintResults(BuildResults(m_nOperations, m_elapsed, allocator->m_peak));
 }
 
 void Benchmark::PrintResults(const BenchmarkResults& results) const {
+    const double ns = static_cast<double>(results.Nanoseconds.count());
+
     std::cout << "\tRESULTS:" << IO::endl;
     std::cout << "\t\tOperations:    \t" << results.Operations << IO::endl;
-    std::cout << "\t\tTime elapsed: \t" << results.Milliseconds.count() << " ms" << IO::endl;
-    std::cout << "\t\tOp per sec:    \t" << results.OperationsPerSec << " ops/ms" << IO::endl;
-    std::cout << "\t\tTimer per op:  \t" << results.TimePerOperation << " ms/ops" << IO::endl;
+    std::cout << "\t\tTime elapsed: \t" << ns / 1e6 << " ms" << IO::endl;
+    std::cout << "\t\tOp per sec:    \t" << results.OperationsPerSec << " ops/ns" << IO::endl;
+    std::cout << "\t\tTime per op:   \t" << results.TimePerOperation << " ns/op" << IO::endl;
     std::cout << "\t\tMemory peak:   \t" << results.MemoryPeak << " bytes" << IO::endl;
 
     std::cout << IO::endl;
 }
 
-const BenchmarkResults Benchmark::buildResults(std::size_t nOperations, std::chrono::milliseconds&& elapsedTime, const std::size_t memoryPeak) const {
+BenchmarkResults Benchmark::BuildResults(const std::size_t nOperations, const std::chrono::nanoseconds elapsedTime, const std::size_t memoryPeak) const noexcept {
     BenchmarkResults results;
 
     results.Operations = nOperations;
-    results.Milliseconds = std::move(elapsedTime);
-    results.OperationsPerSec = results.Operations / static_cast<double>(results.Milliseconds.count());
-    results.TimePerOperation = static_cast<double>(results.Milliseconds.count()) / static_cast<double>(results.Operations);
+    results.Nanoseconds = elapsedTime;
+
+    const double ns = static_cast<double>(elapsedTime.count());
+
+    results.OperationsPerSec = ns > 0.0 ? static_cast<double>(nOperations) / ns : 0.0;
+    results.TimePerOperation = ns > 0.0 ? ns / static_cast<double>(nOperations) : 0.0;
     results.MemoryPeak = memoryPeak;
 
     return results;
 }
 
-void Benchmark::RandomAllocationAttr(const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments, std::size_t & size, std::size_t & alignment) {
-    const int r = rand() % allocationSizes.size();
-    size = allocationSizes[r];
-    alignment = alignments[r];
-}
+void Benchmark::RandomAllocationAttr(const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments, std::size_t& size, std::size_t& alignment) noexcept {
+    std::uniform_int_distribution<std::size_t> dist(0, allocationSizes.size() - 1);
 
+    const std::size_t idx = dist(m_rng);
+
+    size = allocationSizes[idx];
+    alignment = alignments[idx];
+}
