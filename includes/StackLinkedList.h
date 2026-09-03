@@ -9,7 +9,7 @@ public:
         Node* next;
     };
     
-    Node* head;
+    Node* head = nullptr;
 public:
     StackLinkedList() = default;
     StackLinkedList(StackLinkedList &stackLinkedList) = delete;
