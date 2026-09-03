@@ -57,7 +57,7 @@ int main()
     delete stackAllocator;
     delete poolAllocator;
     
-    return 1;
+    return 0;
 }
 
 
