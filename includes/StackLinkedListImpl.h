@@ -8,6 +8,10 @@ void StackLinkedList<T>::push(Node * newNode) {
 
 template <class T>
 typename StackLinkedList<T>::Node* StackLinkedList<T>::pop() {
+    if (head == nullptr) {
+        return nullptr;
+    }
+
     Node * top = head;
     head = head->next;
     return top;
