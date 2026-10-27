@@ -1,28 +1,23 @@
 #ifndef BENCHMARK_H
 #define BENCHMARK_H
 
-#include <time.h> // timespec
 #include <cstddef> // std::size_t
 #include <chrono>
-#include <ratio>
 #include <vector>
 
 #include "Allocator.h" // base class allocator
 #include "IO.h"
 
-#if 0
-#define OPERATIONS (m_nOperations)
-#else
-#define OPERATIONS (10)
-#endif
-
 struct BenchmarkResults
 {
 	std::size_t Operations;
-	std::chrono::milliseconds Milliseconds;
+	// D-12: 原实现用 std::chrono::milliseconds 计时。单次分配只有几十纳秒，
+	// 10 次操作合计不足 1 ms，duration_cast 后恒为 0，随后 "Operations / 0"
+	// 得到 inf，基准数据完全失去意义。改用纳秒。
+	std::chrono::nanoseconds Nanoseconds;
 	double OperationsPerSec;
-	double TimePerOperation;
-    std::size_t MemoryPeak;
+	double NanosecondsPerOperation;
+	std::size_t MemoryPeak;
 };
 
 class Benchmark {
@@ -45,13 +40,13 @@ private:
 
 	void RandomAllocationAttr(const std::vector<std::size_t>& allocationSizes, const std::vector<std::size_t>& alignments, std::size_t & size, std::size_t & alignment);
 
-	const BenchmarkResults buildResults(std::size_t nOperations, std::chrono::milliseconds&& ellapsedTime, const std::size_t memoryUsed) const;
+	const BenchmarkResults buildResults(std::size_t nOperations, std::chrono::nanoseconds&& elapsedTime, const std::size_t memoryPeak) const;
     
     void SetStartTime() noexcept { Start = std::chrono::high_resolution_clock::now(); }
 
     void SetFinishTime() noexcept { Finish = std::chrono::high_resolution_clock::now(); }
 
-    void SetElapsedTime() noexcept { TimeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(Finish - Start); }
+    void SetElapsedTime() noexcept { TimeElapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(Finish - Start); }
 
     void StartRound() noexcept { SetStartTime(); }
 
@@ -67,7 +62,7 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> Start;
     std::chrono::time_point<std::chrono::high_resolution_clock> Finish;
 
-    std::chrono::milliseconds TimeElapsed;
+    std::chrono::nanoseconds TimeElapsed;
 };
 
 #endif /* BENCHMARK_H */

@@ -10,6 +10,11 @@
 #include "PoolAllocator.h"
 #include "FreeListAllocator.h"
 
+// D-15: 原实现依赖 Benchmark.h 里 "OPERATIONS" 宏（硬编码 10），
+// 既污染全局命名空间，又与 Benchmark 构造参数语义重复。
+// 改为显式常量。
+static const unsigned int kOperations = 1000;
+
 int main()
 {
     const std::size_t A = static_cast<std::size_t>(1e9);
@@ -21,10 +26,11 @@ int main()
     Allocator * cAllocator = new CAllocator();
     Allocator * linearAllocator = new LinearAllocator(A);
     Allocator * stackAllocator = new StackAllocator(A);
+    // 池分配器的 chunkSize 会被向上对齐到 alignof(std::max_align_t)
     Allocator * poolAllocator = new PoolAllocator(16777216, 4096);
     Allocator * freeListAllocator = new FreeListAllocator(B, FreeListAllocator::PlacementPolicy::FIND_FIRST);
 
-    Benchmark benchmark(OPERATIONS);
+    Benchmark benchmark(kOperations);
 
     std::cout << "C" << std::endl;
     benchmark.MultipleAllocation(cAllocator, ALLOCATION_SIZES, ALIGNMENTS);
@@ -33,6 +39,7 @@ int main()
     benchmark.RandomFree(cAllocator, ALLOCATION_SIZES, ALIGNMENTS); 
 
     std::cout << "LINEAR" << std::endl;
+    // 线性分配器不支持单次释放（IsFreeable() == false），只测分配
     benchmark.MultipleAllocation(linearAllocator, ALLOCATION_SIZES, ALIGNMENTS);
     benchmark.RandomAllocation(linearAllocator, ALLOCATION_SIZES, ALIGNMENTS);
 
@@ -56,10 +63,9 @@ int main()
     delete linearAllocator;
     delete stackAllocator;
     delete poolAllocator;
+    // D-18: 原实现漏掉这一行。FreeListAllocator 析构函数会 free 内部
+    // 申请的池内存，不 delete 就是一处确定的泄漏。
+    delete freeListAllocator;
     
     return 0;
 }
-
-
-
-
