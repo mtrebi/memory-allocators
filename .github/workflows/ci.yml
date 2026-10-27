@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # 多工具链构建 + 全量测试。
+  # 本地开发环境只有 MinGW g++ 8.1，MSVC / Clang / macOS 从未验证过，
+  # 这里补齐 —— 这是"未覆盖工具链"这一项唯一能自动化解决的方式。
+  build-and-test:
+    name: ${{ matrix.os }} / ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest,  label: gcc,   cc: gcc,   cxx: g++ }
+          - { os: ubuntu-latest,  label: clang, cc: clang, cxx: clang++ }
+          - { os: macos-latest,   label: clang, cc: clang, cxx: clang++ }
+          - { os: windows-latest, label: msvc,  cc: "",    cxx: "" }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure (Unix)
+        if: runner.os != 'Windows'
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_COMPILER=${{ matrix.cc }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+
+      - name: Configure (Windows / MSVC)
+        if: runner.os == 'Windows'
+        run: cmake -S . -B build
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      # 基准程序也跑一次，确认它能正常结束、不输出 inf/nan
+      - name: Benchmark smoke test
+        if: runner.os != 'Windows'
+        run: |
+          ./build/main > bench.log 2>&1
+          echo "exit=$?"
+          if grep -qiE '(^|[^a-z])(inf|nan)([^a-z]|$)' bench.log; then
+            echo "::error::benchmark produced inf/nan"
+            exit 1
+          fi
+          grep -c 'Op per sec' bench.log
+
+  # 本地 MinGW 无 libasan，越界写只能靠用例覆盖。这里用 Linux + ASAN/UBSAN
+  # 做真正的自动越界检测 —— 这是计划书 §2.3 里登记的工具缺口。
+  sanitizers:
+    name: asan+ubsan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -g"
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        env:
+          # 让 ASAN 在检测到问题时以非零码退出（默认行为），并保留完整报告
+          ASAN_OPTIONS: detect_leaks=1:abort_on_error=0
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Benchmark under ASAN
+        env:
+          ASAN_OPTIONS: detect_leaks=1
+          UBSAN_OPTIONS: print_stacktrace=1
+        run: ./build/main > /dev/null
