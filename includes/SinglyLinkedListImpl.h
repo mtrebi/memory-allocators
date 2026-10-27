@@ -1,9 +1,10 @@
+// D-38: 本文件是 SinglyLinkedList.h 的实现片段，只供其包含，不应单独包含。
+// 它没有 include guard —— 重复保护由父头文件提供。
+
 #include "SinglyLinkedList.h"
 
-template <class T>
-SinglyLinkedList<T>::SinglyLinkedList(){
-    
-}
+// D-03: 原实现为空函数体，head 从未被赋值。现由类内成员初始化器
+// 与 "= default" 承担，此处不再定义构造函数，避免重复定义。
 
 template <class T>
 void SinglyLinkedList<T>::insert(Node* previousNode, Node* newNode){
