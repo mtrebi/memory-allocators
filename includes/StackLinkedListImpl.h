@@ -1,3 +1,6 @@
+// D-38: 本文件是 StackLinkedList.h 的实现片段，只供其包含，不应单独包含。
+// 它没有 include guard —— 重复保护由父头文件提供。
+
 #include "StackLinkedList.h"
 
 template <class T>
